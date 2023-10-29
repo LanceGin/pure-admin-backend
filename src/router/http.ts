@@ -16,7 +16,7 @@ const utils = require("@pureadmin/utils");
 let generateVerify: number;
 
 /** 过期时间 单位：毫秒 默认 1分钟过期，方便演示 */
-let expiresIn = 60000;
+let expiresIn = 60000000000;
 
 /**
  * @typedef Error
@@ -56,16 +56,9 @@ let expiresIn = 60000;
  */
 
 const login = async (req: Request, res: Response) => {
-  // const { username, password, verify } = req.body;
-  // if (generateVerify !== verify) return res.json({
-  //   success: false,
-  // data: {
-  //   message: Message[0];
-  // }
-  // })
   const { username, password } = req.body;
   let sql: string =
-    "select * from users where username=" + "'" + username + "'";
+    "select * from base_company_user where name=" + "'" + username + "'";
   connection.query(sql, async function (err, data: any) {
     if (data.length == 0) {
       await res.json({
@@ -74,7 +67,8 @@ const login = async (req: Request, res: Response) => {
       });
     } else {
       if (
-        createHash("md5").update(password).digest("hex") == data[0].password
+        // createHash("md5").update(password).digest("hex") == data[0].Password
+        password == data[0].mima
       ) {
         const accessToken = jwt.sign(
           {
@@ -83,127 +77,130 @@ const login = async (req: Request, res: Response) => {
           secret.jwtSecret,
           { expiresIn }
         );
-        if (username === "admin") {
-          await res.json({
-            success: true,
-            data: {
-              message: Message[2],
-              username,
-              // 这里模拟角色，根据自己需求修改
-              roles: ["admin"],
-              accessToken,
-              // 这里模拟刷新token，根据自己需求修改
-              refreshToken: "eyJhbGciOiJIUzUxMiJ9.adminRefresh",
-              expires: new Date(new Date()).getTime() + expiresIn,
-              // 这个标识是真实后端返回的接口，只是为了演示
-              pureAdminBackend:
-                "这个标识是pure-admin-backend真实后端返回的接口，只是为了演示",
-            },
-          });
-        } else {
-          await res.json({
-            success: true,
-            data: {
-              message: Message[2],
-              username,
-              // 这里模拟角色，根据自己需求修改
-              roles: ["common"],
-              accessToken,
-              // 这里模拟刷新token，根据自己需求修改
-              refreshToken: "eyJhbGciOiJIUzUxMiJ9.adminRefresh",
-              expires: new Date(new Date()).getTime() + expiresIn,
-              // 这个标识是真实后端返回的接口，只是为了演示
-              pureAdminBackend:
-                "这个标识是pure-admin-backend真实后端返回的接口，只是为了演示",
-            },
-          });
-        }
+        await res.json({
+          success: true,
+          data: {
+            message: Message[2],
+            username: data[0].name,
+            // 这里模拟角色，根据自己需求修改
+            roles: ["common"],
+            accessToken: accessToken,
+            // 这里模拟刷新token，根据自己需求修改
+            refreshToken: "eyJhbGciOiJIUzUxMiJ9.adminRefresh",
+            expires: new Date(new Date()).getTime() + expiresIn,
+          },
+        });
       } else {
         await res.json({
           success: false,
-          data: { message: Message[3] },
+          data: data[0].name,
         });
       }
     }
   });
 };
 
-// /**
-//  * @typedef Register
-//  * @property {string} username.required - 用户名
-//  * @property {string} password.required - 密码
-//  * @property {integer} verify.required - 验证码
-//  */
-/**
- * @typedef Register
- * @property {string} username.required - 用户名
- * @property {string} password.required - 密码
- */
-
-/**
- * @route POST /register
- * @param {Register.model} point.body.required - the new point
- * @produces application/json application/xml
- * @consumes application/json application/xml
- * @summary 注册
- * @group 用户登录、注册相关
- * @returns {Response.model} 200
- * @returns {Array.<Register>} Register
- * @headers {integer} 200.X-Rate-Limit
- * @headers {string} 200.X-Expires-After
- * @security JWT
- */
-
-const register = async (req: Request, res: Response) => {
-  // const { username, password, verify } = req.body;
-  const { username, password } = req.body;
-  // if (generateVerify !== verify)
-  //   return res.json({
-  //     success: false,
-  //     data: { message: Message[0] },
-  //   });
-  if (password.length < 6)
-    return res.json({
-      success: false,
-      data: { message: Message[4] },
-    });
-  let sql: string =
-    "select * from users where username=" + "'" + username + "'";
-  connection.query(sql, async (err, data: any) => {
-    if (data.length > 0) {
-      await res.json({
-        success: false,
-        data: { message: Message[5] },
-      });
+// 获取用户列表
+const userList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from base_company_user where realname is not null";
+  if (form.realname != "") { sql += " and realname = " + "'" + form.realname + "'" }
+  if (form.mobile != "") { sql += " and mobile = " + "'" + form.mobile + "'" }
+  if (form.zhuangtai != "") { sql += " and zhuangtai = " + "'" + form.zhuangtai + "'" }
+  sql +=" limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from base_company_user where realname is not null"
+  if (form.realname != "") { sql += " and realname = " + "'" + form.realname + "'" }
+  if (form.mobile != "") { sql += " and mobile = " + "'" + form.mobile + "'" }
+  if (form.zhuangtai != "") { sql += " and zhuangtai = " + "'" + form.zhuangtai + "'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
     } else {
-      let time = await getFormatDate();
-      let sql: string =
-        "insert into users (username,password,time) value(" +
-        "'" +
-        username +
-        "'" +
-        "," +
-        "'" +
-        createHash("md5").update(password).digest("hex") +
-        "'" +
-        "," +
-        "'" +
-        time +
-        "'" +
-        ")";
-      connection.query(sql, async function (err) {
-        if (err) {
-          Logger.error(err);
-        } else {
-          await res.json({
-            success: true,
-            data: { message: Message[6] },
-          });
-        }
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
       });
     }
   });
 };
+
+// 新增用户
+const addUser = async (req: Request, res: Response) => {
+  const {
+    name,
+    realname,
+    mobile,
+    email,
+    department,
+    mima,
+    shenfenzheng,
+    zhuzhi,
+    zhuangtai
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into base_company_user (name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, zhuangtai) values ('${name}', '${realname}', '${mobile}', '${email}', '${department}', '${mima}', '${shenfenzheng}', '${zhuzhi}', '${zhuangtai}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 删除用户
+const deleteUser = async (req: Request, res: Response) => {
+  const realname = req.body.realname;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from base_company_user where realname = '${realname}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
 
 /**
  * @typedef UpdateList
@@ -460,7 +457,9 @@ const captcha = async (req: Request, res: Response) => {
 
 export {
   login,
-  register,
+  userList,
+  addUser,
+  deleteUser,
   updateList,
   deleteList,
   searchPage,

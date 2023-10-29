@@ -9,11 +9,13 @@ import { queryTable } from "./utils/mysql";
 const expressSwagger = require("express-swagger-generator")(app);
 expressSwagger(config.options);
 
-queryTable(user);
+// queryTable(user);
 
 import {
   login,
-  register,
+  userList,
+  addUser,
+  deleteUser,
   updateList,
   deleteList,
   searchPage,
@@ -26,9 +28,17 @@ app.post("/login", (req, res) => {
   login(req, res);
 });
 
-app.post("/register", (req, res) => {
-  register(req, res);
-});
+app.post("/userList", (req, res) => {
+  userList(req, res);
+})
+
+app.post("/addUser", (req, res) => {
+  addUser(req, res);
+})
+
+app.post("/deleteUser", (req, res) => {
+  deleteUser(req, res);
+})
 
 app.put("/updateList/:id", (req, res) => {
   updateList(req, res);
