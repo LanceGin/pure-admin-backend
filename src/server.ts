@@ -16,6 +16,7 @@ import {
   userList,
   addUser,
   deleteUser,
+  editUser,
   updateList,
   deleteList,
   searchPage,
@@ -38,6 +39,10 @@ app.post("/addUser", (req, res) => {
 
 app.post("/deleteUser", (req, res) => {
   deleteUser(req, res);
+})
+
+app.post("/editUser", (req, res) => {
+  editUser(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {

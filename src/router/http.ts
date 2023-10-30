@@ -9,6 +9,7 @@ import getFormatDate from "../utils/date";
 import { connection } from "../utils/mysql";
 import { Request, Response } from "express";
 import { createMathExpr } from "svg-captcha";
+import * as dayjs from "dayjs";
 
 const utils = require("@pureadmin/utils");
 
@@ -154,8 +155,10 @@ const addUser = async (req: Request, res: Response) => {
     mima,
     shenfenzheng,
     zhuzhi,
+    ruzhishijian,
     zhuangtai
   } = req.body;
+  const create_time = dayjs(new Date()).format("YYYY-MM-DD");
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -164,7 +167,7 @@ const addUser = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into base_company_user (name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, zhuangtai) values ('${name}', '${realname}', '${mobile}', '${email}', '${department}', '${mima}', '${shenfenzheng}', '${zhuzhi}', '${zhuangtai}')`;
+  let sql: string = `insert into base_company_user (name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, create_time) values ('${name}', '${realname}', '${mobile}', '${email}', '${department}', '${mima}', '${shenfenzheng}', '${zhuzhi}', '${ruzhishijian}', '${zhuangtai}', '${create_time}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -196,6 +199,43 @@ const deleteUser = async (req: Request, res: Response) => {
       await res.json({
         success: true,
         data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+
+// 编辑用户
+const editUser = async (req: Request, res: Response) => {
+  const {
+    name,
+    realname,
+    mobile,
+    email,
+    department,
+    mima,
+    shenfenzheng,
+    zhuzhi,
+    ruzhishijian,
+    zhuangtai
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE base_company_user SET name = ?, realname = ?, mobile = ?, email = ?, department = ?, mima = ?, shenfenzheng = ?, zhuzhi = ?, ruzhishijian = ?, zhuangtai = ? WHERE name = ?";
+  let modifyParams: string[] = [name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, name];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
       });
     }
   });
@@ -460,6 +500,7 @@ export {
   userList,
   addUser,
   deleteUser,
+  editUser,
   updateList,
   deleteList,
   searchPage,
