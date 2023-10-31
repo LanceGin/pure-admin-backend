@@ -18,6 +18,8 @@ import {
   deleteUser,
   editUser,
   wxClockList,
+  motorcadeList,
+  yardList,
   updateList,
   deleteList,
   searchPage,
@@ -48,6 +50,14 @@ app.post("/editUser", (req, res) => {
 
 app.post("/wxClockList", (req, res) => {
   wxClockList(req, res);
+})
+
+app.post("/motorcadeList", (req, res) => {
+  motorcadeList(req, res);
+})
+
+app.post("/yardList", (req, res) => {
+  yardList(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {
