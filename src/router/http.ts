@@ -241,6 +241,51 @@ const editUser = async (req: Request, res: Response) => {
   });
 };
 
+// 获取员工打卡信息
+const wxClockList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from wx_user_clock where userName is not null";
+  if (form.clock_date.length > 0) { sql += " and clock_date between " + "'" + form.clock_date[0] + "' and '" + form.clock_date[1] + "'" }
+  if (form.userName != "") { sql += " and userName = " + "'" + form.userName + "'" }
+  if (form.clockin_type != "") { sql += " and clockin_type = " + "'" + form.clockin_type + "'" }
+  if (form.clockout_type != "") { sql += " and clockout_type = " + "'" + form.clockout_type + "'" }
+  sql +=" order by clockin_time desc limit " + size + " offset " + size * (page - 1);
+  sql +=" ;select COUNT(*) from wx_user_clock where userName is not null"
+  if (form.clock_date.length > 0) { sql += " and clock_date between " + "'" + form.clock_date[0] + "' and '" + form.clock_date[1] + "'" }
+  if (form.userName != "") { sql += " and userName = " + "'" + form.userName + "'" }
+  if (form.clockin_type != "") { sql += " and clockin_type = " + "'" + form.clockin_type + "'" }
+  if (form.clockout_type != "") { sql += " and clockout_type = " + "'" + form.clockout_type + "'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
 
 /**
  * @typedef UpdateList
@@ -501,6 +546,7 @@ export {
   addUser,
   deleteUser,
   editUser,
+  wxClockList,
   updateList,
   deleteList,
   searchPage,

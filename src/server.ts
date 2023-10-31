@@ -17,6 +17,7 @@ import {
   addUser,
   deleteUser,
   editUser,
+  wxClockList,
   updateList,
   deleteList,
   searchPage,
@@ -43,6 +44,10 @@ app.post("/deleteUser", (req, res) => {
 
 app.post("/editUser", (req, res) => {
   editUser(req, res);
+})
+
+app.post("/wxClockList", (req, res) => {
+  wxClockList(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {
