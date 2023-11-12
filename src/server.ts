@@ -26,6 +26,10 @@ import {
   addYard,
   deleteYard,
   editYard,
+  feeCollectionList,
+  addFeeCollection,
+  deleteFeeCollection,
+  editFeeCollection,
   updateList,
   deleteList,
   searchPage,
@@ -105,6 +109,26 @@ app.post("/deleteYard", (req, res) => {
 // 运作管理 - 编辑堆场接口
 app.post("/editYard", (req, res) => {
   editYard(req, res);
+})
+
+// 运作管理 - 代收费用列表接口
+app.post("/feeCollectionList", (req, res) => {
+  feeCollectionList(req, res);
+})
+
+// 运作管理 - 添加代收费用接口
+app.post("/addFeeCollection", (req, res) => {
+  addFeeCollection(req, res);
+})
+
+// 运作管理 - 删除代收费用接口
+app.post("/deleteFeeCollection", (req, res) => {
+  deleteFeeCollection(req, res);
+})
+
+// 运作管理 - 编辑代收费用接口
+app.post("/editFeeCollection", (req, res) => {
+  editFeeCollection(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {

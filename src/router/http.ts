@@ -566,6 +566,158 @@ const editYard = async (req: Request, res: Response) => {
   });
 };
 
+// 获取代收费用列表
+const feeCollectionList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from tb_fleet_other_price where costName is not null";
+  if (form.costName != "") { sql += " and costName like " + "'%" + form.costName + "%'" }
+  if (form.accountCompanyType != "") { sql += " and accountCompanyType like " + "'%" + form.accountCompanyType + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from tb_fleet_other_price where costName is not null"
+  if (form.costName != "") { sql += " and costName like " + "'%" + form.costName + "%'" }
+  if (form.accountCompanyType != "") { sql += " and accountCompanyType like " + "'%" + form.accountCompanyType + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增代收费用
+const addFeeCollection = async (req: Request, res: Response) => {
+  const {
+    shipCompany,
+    fleet_customer_id,
+    fleetCompanyId,
+    project,
+    costType,
+    isStart,
+    costName,
+    costCode,
+    accountCompanyType,
+    price_gp20,
+    price_tk20,
+    price_gp40,
+    price_tk40,
+    price_hc40,
+    price_ot40,
+    price_ot20,
+    price_fr40
+  } = req.body;
+  const hash_id = getRandomString(20);
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into tb_fleet_other_price (old_id,shipCompany,fleet_customer_id,fleetCompanyId,project,costType,isStart,costName,costCode,accountCompanyType,price_gp20,price_tk20,price_gp40,price_tk40,price_hc40,price_ot40,price_ot20,price_fr40) values ('${hash_id}','${shipCompany}','${fleet_customer_id}','${fleetCompanyId}','${project}','${costType}','${isStart}','${costName}','${costCode}','${accountCompanyType}','${price_gp20}','${price_tk20}','${price_gp40}','${price_tk40}','${price_hc40}','${price_ot40}','${price_ot20}','${price_fr40}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 删除堆场
+const deleteFeeCollection = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from tb_fleet_other_price where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+
+// 编辑堆场
+const editFeeCollection = async (req: Request, res: Response) => {
+  const {
+    id,
+    shipCompany,
+    fleet_customer_id,
+    fleetCompanyId,
+    project,
+    costType,
+    isStart,
+    costName,
+    costCode,
+    accountCompanyType,
+    price_gp20,
+    price_tk20,
+    price_gp40,
+    price_tk40,
+    price_hc40,
+    price_ot40,
+    price_ot20,
+    price_fr40
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE tb_fleet_other_price SET shipCompany = ?,fleet_customer_id = ?,fleetCompanyId = ?,project = ?,costType = ?,isStart = ?,costName = ?,costCode = ?,accountCompanyType = ?,price_gp20 = ?,price_tk20 = ?,price_gp40 = ?,price_tk40 = ?,price_hc40 = ?,price_ot40 = ?,price_ot20 = ?,price_fr40 = ? WHERE id = ?";
+  let modifyParams: string[] = [shipCompany,fleet_customer_id,fleetCompanyId,project,costType,isStart,costName,costCode,accountCompanyType,price_gp20,price_tk20,price_gp40,price_tk40,price_hc40,price_ot40,price_ot20,price_fr40, id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
 
 /**
  * @typedef UpdateList
@@ -835,6 +987,10 @@ export {
   addYard,
   deleteYard,
   editYard,
+  feeCollectionList,
+  addFeeCollection,
+  deleteFeeCollection,
+  editFeeCollection,
   updateList,
   deleteList,
   searchPage,
