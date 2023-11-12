@@ -23,6 +23,9 @@ import {
   deleteMotorcade,
   editMotorcade,
   yardList,
+  addYard,
+  deleteYard,
+  editYard,
   updateList,
   deleteList,
   searchPage,
@@ -84,8 +87,24 @@ app.post("/editMotorcade", (req, res) => {
   editMotorcade(req, res);
 })
 
+// 运作管理 - 堆场列表接口
 app.post("/yardList", (req, res) => {
   yardList(req, res);
+})
+
+// 运作管理 - 添加堆场接口
+app.post("/addYard", (req, res) => {
+  addYard(req, res);
+})
+
+// 运作管理 - 删除堆场接口
+app.post("/deleteYard", (req, res) => {
+  deleteYard(req, res);
+})
+
+// 运作管理 - 编辑堆场接口
+app.post("/editYard", (req, res) => {
+  editYard(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {

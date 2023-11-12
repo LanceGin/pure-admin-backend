@@ -439,8 +439,14 @@ const yardList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select * from base_fleet_yard where yard_name is not null";
-  sql +=" limit " + size + " offset " + size * (page - 1);
+  if (form.yard_name != "") { sql += " and yard_name like " + "'%" + form.yard_name + "%'" }
+  if (form.contacts_name != "") { sql += " and contacts_name like " + "'%" + form.contacts_name + "%'" }
+  if (form.is_dock != "") { sql += " and is_dock = " + "'" + form.is_dock + "'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from base_fleet_yard where yard_name is not null"
+  if (form.yard_name != "") { sql += " and yard_name like " + "'%" + form.yard_name + "%'" }
+  if (form.contacts_name != "") { sql += " and contacts_name like " + "'%" + form.contacts_name + "%'" }
+  if (form.is_dock != "") { sql += " and is_dock = " + "'" + form.is_dock + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -454,6 +460,107 @@ const yardList = async (req: Request, res: Response) => {
           pageSize: size,
           currentPage: page,
         },
+      });
+    }
+  });
+};
+
+// 新增堆场
+const addYard = async (req: Request, res: Response) => {
+  const {
+    is_dock,
+    yard_name,
+    port_name,
+    yard_adress,
+    contacts_name,
+    mobile,
+    remarks,
+    longitude,
+    latitude,
+    base_price_20,
+    base_price_40
+  } = req.body;
+  const hash_id = getRandomString(20);
+  const create_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into base_fleet_yard (old_id, is_dock,yard_name,port_name,yard_adress,contacts_name,mobile,remarks,longitude,latitude,base_price_20,base_price_40,create_time) values ('${hash_id}', '${is_dock}', '${yard_name}', '${port_name}', '${yard_adress}', '${contacts_name}', '${mobile}', '${remarks}', '${longitude}', '${latitude}', '${base_price_20}', '${base_price_40}','${create_time}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 删除堆场
+const deleteYard = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from base_fleet_yard where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+
+// 编辑堆场
+const editYard = async (req: Request, res: Response) => {
+  const {
+    id,
+    is_dock,
+    yard_name,
+    port_name,
+    yard_adress,
+    contacts_name,
+    mobile,
+    remarks,
+    longitude,
+    latitude,
+    base_price_20,
+    base_price_40
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE base_fleet_yard SET is_dock = ?, yard_name = ?, port_name = ?, yard_adress = ?, contacts_name = ?, mobile = ?, remarks = ?, longitude = ?, latitude = ?, base_price_20 = ?, base_price_40 = ? WHERE id = ?";
+  let modifyParams: string[] = [is_dock, yard_name, port_name, yard_adress, contacts_name, mobile, remarks, longitude, latitude, base_price_20, base_price_40, id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
       });
     }
   });
@@ -725,6 +832,9 @@ export {
   deleteMotorcade,
   editMotorcade,
   yardList,
+  addYard,
+  deleteYard,
+  editYard,
   updateList,
   deleteList,
   searchPage,
