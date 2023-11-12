@@ -7,6 +7,7 @@ import Logger from "../loaders/logger";
 import { Message } from "../utils/enums";
 import getFormatDate from "../utils/date";
 import { connection } from "../utils/mysql";
+import { getRandomString } from "../utils/utils";
 import { Request, Response } from "express";
 import { createMathExpr } from "svg-captcha";
 import * as dayjs from "dayjs";
@@ -304,8 +305,14 @@ const motorcadeList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select * from base_fleet_customer where companyName is not null";
-  sql +=" limit " + size + " offset " + size * (page - 1);
+  if (form.companyShortName != "") { sql += " and companyShortName like " + "'%" + form.companyShortName + "%'" }
+  if (form.companyAddress != "") { sql += " and companyAddress like " + "'%" + form.companyAddress + "%'" }
+  if (form.state != "") { sql += " and state = " + "'" + form.state + "'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from base_fleet_customer where companyName is not null"
+  if (form.companyShortName != "") { sql += " and companyShortName like " + "'%" + form.companyShortName + "%'" }
+  if (form.companyAddress != "") { sql += " and companyAddress like " + "'%" + form.companyAddress + "%'" }
+  if (form.state != "") { sql += " and state = " + "'" + form.state + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -319,6 +326,97 @@ const motorcadeList = async (req: Request, res: Response) => {
           pageSize: size,
           currentPage: page,
         },
+      });
+    }
+  });
+};
+
+// 新增车队客户
+const addMotorcade = async (req: Request, res: Response) => {
+  const {
+    companyName,
+    companyShortName,
+    companyAddress,
+    companyContact,
+    companyPhone1,
+    state
+  } = req.body;
+  const hash_id = getRandomString(20);
+  const registerTime = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into base_fleet_customer (old_id, companyName, companyShortName, companyAddress, companyContact, companyPhone1, state, registerTime) values ('${hash_id}', '${companyName}', '${companyShortName}', '${companyAddress}', '${companyContact}', '${companyPhone1}', '${state}', '${registerTime}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 删除车队客户
+const deleteMotorcade = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from base_fleet_customer where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+
+// 编辑车队客户
+const editMotorcade = async (req: Request, res: Response) => {
+  const {
+    id,
+    companyName,
+    companyShortName,
+    companyAddress,
+    companyContact,
+    companyPhone1,
+    state
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE base_fleet_customer SET companyName = ?, companyShortName = ?, companyAddress = ?, companyContact = ?, companyPhone1 = ?, state = ? WHERE id = ?";
+  let modifyParams: string[] = [companyName, companyShortName, companyAddress, companyContact, companyPhone1, state, id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
       });
     }
   });
@@ -623,6 +721,9 @@ export {
   editUser,
   wxClockList,
   motorcadeList,
+  addMotorcade,
+  deleteMotorcade,
+  editMotorcade,
   yardList,
   updateList,
   deleteList,
