@@ -30,6 +30,10 @@ import {
   addFeeCollection,
   deleteFeeCollection,
   editFeeCollection,
+  bulkCargoList,
+  addBulkCargo,
+  deleteBulkCargo,
+  editBulkCargo,
   updateList,
   deleteList,
   searchPage,
@@ -129,6 +133,26 @@ app.post("/deleteFeeCollection", (req, res) => {
 // 运作管理 - 编辑代收费用接口
 app.post("/editFeeCollection", (req, res) => {
   editFeeCollection(req, res);
+})
+
+// 运作管理 - 散货记录列表接口
+app.post("/bulkCargoList", (req, res) => {
+  bulkCargoList(req, res);
+})
+
+// 运作管理 - 添加散货记录接口
+app.post("/addBulkCargo", (req, res) => {
+  addBulkCargo(req, res);
+})
+
+// 运作管理 - 删除散货记录接口
+app.post("/deleteBulkCargo", (req, res) => {
+  deleteBulkCargo(req, res);
+})
+
+// 运作管理 - 编辑散货记录接口
+app.post("/editBulkCargo", (req, res) => {
+  editBulkCargo(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {

@@ -650,7 +650,7 @@ const addFeeCollection = async (req: Request, res: Response) => {
   });
 };
 
-// 删除堆场
+// 删除代收费用
 const deleteFeeCollection = async (req: Request, res: Response) => {
   const id = req.body.id;
   let payload = null;
@@ -675,7 +675,7 @@ const deleteFeeCollection = async (req: Request, res: Response) => {
 };
 
 
-// 编辑堆场
+// 编辑代收费用
 const editFeeCollection = async (req: Request, res: Response) => {
   const {
     id,
@@ -707,6 +707,173 @@ const editFeeCollection = async (req: Request, res: Response) => {
   }
   let modifySql: string = "UPDATE tb_fleet_other_price SET shipCompany = ?,fleet_customer_id = ?,fleetCompanyId = ?,project = ?,costType = ?,isStart = ?,costName = ?,costCode = ?,accountCompanyType = ?,price_gp20 = ?,price_tk20 = ?,price_gp40 = ?,price_tk40 = ?,price_hc40 = ?,price_ot40 = ?,price_ot20 = ?,price_fr40 = ? WHERE id = ?";
   let modifyParams: string[] = [shipCompany,fleet_customer_id,fleetCompanyId,project,costType,isStart,costName,costCode,accountCompanyType,price_gp20,price_tk20,price_gp40,price_tk40,price_hc40,price_ot40,price_ot20,price_fr40, id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+// 获取散货列表
+const bulkCargoList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from bulk_cargo where type = " + form.type;
+  if (form.load_address != "") { sql += " and load_address like " + "'%" + form.load_address + "%'" }
+  if (form.unload_address != "") { sql += " and unload_address like " + "'%" + form.unload_address + "%'" }
+  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  if (form.add_time != "") { sql += " and add_time = " + "'%" + form.add_time + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from bulk_cargo where type = " + form.type;
+  if (form.load_address != "") { sql += " and load_address like " + "'%" + form.load_address + "%'" }
+  if (form.unload_address != "") { sql += " and unload_address like " + "'%" + form.unload_address + "%'" }
+  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  if (form.add_time != "") { sql += " and add_time = " + "'%" + form.add_time + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增散货记录
+const addBulkCargo = async (req: Request, res: Response) => {
+  const {
+    id,
+    type,
+    customer,
+    ship_company,
+    fleet,
+    load_address,
+    unload_address,
+    bl_no,
+    container_no,
+    container_type,
+    seal_no,
+    flow_direction,
+    voyage,
+    address,
+    car_type,
+    car_no,
+    driver_mobile,
+    booking_fee,
+    exchange_fee,
+    freight,
+    error_fee,
+    remarks,
+    add_time
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into bulk_cargo (type,customer,ship_company,fleet,load_address,unload_address,bl_no,container_no,container_type,seal_no,flow_direction,voyage,address,car_type,car_no,driver_mobile,booking_fee,exchange_fee,freight,error_fee,remarks,add_time) values ('${type}','${customer}','${ship_company}','${fleet}','${load_address}','${unload_address}','${bl_no}','${container_no}','${container_type}','${seal_no}','${flow_direction}','${voyage}','${address}','${car_type}','${car_no}','${driver_mobile}','${booking_fee}','${exchange_fee}','${freight}','${error_fee}','${remarks}','${add_time}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 删除散货记录
+const deleteBulkCargo = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from bulk_cargo where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+
+// 编辑散货记录
+const editBulkCargo = async (req: Request, res: Response) => {
+  const {
+    id,
+    type,
+    customer,
+    ship_company,
+    fleet,
+    load_address,
+    unload_address,
+    bl_no,
+    container_no,
+    container_type,
+    seal_no,
+    flow_direction,
+    voyage,
+    address,
+    car_type,
+    car_no,
+    driver_mobile,
+    booking_fee,
+    exchange_fee,
+    freight,
+    error_fee,
+    remarks,
+    add_time
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE bulk_cargo SET type = ?,customer = ?,ship_company = ?,fleet = ?,load_address = ?,unload_address = ?,bl_no = ?,container_no = ?,container_type = ?,seal_no = ?,flow_direction = ?,voyage = ?,address = ?,car_type = ?,car_no = ?,driver_mobile = ?,booking_fee = ?,exchange_fee = ?,freight = ?,error_fee = ?,remarks = ?,add_time = ? WHERE id = ?";
+  let modifyParams: string[] = [type,customer,ship_company,fleet,load_address,unload_address,bl_no,container_no,container_type,seal_no,flow_direction,voyage,address,car_type,car_no,driver_mobile,booking_fee,exchange_fee,freight,error_fee,remarks,add_time, id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -991,6 +1158,10 @@ export {
   addFeeCollection,
   deleteFeeCollection,
   editFeeCollection,
+  bulkCargoList,
+  addBulkCargo,
+  deleteBulkCargo,
+  editBulkCargo,
   updateList,
   deleteList,
   searchPage,
