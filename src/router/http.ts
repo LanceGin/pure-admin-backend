@@ -739,19 +739,23 @@ const bulkCargoList = async (req: Request, res: Response) => {
   if (form.load_address != "") { sql += " and load_address like " + "'%" + form.load_address + "%'" }
   if (form.unload_address != "") { sql += " and unload_address like " + "'%" + form.unload_address + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  if (form.voyage != "") { sql += " and voyage like " + "'%" + form.voyage + "%'" }
+  if (form.ship_company != "") { sql += " and ship_company like " + "'%" + form.ship_company + "%'" }
   if (form.add_time != "") { sql += " and add_time = " + "'" + form.add_time + "'" }
   if (form.container_no != "") { sql += " and container_no = " + "'" + form.container_no + "'" }
+  if (form.seal_no != "") { sql += " and seal_no = " + "'" + form.seal_no + "'" }
   if (form.flow_direction != "") { sql += " and flow_direction = " + "'" + form.flow_direction + "'" }
-  if (form.car_no != "") { sql += " and car_no = " + "'" + form.car_no + "'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from bulk_cargo where type = " + form.type;
   if (form.load_address != "") { sql += " and load_address like " + "'%" + form.load_address + "%'" }
   if (form.unload_address != "") { sql += " and unload_address like " + "'%" + form.unload_address + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  if (form.voyage != "") { sql += " and voyage like " + "'%" + form.voyage + "%'" }
+  if (form.ship_company != "") { sql += " and ship_company like " + "'%" + form.ship_company + "%'" }
   if (form.add_time != "") { sql += " and add_time = " + "'" + form.add_time + "'" }
   if (form.container_no != "") { sql += " and container_no = " + "'" + form.container_no + "'" }
+  if (form.seal_no != "") { sql += " and seal_no = " + "'" + form.seal_no + "'" }
   if (form.flow_direction != "") { sql += " and flow_direction = " + "'" + form.flow_direction + "'" }
-  if (form.car_no != "") { sql += " and car_no = " + "'" + form.car_no + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
