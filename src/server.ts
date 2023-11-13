@@ -34,6 +34,7 @@ import {
   addBulkCargo,
   deleteBulkCargo,
   editBulkCargo,
+  lighteringList,
   updateList,
   deleteList,
   searchPage,
@@ -153,6 +154,11 @@ app.post("/deleteBulkCargo", (req, res) => {
 // 运作管理 - 编辑散货记录接口
 app.post("/editBulkCargo", (req, res) => {
   editBulkCargo(req, res);
+})
+
+// 运作管理 - 驳运记录列表接口
+app.post("/lighteringList", (req, res) => {
+  lighteringList(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {

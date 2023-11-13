@@ -896,6 +896,57 @@ const editBulkCargo = async (req: Request, res: Response) => {
   });
 };
 
+// 获取驳运记录
+const lighteringList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from lightering where type = " + form.type;
+  if (form.seal_no != "") { sql += " and seal_no = " + "'" + form.seal_no + "'" }
+  if (form.container_no != "") { sql += " and container_no = " + "'" + form.container_no + "'" }
+  if (form.container_type != "") { sql += " and container_type = " + "'" + form.container_type + "'" }
+  if (form.bl_no != "") { sql += " and bl_no = " + "'" + form.bl_no + "'" }
+  if (form.container_holder != "") { sql += " and container_holder like " + "'%" + form.container_holder + "%'" }
+  if (form.extra_operation != "") { sql += " and extra_operation like " + "'%" + form.extra_operation + "%'" }
+  if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from lightering where type = " + form.type;
+  if (form.seal_no != "") { sql += " and seal_no = " + "'" + form.seal_no + "'" }
+  if (form.container_no != "") { sql += " and container_no = " + "'" + form.container_no + "'" }
+  if (form.container_type != "") { sql += " and container_type = " + "'" + form.container_type + "'" }
+  if (form.bl_no != "") { sql += " and bl_no = " + "'" + form.bl_no + "'" }
+  if (form.container_holder != "") { sql += " and container_holder like " + "'%" + form.container_holder + "%'" }
+  if (form.extra_operation != "") { sql += " and extra_operation like " + "'%" + form.extra_operation + "%'" }
+  if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
 /**
  * @typedef UpdateList
  * @property {string} username.required - 用户名 - eg: admin
@@ -1172,6 +1223,7 @@ export {
   addBulkCargo,
   deleteBulkCargo,
   editBulkCargo,
+  lighteringList,
   updateList,
   deleteList,
   searchPage,
