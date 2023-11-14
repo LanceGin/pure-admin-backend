@@ -35,6 +35,10 @@ import {
   deleteBulkCargo,
   editBulkCargo,
   lighteringList,
+  doorPriceList,
+  addDoorPrice,
+  deleteDoorPrice,
+  editDoorPrice,
   updateList,
   deleteList,
   searchPage,
@@ -159,6 +163,26 @@ app.post("/editBulkCargo", (req, res) => {
 // 运作管理 - 驳运记录列表接口
 app.post("/lighteringList", (req, res) => {
   lighteringList(req, res);
+})
+
+// 统计管理 - 门点价格列表接口
+app.post("/doorPriceList", (req, res) => {
+  doorPriceList(req, res);
+})
+
+// 统计管理 - 添加门点价格接口
+app.post("/addDoorPrice", (req, res) => {
+  addDoorPrice(req, res);
+})
+
+// 统计管理 - 删除门点价格接口
+app.post("/deleteDoorPrice", (req, res) => {
+  deleteDoorPrice(req, res);
+})
+
+// 统计管理 - 编辑门点价格接口
+app.post("/editDoorPrice", (req, res) => {
+  editDoorPrice(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {

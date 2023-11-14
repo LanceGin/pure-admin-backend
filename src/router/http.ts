@@ -947,6 +947,159 @@ const lighteringList = async (req: Request, res: Response) => {
   });
 };
 
+// 获取门点价格列表
+const doorPriceList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from door_price where is_pay = " + form.is_pay;
+  if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
+  if (form.project != "") { sql += " and project like " + "'%" + form.project + "%'" }
+  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
+  if (form.port != "") { sql += " and port like " + "'%" + form.port + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from door_price where is_pay = " + form.is_pay;
+  if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
+  if (form.project != "") { sql += " and project like " + "'%" + form.project + "%'" }
+  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
+  if (form.port != "") { sql += " and port like " + "'%" + form.port + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增门点价格
+const addDoorPrice = async (req: Request, res: Response) => {
+  const {
+    id,
+    is_pay,
+    status,
+    customer,
+    project,
+    door,
+    port,
+    i20gp,
+    i40gp,
+    i20tk,
+    i40hc,
+    o20gp,
+    o40gp,
+    o20tk,
+    o40hc,
+  } = req.body;
+  let payload = null;
+  const add_time = dayjs(new Date()).format("YYYY-MM-DD");
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into door_price (is_pay,status,customer,project,door,port,i20gp,i40gp,i20tk,i40hc,o20gp,o40gp,o20tk,o40hc,add_time) values ('${is_pay}','${status}','${customer}','${project}','${door}','${port}','${i20gp}','${i40gp}','${i20tk}','${i40hc}','${o20gp}','${o40gp}','${o20tk}','${o40hc}','${add_time}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 删除门点价格
+const deleteDoorPrice = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from door_price where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+
+// 编辑门点价格
+const editDoorPrice = async (req: Request, res: Response) => {
+  const {
+    id,
+    is_pay,
+    status,
+    customer,
+    project,
+    door,
+    port,
+    i20gp,
+    i40gp,
+    i20tk,
+    i40hc,
+    o20gp,
+    o40gp,
+    o20tk,
+    o40hc,
+    add_time
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE door_price SET status = ?,customer = ?,project = ?,door = ?,port = ?,i20gp = ?,i40gp = ?,i20tk = ?,i40hc = ?,o20gp = ?,o40gp = ?,o20tk = ?,o40hc = ? WHERE id = ?";
+  let modifyParams: string[] = [status,customer,project,door,port,i20gp,i40gp,i20tk,i40hc,o20gp,o40gp,o20tk,o40hc,id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 /**
  * @typedef UpdateList
  * @property {string} username.required - 用户名 - eg: admin
@@ -1224,6 +1377,10 @@ export {
   deleteBulkCargo,
   editBulkCargo,
   lighteringList,
+  doorPriceList,
+  addDoorPrice,
+  deleteDoorPrice,
+  editDoorPrice,
   updateList,
   deleteList,
   searchPage,
