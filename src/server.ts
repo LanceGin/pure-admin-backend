@@ -39,6 +39,10 @@ import {
   addDoorPrice,
   deleteDoorPrice,
   editDoorPrice,
+  projectFeeList,
+  addProjectFee,
+  deleteProjectFee,
+  editProjectFee,
   updateList,
   deleteList,
   searchPage,
@@ -183,6 +187,26 @@ app.post("/deleteDoorPrice", (req, res) => {
 // 统计管理 - 编辑门点价格接口
 app.post("/editDoorPrice", (req, res) => {
   editDoorPrice(req, res);
+})
+
+// 统计管理 - 费用列表接口
+app.post("/projectFeeList", (req, res) => {
+  projectFeeList(req, res);
+})
+
+// 统计管理 - 添加费用接口
+app.post("/addProjectFee", (req, res) => {
+  addProjectFee(req, res);
+})
+
+// 统计管理 - 删除费用接口
+app.post("/deleteProjectFee", (req, res) => {
+  deleteProjectFee(req, res);
+})
+
+// 统计管理 - 编辑费用接口
+app.post("/editProjectFee", (req, res) => {
+  editProjectFee(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {

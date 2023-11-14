@@ -1100,6 +1100,180 @@ const editDoorPrice = async (req: Request, res: Response) => {
   });
 };
 
+// 获取费用列表
+const projectFeeList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from project_fee where is_pay = " + form.is_pay;
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from project_fee where is_pay = " + form.is_pay;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增费用
+const addProjectFee = async (req: Request, res: Response) => {
+  const {
+    id,
+    is_pay,
+    status,
+    account_period,
+    fee_name,
+    amount,
+    box_making_time,
+    customer_short_name,
+    start_port,
+    target_port,
+    port,
+    ship_company,
+    voyage,
+    seal_no,
+    container_no,
+    waybill_no,
+    container_type,
+    document_type,
+    door,
+    business_name,
+    dealing_company,
+    car,
+    remarks,
+    invoice_no,
+    fleet,
+    bill_no,
+    plan_no,
+    add_staff,
+    fee_type,
+    receipt_remark
+  } = req.body;
+  let payload = null;
+  const add_time = dayjs(new Date()).format("YYYY-MM-DD");
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into project_fee (is_pay,status,account_period,fee_name,amount,box_making_time,customer_short_name,start_port,target_port,port,ship_company,voyage,seal_no,container_no,waybill_no,container_type,document_type,door,business_name,dealing_company,car,remarks,invoice_no,fleet,bill_no,plan_no,add_staff,add_time,fee_type,receipt_remark) values ('${is_pay}','${status}','${account_period}','${fee_name}','${amount}','${box_making_time}','${customer_short_name}','${start_port}','${target_port}','${port}','${ship_company}','${voyage}','${seal_no}','${container_no}','${waybill_no}','${container_type}','${document_type}','${door}','${business_name}','${dealing_company}','${car}','${remarks}','${invoice_no}','${fleet}','${bill_no}','${plan_no}','${add_staff}','${add_time}','${fee_type}','${receipt_remark}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 删除费用
+const deleteProjectFee = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from project_fee where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+
+// 编辑费用
+const editProjectFee = async (req: Request, res: Response) => {
+  const {
+    id,
+    is_pay,
+    status,
+    account_period,
+    fee_name,
+    amount,
+    box_making_time,
+    customer_short_name,
+    start_port,
+    target_port,
+    port,
+    ship_company,
+    voyage,
+    seal_no,
+    container_no,
+    waybill_no,
+    container_type,
+    document_type,
+    door,
+    business_name,
+    dealing_company,
+    car,
+    remarks,
+    invoice_no,
+    fleet,
+    bill_no,
+    plan_no,
+    add_staff,
+    fee_type,
+    receipt_remark
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE door_price SET status = ?,account_period = ?,fee_name = ?,amount = ?,box_making_time = ?,customer_short_name = ?,start_port = ?,target_port = ?,port = ?,ship_company = ?,voyage = ?,seal_no = ?,container_no = ?,waybill_no = ?,container_type = ?,document_type = ?,door = ?,business_name = ?,dealing_company = ?,car = ?,remarks = ?,invoice_no = ?,fleet = ?,bill_no = ?,plan_no = ?,add_staff = ?,fee_type = ?,receipt_remar = ? WHERE id = ?";
+  let modifyParams: string[] = [status,account_period,fee_name,amount,box_making_time,customer_short_name,start_port,target_port,port,ship_company,voyage,seal_no,container_no,waybill_no,container_type,document_type,door,business_name,dealing_company,car,remarks,invoice_no,fleet,bill_no,plan_no,add_staff,fee_type,receipt_remark,id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 /**
  * @typedef UpdateList
  * @property {string} username.required - 用户名 - eg: admin
@@ -1381,6 +1555,10 @@ export {
   addDoorPrice,
   deleteDoorPrice,
   editDoorPrice,
+  projectFeeList,
+  addProjectFee,
+  deleteProjectFee,
+  editProjectFee,
   updateList,
   deleteList,
   searchPage,
