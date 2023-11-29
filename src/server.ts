@@ -54,6 +54,8 @@ import {
 import {
   documentCheckList,
   submitDocumentCheck,
+  pickBoxList,
+  pickBox,
 } from "./router/operation";
 
 // 登录管理
@@ -176,6 +178,14 @@ app.post("/documentCheckList", (req, res) => {
 // 运作管理 - 提交单证接口
 app.post("/submitDocumentCheck", (req, res) => {
   submitDocumentCheck(req, res);
+})
+// 运作管理 - 挑箱列表接口
+app.post("/pickBoxList", (req, res) => {
+  pickBoxList(req, res);
+})
+// 运作管理 - 挑箱接口
+app.post("/pickBox", (req, res) => {
+  pickBox(req, res);
 })
 
 // 运作管理 - 驳运记录列表接口
