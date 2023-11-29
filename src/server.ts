@@ -58,6 +58,10 @@ import {
   pickBox,
 } from "./router/operation";
 
+import {
+  unpackingList,
+} from "./router/dispatch";
+
 // 登录管理
 // 登录管理 - 登录接口
 app.post("/login", (req, res) => {
@@ -231,6 +235,12 @@ app.post("/deleteProjectFee", (req, res) => {
 // 统计管理 - 编辑费用接口
 app.post("/editProjectFee", (req, res) => {
   editProjectFee(req, res);
+})
+
+// 调度管理
+// 调度管理 - 拆箱列表
+app.post("/unpackingList", (req, res) => {
+  unpackingList(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {
