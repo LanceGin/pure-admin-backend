@@ -51,6 +51,11 @@ import {
   captcha,
 } from "./router/http";
 
+import {
+  documentCheckList,
+  submitDocumentCheck,
+} from "./router/operation";
+
 // 登录管理
 // 登录管理 - 登录接口
 app.post("/login", (req, res) => {
@@ -162,6 +167,15 @@ app.post("/deleteBulkCargo", (req, res) => {
 // 运作管理 - 编辑散货记录接口
 app.post("/editBulkCargo", (req, res) => {
   editBulkCargo(req, res);
+})
+
+// 运作管理 - 单证列表接口
+app.post("/documentCheckList", (req, res) => {
+  documentCheckList(req, res);
+})
+// 运作管理 - 提交单证接口
+app.post("/submitDocumentCheck", (req, res) => {
+  submitDocumentCheck(req, res);
 })
 
 // 运作管理 - 驳运记录列表接口
