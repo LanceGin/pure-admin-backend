@@ -53,10 +53,14 @@ import {
 
 import {
   documentCheckList,
+  containerList,
   importDocumentCheck,
   submitDocumentCheck,
   pickBoxList,
   pickBox,
+  tempDrop,
+  loadPort,
+  makeTime,
 } from "./router/operation";
 
 import {
@@ -182,6 +186,10 @@ app.post("/editBulkCargo", (req, res) => {
 app.post("/documentCheckList", (req, res) => {
   documentCheckList(req, res);
 })
+// 运作管理 - 箱子列表接口
+app.post("/containerList", (req, res) => {
+  containerList(req, res);
+})
 // 运作管理 - 批量导入单证列表接口
 app.post("/importDocumentCheck", upload_tmp.any(), (req, res) => {
   importDocumentCheck(req, res);
@@ -197,6 +205,18 @@ app.post("/pickBoxList", (req, res) => {
 // 运作管理 - 挑箱接口
 app.post("/pickBox", (req, res) => {
   pickBox(req, res);
+})
+// 运作管理 - 暂落接口
+app.post("/tempDrop", (req, res) => {
+  tempDrop(req, res);
+})
+// 运作管理 - 批量修改提箱点接口
+app.post("/loadPort", (req, res) => {
+  loadPort(req, res);
+})
+// 运作管理 - 批量设置提箱时间接口
+app.post("/makeTime", (req, res) => {
+  makeTime(req, res);
 })
 
 // 运作管理 - 驳运记录列表接口

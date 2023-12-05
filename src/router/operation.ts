@@ -65,6 +65,33 @@ const documentCheckList = async (req: Request, res: Response) => {
   });
 };
 
+// 获取箱子记录
+const containerList = async (req: Request, res: Response) => {
+  const track_no  = req.body.form.track_no;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `select * from container where track_no = '${track_no}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      console.log(2222, data);
+      await res.json({
+        success: true,
+        data: { 
+          list: data,
+        },
+      });
+    }
+  });
+};
+
 // 批量导入单证记录
 const importDocumentCheck = async (req: Request, res: Response) => {
   const file_path = req.files[0].path;
@@ -229,11 +256,11 @@ const pickBoxList = async (req: Request, res: Response) => {
   });
 };
 
-// 提交单证记录
+// 挑箱
 const pickBox = async (req: Request, res: Response) => {
   const select_container_no = req.body;
   let payload = null;
-  const container_status = "待派车";
+  const container_status = "已挑箱";
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -254,12 +281,91 @@ const pickBox = async (req: Request, res: Response) => {
   });
 };
 
+// 暂落
+const tempDrop = async (req: Request, res: Response) => {
+  const select_container_no = req.body;
+  let payload = null;
+  const container_status = "已暂落";
+  const temp_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE container SET container_status = '${container_status}', temp_time = '${temp_time}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+// 批量修改提箱点
+const loadPort = async (req: Request, res: Response) => {
+  const { select_container_no, port } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE container SET load_port = '${port.value}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+// 批量设置做箱时间
+const makeTime = async (req: Request, res: Response) => {
+  const { select_container_no, make_time } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE container SET make_time = '${make_time.value}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+
 export {
   documentCheckList,
+  containerList,
   importDocumentCheck,
   editDocumentCheck,
   deleteDocumentCheck,
   submitDocumentCheck,
   pickBoxList,
   pickBox,
+  tempDrop,
+  loadPort,
+  makeTime,
 };

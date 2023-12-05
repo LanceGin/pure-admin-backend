@@ -29,12 +29,12 @@ const unpackingList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select * from container where container_status = '待派车' and order_type = '进口' ";
+  let sql: string = "select * from container where container_status = '已挑箱' and order_type = '进口' ";
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
-  sql +=";select COUNT(*) from container where container_status = '待派车' and order_type = '进口' ";
+  sql +=";select COUNT(*) from container where container_status = '已挑箱' and order_type = '进口' ";
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
