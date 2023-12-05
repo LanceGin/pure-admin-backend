@@ -54,6 +54,7 @@ import {
 import {
   documentCheckList,
   containerList,
+  addContainer,
   importDocumentCheck,
   submitDocumentCheck,
   pickBoxList,
@@ -65,6 +66,7 @@ import {
 
 import {
   unpackingList,
+  dispatchCar,
 } from "./router/dispatch";
 
 // 新建存放临时文件的文件夹
@@ -190,6 +192,10 @@ app.post("/documentCheckList", (req, res) => {
 app.post("/containerList", (req, res) => {
   containerList(req, res);
 })
+// 运作管理 - 新增箱子接口
+app.post("/addContainer", (req, res) => {
+  addContainer(req, res);
+})
 // 运作管理 - 批量导入单证列表接口
 app.post("/importDocumentCheck", upload_tmp.any(), (req, res) => {
   importDocumentCheck(req, res);
@@ -268,6 +274,10 @@ app.post("/editProjectFee", (req, res) => {
 // 调度管理 - 拆箱列表
 app.post("/unpackingList", (req, res) => {
   unpackingList(req, res);
+})
+// 调度管理 - 派车
+app.post("/dispatchCar", (req, res) => {
+  dispatchCar(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {

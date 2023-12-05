@@ -113,6 +113,44 @@ const importDocumentCheck = async (req: Request, res: Response) => {
   });
 };
 
+// 新增箱子记录
+const addContainer = async (req: Request, res: Response) => {
+  const {
+    ship_company,
+    customer,
+    subproject,
+    arrive_time,
+    start_port,
+    target_port,
+    containner_no,
+    seal_no,
+    container_type,
+    ship_name,
+    track_no,
+    load_port,
+    door,
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into container (ship_company,customer,subproject,arrive_time,start_port,target_port,containner_no,seal_no,container_type,ship_name,track_no,load_port,door) values ('${ship_company}','${customer}','${subproject}','${arrive_time}','${start_port}','${target_port}','${containner_no}','${seal_no}','${container_type}','${ship_name}','${track_no}','${load_port}','${door}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
 // 删除单证记录
 const deleteDocumentCheck = async (req: Request, res: Response) => {
   const id = req.body.id;
@@ -184,7 +222,7 @@ const editDocumentCheck = async (req: Request, res: Response) => {
 const submitDocumentCheck = async (req: Request, res: Response) => {
   const select_track_no = req.body;
   let payload = null;
-  const order_status = "未执行";
+  const order_status = "已提交";
   const order_time = dayjs(new Date()).format("YYYY-MM-DD");
   const order_fee = "100";
   try {
@@ -223,7 +261,7 @@ const pickBoxList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select * from container where order_status = '未执行' ";
+  let sql: string = "select * from container where order_status = '已提交' ";
   if (form.arrive_time != "") { sql += " and arrive_time = " + "'" + form.arrive_time + "'" }
   if (form.ship_name != "") { sql += " and ship_name like " + "'%" + form.ship_name + "%'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
@@ -231,7 +269,7 @@ const pickBoxList = async (req: Request, res: Response) => {
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.make_time != "") { sql += " and make_time = " + "'" + form.make_time + "'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
-  sql +=";select COUNT(*) from container where order_status = '未执行' ";
+  sql +=";select COUNT(*) from container where order_status = '已提交' ";
   if (form.arrive_time != "") { sql += " and arrive_time = " + "'" + form.arrive_time + "'" }
   if (form.ship_name != "") { sql += " and ship_name like " + "'%" + form.ship_name + "%'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
@@ -359,6 +397,7 @@ const makeTime = async (req: Request, res: Response) => {
 export {
   documentCheckList,
   containerList,
+  addContainer,
   importDocumentCheck,
   editDocumentCheck,
   deleteDocumentCheck,
