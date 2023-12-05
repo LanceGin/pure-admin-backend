@@ -10,8 +10,10 @@ import { connection } from "../utils/mysql";
 import { getRandomString } from "../utils/utils";
 import { Request, Response } from "express";
 import * as dayjs from "dayjs";
+import { readFileSync } from 'fs'
 
 const utils = require("@pureadmin/utils");
+const xlsx = require("node-xlsx");
 
 // 获取单证记录
 const documentCheckList = async (req: Request, res: Response) => {
@@ -65,40 +67,20 @@ const documentCheckList = async (req: Request, res: Response) => {
 
 // 批量导入单证记录
 const importDocumentCheck = async (req: Request, res: Response) => {
-  const {
-    id,
-    is_pay,
-    status,
-    customer,
-    project,
-    door,
-    port,
-    i20gp,
-    i40gp,
-    i20tk,
-    i40hc,
-    o20gp,
-    o40gp,
-    o20tk,
-    o40hc,
-  } = req.body;
-  let payload = null;
-  const add_time = dayjs(new Date()).format("YYYY-MM-DD");
-  try {
-    const authorizationHeader = req.get("Authorization") as string;
-    const accessToken = authorizationHeader.substr("Bearer ".length);
-    payload = jwt.verify(accessToken, secret.jwtSecret);
-  } catch (error) {
-    return res.status(401).end();
-  }
-  let sql: string = `insert into container (is_pay,status,customer,project,door,port,i20gp,i40gp,i20tk,i40hc,o20gp,o40gp,o20tk,o40hc,add_time) values ('${is_pay}','${status}','${customer}','${project}','${door}','${port}','${i20gp}','${i40gp}','${i20tk}','${i40hc}','${o20gp}','${o40gp}','${o20tk}','${o40hc}','${add_time}')`;
-  connection.query(sql, async function (err, data) {
+  const file_path = req.files[0].path;
+  const sheets = xlsx.parse(file_path, { cellDates: true });
+  const values = sheets[0].data;
+  values.shift();
+  let sql: string = "insert into container (tmp_excel_no,ship_company,customer,subproject,arrive_time,start_port,target_port,containner_no,seal_no,container_type,ship_name,track_no,unload_port,door) values ?"
+  connection.query(sql, [values], async function (err, data) {
     if (err) {
-      console.log(err);
+      Logger.error(err);
     } else {
       await res.json({
         success: true,
-        data: { message: Message[6] },
+        data: { 
+          list: data[0],
+        },
       });
     }
   });

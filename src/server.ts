@@ -53,6 +53,7 @@ import {
 
 import {
   documentCheckList,
+  importDocumentCheck,
   submitDocumentCheck,
   pickBoxList,
   pickBox,
@@ -62,6 +63,8 @@ import {
   unpackingList,
 } from "./router/dispatch";
 
+// 新建存放临时文件的文件夹
+const upload_tmp = multer({ dest: "upload_tmp/" });
 // 登录管理
 // 登录管理 - 登录接口
 app.post("/login", (req, res) => {
@@ -179,6 +182,10 @@ app.post("/editBulkCargo", (req, res) => {
 app.post("/documentCheckList", (req, res) => {
   documentCheckList(req, res);
 })
+// 运作管理 - 批量导入单证列表接口
+app.post("/importDocumentCheck", upload_tmp.any(), (req, res) => {
+  importDocumentCheck(req, res);
+})
 // 运作管理 - 提交单证接口
 app.post("/submitDocumentCheck", (req, res) => {
   submitDocumentCheck(req, res);
@@ -259,8 +266,6 @@ app.post("/searchVague", (req, res) => {
   searchVague(req, res);
 });
 
-// 新建存放临时文件的文件夹
-const upload_tmp = multer({ dest: "upload_tmp/" });
 app.post("/upload", upload_tmp.any(), (req, res) => {
   upload(req, res);
 });
