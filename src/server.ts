@@ -59,6 +59,7 @@ import {
   containerList,
   addContainer,
   importDocumentCheck,
+  importExportContainer,
   submitDocumentCheck,
   pickBoxList,
   pickBox,
@@ -71,6 +72,7 @@ import {
   unpackingList,
   dispatchCar,
   importDispatchList,
+  exportDispatchList,
   exportTmpDispatchList,
   tmpDispatchCar,
 } from "./router/dispatch";
@@ -304,6 +306,14 @@ app.post("/tmpDispatchCar", (req, res) => {
 // 调度管理 - 获取进口派车列表
 app.post("/importDispatchList", (req, res) => {
   importDispatchList(req, res);
+})
+// 调度管理 - 获取出口派车列表
+app.post("/exportDispatchList", (req, res) => {
+  exportDispatchList(req, res);
+})
+// 运作管理 - 批量导入出口派车列表接口
+app.post("/importExportContainer", upload_tmp.any(), (req, res) => {
+  importExportContainer(req, res);
 })
 // 调度管理 - 获取临时出口派车列表
 app.post("/exportTmpDispatchList", (req, res) => {

@@ -126,6 +126,51 @@ const importDispatchList = async (req: Request, res: Response) => {
   });
 };
 
+// 获取出口派车列表
+const exportDispatchList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from container where container_status = '运输中' and order_type = '出口' ";
+  if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
+  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
+  if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
+  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from container where container_status = '运输中' and order_type = '出口' ";
+  if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
+  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
+  if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
+  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
 // 获取临时出口派车单
 const exportTmpDispatchList = async (req: Request, res: Response) => {
   const { pagination, form } = req.body;
@@ -199,6 +244,7 @@ export {
   unpackingList,
   dispatchCar,
   importDispatchList,
+  exportDispatchList,
   exportTmpDispatchList,
   tmpDispatchCar,
 };

@@ -203,6 +203,30 @@ const importDocumentCheck = async (req: Request, res: Response) => {
   });
 };
 
+// 批量导入出口箱子记录
+const importExportContainer = async (req: Request, res: Response) => {
+  const file_path = req.files[0].path;
+  const sheets = xlsx.parse(file_path, { cellDates: true });
+  let values = sheets[0].data;
+  values = values.slice(2);
+  values.forEach((v) => {
+    v.push("已提交", "出口", "运输中");
+  })
+  let sql: string = "insert into container (tmp_excel_no,make_time,customer,load_port,container_type,containner_no,ship_name,track_no,seal_no,door,unload_port,target_port,car_no,order_status,order_type,container_status) values ?"
+  connection.query(sql, [values], async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+        },
+      });
+    }
+  });
+};
+
 // 新增箱子记录
 const addContainer = async (req: Request, res: Response) => {
   const {
@@ -492,6 +516,7 @@ export {
   containerList,
   addContainer,
   importDocumentCheck,
+  importExportContainer,
   editDocumentCheck,
   deleteDocumentCheck,
   submitDocumentCheck,
