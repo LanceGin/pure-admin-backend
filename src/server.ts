@@ -71,6 +71,8 @@ import {
   unpackingList,
   dispatchCar,
   importDispatchList,
+  exportTmpDispatchList,
+  tmpDispatchCar,
 } from "./router/dispatch";
 
 // 新建存放临时文件的文件夹
@@ -295,11 +297,18 @@ app.post("/unpackingList", (req, res) => {
 app.post("/dispatchCar", (req, res) => {
   dispatchCar(req, res);
 })
+// 调度管理 - 临时出口派车
+app.post("/tmpDispatchCar", (req, res) => {
+  tmpDispatchCar(req, res);
+})
 // 调度管理 - 获取进口派车列表
 app.post("/importDispatchList", (req, res) => {
   importDispatchList(req, res);
 })
-
+// 调度管理 - 获取临时出口派车列表
+app.post("/exportTmpDispatchList", (req, res) => {
+  exportTmpDispatchList(req, res);
+})
 
 app.put("/updateList/:id", (req, res) => {
   updateList(req, res);

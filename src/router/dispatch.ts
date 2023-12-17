@@ -126,8 +126,79 @@ const importDispatchList = async (req: Request, res: Response) => {
   });
 };
 
+// 获取临时出口派车单
+const exportTmpDispatchList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from tmp_dispatch where id is not null ";
+  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
+  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from tmp_dispatch where id is not null ";
+  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
+  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 临时出口派车
+const tmpDispatchCar = async (req: Request, res: Response) => {
+  const {
+    car_no,
+    door,
+  } = req.body;
+  let payload = null;
+  let status = "已派车"
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into tmp_dispatch (door,car_no,status) values ('${door}','${car_no}','${status}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
 export {
   unpackingList,
   dispatchCar,
-  importDispatchList
+  importDispatchList,
+  exportTmpDispatchList,
+  tmpDispatchCar,
 };
