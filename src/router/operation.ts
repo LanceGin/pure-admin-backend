@@ -15,6 +15,55 @@ import { readFileSync } from 'fs'
 const utils = require("@pureadmin/utils");
 const xlsx = require("node-xlsx");
 
+
+// 批量导入驳运ytoj记录
+const importYtoj = async (req: Request, res: Response) => {
+  const file_path = req.files[0].path;
+  const sheets = xlsx.parse(file_path, { cellDates: true });
+  const values = sheets[0].data;
+  values.shift();
+  values.forEach((v) => {
+    v.unshift("0");
+  })
+  let sql: string = "insert into lightering (type,add_time,voyage,voyage_index,container_no,bl_no,customs_container_type,iso,container_type,container_holder,is_import,extra_operation,trade_type,seal_no,cargo_name,load_port,target_port) values ?"
+  connection.query(sql, [values], async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+        },
+      });
+    }
+  });
+};
+
+// 批量导入驳运Jtoy记录
+const importJtoy = async (req: Request, res: Response) => {
+  const file_path = req.files[0].path;
+  const sheets = xlsx.parse(file_path, { cellDates: true });
+  const values = sheets[0].data;
+  values.shift();
+  values.forEach((v) => {
+    v.unshift("1");
+  })
+  let sql: string = "insert into lightering (type,add_time,voyage,voyage_index,bl_no,load_port,unload_port,target_port,total_weight,container_no,container_holder,extra_operation,container_type,customs_container_type,iso,is_import,empty_weight,trade_type,seal_no,cargo_name,unload_payer) values ?"
+  connection.query(sql, [values], async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+        },
+      });
+    }
+  });
+};
+
 // 获取单证记录
 const documentCheckList = async (req: Request, res: Response) => {
   const { pagination, form } = req.body;
@@ -395,6 +444,8 @@ const makeTime = async (req: Request, res: Response) => {
 
 
 export {
+  importYtoj,
+  importJtoy,
   documentCheckList,
   containerList,
   addContainer,
