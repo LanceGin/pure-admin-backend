@@ -54,6 +54,7 @@ import {
 import {
   importYtoj,
   importJtoy,
+  lighteringStatList,
   documentCheckList,
   containerList,
   addContainer,
@@ -231,6 +232,10 @@ app.post("/makeTime", (req, res) => {
 // 运作管理 - 驳运记录列表接口
 app.post("/lighteringList", (req, res) => {
   lighteringList(req, res);
+})
+// 运作管理 - 驳运记录列表接口
+app.post("/lighteringStatList", (req, res) => {
+  lighteringStatList(req, res);
 })
 // 运作管理 - 批量导入驳运记录ytoj
 app.post("/importYtoj", upload_tmp.any(), (req, res) => {

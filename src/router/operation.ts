@@ -64,6 +64,47 @@ const importJtoy = async (req: Request, res: Response) => {
   });
 };
 
+// 获取驳运统计记录
+const lighteringStatList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select add_time, voyage, cargo_name, container_type, count(id) as total from lightering where type = " + form.type;
+  if (form.add_time.length > 0) { sql += " and add_time between " + "'" + form.add_time[0] + "' and '" + form.add_time[1] + "'" }
+  if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
+  sql +=" group by add_time, voyage, cargo_name, container_type order by add_time asc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from lightering where type = " + form.type;
+  if (form.add_time.length > 0) { sql += " and add_time between " + "'" + form.add_time[0] + "' and '" + form.add_time[1] + "'" }
+  if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
 // 获取单证记录
 const documentCheckList = async (req: Request, res: Response) => {
   const { pagination, form } = req.body;
@@ -446,6 +487,7 @@ const makeTime = async (req: Request, res: Response) => {
 export {
   importYtoj,
   importJtoy,
+  lighteringStatList,
   documentCheckList,
   containerList,
   addContainer,
