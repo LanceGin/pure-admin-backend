@@ -100,12 +100,14 @@ const importDispatchList = async (req: Request, res: Response) => {
   let sql: string = "select * from container where container_status = '运输中' and order_type = '进口' ";
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
+  if (form.container_type != "") { sql += " and container_type = " + "'" + form.container_type + "'" }
   if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from container where container_status = '运输中' and order_type = '进口' ";
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
+  if (form.container_type != "") { sql += " and container_type = " + "'" + form.container_type + "'" }
   if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   connection.query(sql, async function (err, data) {
@@ -121,6 +123,36 @@ const importDispatchList = async (req: Request, res: Response) => {
           pageSize: size,
           currentPage: page,
         },
+      });
+    }
+  });
+};
+
+// 修改进口派车箱信息
+const editContainerInfo = async (req: Request, res: Response) => {
+  const {
+    id,
+    car_no,
+    door,
+    make_time
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE container SET car_no = ?,door = ?,make_time = ? WHERE id = ?";
+  let modifyParams: string[] = [car_no,door,make_time,id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
       });
     }
   });
@@ -244,6 +276,7 @@ export {
   unpackingList,
   dispatchCar,
   importDispatchList,
+  editContainerInfo,
   exportDispatchList,
   exportTmpDispatchList,
   tmpDispatchCar,

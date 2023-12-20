@@ -72,6 +72,7 @@ import {
   unpackingList,
   dispatchCar,
   importDispatchList,
+  editContainerInfo,
   exportDispatchList,
   exportTmpDispatchList,
   tmpDispatchCar,
@@ -306,6 +307,10 @@ app.post("/tmpDispatchCar", (req, res) => {
 // 调度管理 - 获取进口派车列表
 app.post("/importDispatchList", (req, res) => {
   importDispatchList(req, res);
+})
+// 调度管理 - 编辑进口派车箱信息
+app.post("/editContainerInfo", (req, res) => {
+  editContainerInfo(req, res);
 })
 // 调度管理 - 获取出口派车列表
 app.post("/exportDispatchList", (req, res) => {
