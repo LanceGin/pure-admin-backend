@@ -78,6 +78,13 @@ import {
   tmpDispatchCar,
 } from "./router/dispatch";
 
+import {
+  vehicleInfoList,
+  addVehicleInfo,
+  editVehicleInfo,
+  deleteVehicleInfo,
+} from "./router/vehicle";
+
 // 新建存放临时文件的文件夹
 const upload_tmp = multer({ dest: "upload_tmp/" });
 // 登录管理
@@ -323,6 +330,27 @@ app.post("/importExportContainer", upload_tmp.any(), (req, res) => {
 // 调度管理 - 获取临时出口派车列表
 app.post("/exportTmpDispatchList", (req, res) => {
   exportTmpDispatchList(req, res);
+})
+
+// 车辆管理
+// 车辆管理 - 车辆信息列表接口
+app.post("/vehicleInfoList", (req, res) => {
+  vehicleInfoList(req, res);
+})
+
+// 车辆管理 - 添加车辆信息接口
+app.post("/addVehicleInfo", (req, res) => {
+  addVehicleInfo(req, res);
+})
+
+// 车辆管理 - 删除车辆信息接口
+app.post("/deleteVehicleInfo", (req, res) => {
+  deleteVehicleInfo(req, res);
+})
+
+// 车辆管理 - 编辑车辆信息接口
+app.post("/editVehicleInfo", (req, res) => {
+  editVehicleInfo(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {
