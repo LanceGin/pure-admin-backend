@@ -208,6 +208,7 @@ const addContract = async (req: Request, res: Response) => {
     remark
   } = req.body;
   let payload = null;
+  const remain_amount = total_amount - paid_amount;
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -215,7 +216,7 @@ const addContract = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into contract (contract_no,sign_time,contract_name,type,content,we_company,oppo_company,we_agent,effective_time,end_time,total_amount,paid_amount,counts,department,status,remark) values ('${contract_no}','${sign_time}','${contract_name}','${type}','${content}','${we_company}','${oppo_company}','${we_agent}','${effective_time}','${end_time}','${total_amount}','${paid_amount}','${counts}','${department}','${status}','${remark}')`;
+  let sql: string = `insert into contract (contract_no,sign_time,contract_name,type,content,we_company,oppo_company,we_agent,effective_time,end_time,total_amount,paid_amount,remain_amount,counts,department,status,remark) values ('${contract_no}','${sign_time}','${contract_name}','${type}','${content}','${we_company}','${oppo_company}','${we_agent}','${effective_time}','${end_time}','${total_amount}','${paid_amount}','${remain_amount}','${counts}','${department}','${status}','${remark}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -250,6 +251,7 @@ const editContract = async (req: Request, res: Response) => {
     remark
   } = req.body;
   let payload = null;
+  const remain_amount = total_amount - paid_amount;
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -257,8 +259,8 @@ const editContract = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE contract SET contract_no = ?,sign_time = ?,contract_name = ?,type = ?,content = ?,we_company = ?,oppo_company = ?,we_agent = ?,effective_time = ?,end_time = ?,total_amount = ?,paid_amount = ?,counts = ?,department = ?,status = ?,remark = ? WHERE id = ?";
-  let modifyParams: string[] = [contract_no,sign_time,contract_name,type,content,we_company,oppo_company,we_agent,effective_time,end_time,total_amount,paid_amount,counts,department,status,remark,id];
+  let modifySql: string = "UPDATE contract SET contract_no = ?,sign_time = ?,contract_name = ?,type = ?,content = ?,we_company = ?,oppo_company = ?,we_agent = ?,effective_time = ?,end_time = ?,total_amount = ?,paid_amount = ?,remain_amount = ?,counts = ?,department = ?,status = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [contract_no,sign_time,contract_name,type,content,we_company,oppo_company,we_agent,effective_time,end_time,total_amount,paid_amount,remain_amount,counts,department,status,remark,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
