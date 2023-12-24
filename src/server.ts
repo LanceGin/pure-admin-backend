@@ -83,7 +83,34 @@ import {
   addVehicleInfo,
   editVehicleInfo,
   deleteVehicleInfo,
+  driverInfoList,
+  addDriverInfo,
+  editDriverInfo,
+  deleteDriverInfo,
+  vehicleExtraInfoList,
+  addVehicleExtraInfo,
+  editVehicleExtraInfo,
+  deleteVehicleExtraInfo,
+  oilConsumptionList,
+  addOilConsumption,
+  editOilConsumption,
+  deleteOilConsumption,
+  vehicleRefuelList,
+  addVehicleRefuel,
+  editVehicleRefuel,
+  deleteVehicleRefuel,
 } from "./router/vehicle";
+
+import {
+  accCompanyList,
+  addAccCompany,
+  editAccCompany,
+  deleteAccCompany,
+  contractList,
+  addContract,
+  editContract,
+  deleteContract
+} from "./router/daily"
 
 // 新建存放临时文件的文件夹
 const upload_tmp = multer({ dest: "upload_tmp/" });
@@ -337,20 +364,115 @@ app.post("/exportTmpDispatchList", (req, res) => {
 app.post("/vehicleInfoList", (req, res) => {
   vehicleInfoList(req, res);
 })
-
 // 车辆管理 - 添加车辆信息接口
 app.post("/addVehicleInfo", (req, res) => {
   addVehicleInfo(req, res);
 })
-
 // 车辆管理 - 删除车辆信息接口
 app.post("/deleteVehicleInfo", (req, res) => {
   deleteVehicleInfo(req, res);
 })
-
 // 车辆管理 - 编辑车辆信息接口
 app.post("/editVehicleInfo", (req, res) => {
   editVehicleInfo(req, res);
+})
+// 车辆管理 - 司机信息列表接口
+app.post("/driverInfoList", (req, res) => {
+  driverInfoList(req, res);
+})
+// 车辆管理 - 添加司机信息接口
+app.post("/addDriverInfo", (req, res) => {
+  addDriverInfo(req, res);
+})
+// 车辆管理 - 删除司机信息接口
+app.post("/deleteDriverInfo", (req, res) => {
+  deleteDriverInfo(req, res);
+})
+// 车辆管理 - 编辑司机信息接口
+app.post("/editDriverInfo", (req, res) => {
+  editDriverInfo(req, res);
+})
+// 车辆管理 - 车辆额外信息列表接口
+app.post("/vehicleExtraInfoList", (req, res) => {
+  vehicleExtraInfoList(req, res);
+})
+// 车辆管理 - 添加车辆额外信息接口
+app.post("/addVehicleExtraInfo", (req, res) => {
+  addVehicleExtraInfo(req, res);
+})
+// 车辆管理 - 删除车辆额外信息接口
+app.post("/deleteVehicleExtraInfo", (req, res) => {
+  deleteVehicleExtraInfo(req, res);
+})
+// 车辆管理 - 编辑车辆额外信息接口
+app.post("/editVehicleExtraInfo", (req, res) => {
+  editVehicleExtraInfo(req, res);
+})
+// 车辆管理 - 油耗核算列表接口
+app.post("/oilConsumptionList", (req, res) => {
+  oilConsumptionList(req, res);
+})
+// 车辆管理 - 添加油耗核算接口
+app.post("/addOilConsumption", (req, res) => {
+  addOilConsumption(req, res);
+})
+// 车辆管理 - 删除油耗核算接口
+app.post("/deleteOilConsumption", (req, res) => {
+  deleteOilConsumption(req, res);
+})
+// 车辆管理 - 编辑油耗核算接口
+app.post("/editOilConsumption", (req, res) => {
+  editOilConsumption(req, res);
+})
+// 车辆管理 - 撬装加油列表接口
+app.post("/vehicleRefuelList", (req, res) => {
+  vehicleRefuelList(req, res);
+})
+// 车辆管理 - 添加撬装加油接口
+app.post("/addVehicleRefuel", (req, res) => {
+  addVehicleRefuel(req, res);
+})
+// 车辆管理 - 删除撬装加油接口
+app.post("/deleteVehicleRefuel", (req, res) => {
+  deleteVehicleRefuel(req, res);
+})
+// 车辆管理 - 编辑撬装加油接口
+app.post("/editVehicleRefuel", (req, res) => {
+  editVehicleRefuel(req, res);
+})
+
+// 通用
+// 通用 - 往来单位列表接口
+app.post("/accCompanyList", (req, res) => {
+  accCompanyList(req, res);
+})
+// 通用 - 添加往来单位接口
+app.post("/addAccCompany", (req, res) => {
+  addAccCompany(req, res);
+})
+// 通用 - 删除往来单位接口
+app.post("/deleteAccCompany", (req, res) => {
+  deleteAccCompany(req, res);
+})
+// 通用 - 编辑往来单位接口
+app.post("/editAccCompany", (req, res) => {
+  editAccCompany(req, res);
+})
+// 通用 - 合同列表接口
+app.post("/contractList", (req, res) => {
+  contractList(req, res);
+})
+// 通用 - 添加合同接口
+app.post("/addContract", (req, res) => {
+  addContract(req, res);
+})
+// 通用 - 删除合同接口
+app.post("/deleteContract", (req, res) => {
+  deleteContract(req, res);
+})
+// 通用 - 编辑合同接口
+app.post("/editContract", (req, res) => {
+  editContract(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {
