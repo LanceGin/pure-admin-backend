@@ -76,6 +76,7 @@ import {
   exportDispatchList,
   exportTmpDispatchList,
   tmpDispatchCar,
+  tempDropDispatchList,
 } from "./router/dispatch";
 
 import {
@@ -357,6 +358,10 @@ app.post("/importExportContainer", upload_tmp.any(), (req, res) => {
 // 调度管理 - 获取临时出口派车列表
 app.post("/exportTmpDispatchList", (req, res) => {
   exportTmpDispatchList(req, res);
+})
+// 调度管理 - 获取暂落派车列表
+app.post("/tempDropDispatchList", (req, res) => {
+  tempDropDispatchList(req, res);
 })
 
 // 车辆管理
