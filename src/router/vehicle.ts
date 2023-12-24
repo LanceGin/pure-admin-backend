@@ -584,16 +584,27 @@ const vehicleRefuelList = async (req: Request, res: Response) => {
   if (form.addtime != "") { sql += " and addtime = " + "'" + form.addtime + "'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.type != "") { sql += " and type like " + "'%" + form.type + "%'" }
+  sql += ";select sum(amount) as total,type from vehicle_refuel group by type"
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
     } else {
       total = data[1][0]['COUNT(*)'];
+      const a = data[2];
+      let remain_oil = 0;
+      a.forEach((v) => {
+        if(v.type == "买入") {
+          remain_oil += v.total;
+        } else {
+          remain_oil -= v.total;
+        }
+      })
       await res.json({
         success: true,
         data: { 
           list: data[0],
           total: total,
+          remain_oil: remain_oil,
           pageSize: size,
           currentPage: page,
         },
@@ -611,10 +622,10 @@ const addVehicleRefuel = async (req: Request, res: Response) => {
     volume,
     unit_price,
     type,
-    amount,
     remark
   } = req.body;
   let payload = null;
+  const amount = volume * unit_price;
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
