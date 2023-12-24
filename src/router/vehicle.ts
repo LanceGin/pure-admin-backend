@@ -306,11 +306,11 @@ const vehicleExtraInfoList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select * from vehicle_extra_info where id is not null ";
-  if (form.comapny != "") { sql += " and comapny like " + "'%" + form.comapny + "%'" }
+  if (form.company != "") { sql += " and company like " + "'%" + form.company + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from vehicle_extra_info where id is not null ";
-  if (form.comapny != "") { sql += " and comapny like " + "'%" + form.comapny + "%'" }
+  if (form.company != "") { sql += " and company like " + "'%" + form.company + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   connection.query(sql, async function (err, data) {
     if (err) {
@@ -350,7 +350,7 @@ const addVehicleExtraInfo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into driver_info (car_no,company,inspect,rate,compulsory_insurance,commercial_insurance,trans_insurance,remark) values ('${car_no}','${company}','${inspect}','${rate}','${compulsory_insurance}','${commercial_insurance}','${trans_insurance}','${remark}')`;
+  let sql: string = `insert into vehicle_extra_info (car_no,company,inspect,rate,compulsory_insurance,commercial_insurance,trans_insurance,remark) values ('${car_no}','${company}','${inspect}','${rate}','${compulsory_insurance}','${commercial_insurance}','${trans_insurance}','${remark}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
