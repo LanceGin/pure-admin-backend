@@ -171,7 +171,6 @@ const containerList = async (req: Request, res: Response) => {
     if (err) {
       Logger.error(err);
     } else {
-      console.log(2222, data);
       await res.json({
         success: true,
         data: { 
@@ -210,7 +209,7 @@ const importExportContainer = async (req: Request, res: Response) => {
   let values = sheets[0].data;
   values = values.slice(2);
   values.forEach((v) => {
-    v.push("已提交", "出口", "运输中");
+    v.push("已提交", "出口", "已完成");
   })
   let sql: string = "insert into container (tmp_excel_no,make_time,customer,load_port,container_type,containner_no,ship_name,track_no,seal_no,door,unload_port,target_port,car_no,order_status,order_type,container_status) values ?"
   connection.query(sql, [values], async function (err, data) {

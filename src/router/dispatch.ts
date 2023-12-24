@@ -175,16 +175,22 @@ const exportDispatchList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select * from container where container_status = '运输中' and order_type = '出口' ";
+  if (form.make_time != "") { sql += " and date_format(make_time,'%Y-%m-%d') = " + "'" + form.make_time + "'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  if (form.container_status == "已完成") { sql += " and container_status = '已完成'" }
+  if (form.container_status == "未完成") { sql += " and container_status != '已完成'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from container where container_status = '运输中' and order_type = '出口' ";
+  if (form.make_time != "") { sql += " and date_format(make_time,'%Y-%m-%d') = " + "'" + form.make_time + "'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  if (form.container_status == "已完成") { sql += " and container_status = '已完成'" }
+  if (form.container_status == "未完成") { sql += " and container_status != '已完成'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
