@@ -110,7 +110,12 @@ import {
   contractList,
   addContract,
   editContract,
-  deleteContract
+  deleteContract,
+  appliedFeeList,
+  addAppliedFee,
+  editAppliedFee,
+  deleteAppliedFee,
+  submitAppliedFee
 } from "./router/daily"
 
 // 新建存放临时文件的文件夹
@@ -478,6 +483,26 @@ app.post("/deleteContract", (req, res) => {
 // 通用 - 编辑合同接口
 app.post("/editContract", (req, res) => {
   editContract(req, res);
+})
+// 通用 - 费用申请列表接口
+app.post("/appliedFeeList", (req, res) => {
+  appliedFeeList(req, res);
+})
+// 通用 - 添加费用申请接口
+app.post("/addAppliedFee", (req, res) => {
+  addAppliedFee(req, res);
+})
+// 通用 - 删除费用申请接口
+app.post("/deleteAppliedFee", (req, res) => {
+  deleteAppliedFee(req, res);
+})
+// 通用 - 编辑费用申请接口
+app.post("/editAppliedFee", (req, res) => {
+  editAppliedFee(req, res);
+})
+// 通用 - 提交费用申请接口
+app.post("/submitAppliedFee", (req, res) => {
+  submitAppliedFee(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {
