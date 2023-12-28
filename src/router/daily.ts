@@ -313,21 +313,25 @@ const appliedFeeList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `select * from applied_fee where apply_by = '${form.apply_by}'`;
+  let sql: string = `select * from applied_fee where id is not null`;
+  if (form.apply_by != "") { sql += " and apply_by = " + "'" + form.apply_by + "'" }
   if (form.apply_time != "") { sql += " and apply_time = " + "'" + form.apply_time + "'" }
   if (form.fee_no != "") { sql += " and fee_no like " + "'%" + form.fee_no + "%'" }
   if (form.fee_name != "") { sql += " and fee_name like " + "'%" + form.fee_name + "%'" }
   if (form.is_pay != "") { sql += " and is_pay like " + "'%" + form.is_pay + "%'" }
   if (form.pay_type != "") { sql += " and pay_type like " + "'%" + form.pay_type + "%'" }
   if (form.status != "") { sql += " and status like " + "'%" + form.status + "%'" }
+  if (form.keep_time != "") { sql += " and keep_time = " + "'" + form.keep_time + "'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
-  sql +=`;select COUNT(*) from applied_fee where apply_by = '${form.apply_by}'`;
+  sql +=`;select COUNT(*) from applied_fee where id is not null`;
+  if (form.apply_by != "") { sql += " and apply_by = " + "'" + form.apply_by + "'" }
   if (form.apply_time != "") { sql += " and apply_time = " + "'" + form.apply_time + "'" }
   if (form.fee_no != "") { sql += " and fee_no like " + "'%" + form.fee_no + "%'" }
   if (form.fee_name != "") { sql += " and fee_name like " + "'%" + form.fee_name + "%'" }
   if (form.is_pay != "") { sql += " and is_pay like " + "'%" + form.is_pay + "%'" }
   if (form.pay_type != "") { sql += " and pay_type like " + "'%" + form.pay_type + "%'" }
   if (form.status != "") { sql += " and status like " + "'%" + form.status + "%'" }
+  if (form.keep_time != "") { sql += " and keep_time = " + "'" + form.keep_time + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);

@@ -116,7 +116,12 @@ import {
   editAppliedFee,
   deleteAppliedFee,
   submitAppliedFee
-} from "./router/daily"
+} from "./router/daily";
+
+import {
+  keepAppliedFee,
+  cancelKeepAppliedFee,
+} from "./router/finance";
 
 // 新建存放临时文件的文件夹
 const upload_tmp = multer({ dest: "upload_tmp/" });
@@ -503,6 +508,16 @@ app.post("/editAppliedFee", (req, res) => {
 // 通用 - 提交费用申请接口
 app.post("/submitAppliedFee", (req, res) => {
   submitAppliedFee(req, res);
+})
+
+// 财务
+// 财务 - 费用审核
+app.post("/keepAppliedFee", (req, res) => {
+  keepAppliedFee(req, res);
+})
+// 财务 - 费用审核撤销
+app.post("/cancelKeepAppliedFee", (req, res) => {
+  cancelKeepAppliedFee(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {
