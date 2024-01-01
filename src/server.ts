@@ -100,6 +100,10 @@ import {
   addVehicleRefuel,
   editVehicleRefuel,
   deleteVehicleRefuel,
+  vehicleFeeList,
+  addVehicleFee,
+  editVehicleFee,
+  deleteVehicleFee,
 } from "./router/vehicle";
 
 import {
@@ -454,6 +458,22 @@ app.post("/deleteVehicleRefuel", (req, res) => {
 // 车辆管理 - 编辑撬装加油接口
 app.post("/editVehicleRefuel", (req, res) => {
   editVehicleRefuel(req, res);
+})
+// 车辆管理 - 车辆费用列表接口
+app.post("/vehicleFeeList", (req, res) => {
+  vehicleFeeList(req, res);
+})
+// 车辆管理 - 添加车辆费用接口
+app.post("/addVehicleFee", (req, res) => {
+  addVehicleFee(req, res);
+})
+// 车辆管理 - 删除车辆费用接口
+app.post("/deleteVehicleFee", (req, res) => {
+  deleteVehicleFee(req, res);
+})
+// 车辆管理 - 编辑车辆费用接口
+app.post("/editVehicleFee", (req, res) => {
+  editVehicleFee(req, res);
 })
 
 // 通用

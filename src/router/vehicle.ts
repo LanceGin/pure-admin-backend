@@ -584,7 +584,7 @@ const vehicleRefuelList = async (req: Request, res: Response) => {
   if (form.addtime != "") { sql += " and addtime = " + "'" + form.addtime + "'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.type != "") { sql += " and type like " + "'%" + form.type + "%'" }
-  sql += ";select sum(amount) as total,type from vehicle_refuel group by type"
+  sql += ";select sum(volume) as total,type from vehicle_refuel group by type"
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -706,6 +706,157 @@ const deleteVehicleRefuel = async (req: Request, res: Response) => {
 };
 
 
+// 获取车辆费用列表
+const vehicleFeeList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from vehicle_fee where id is not null ";
+  if (form.add_time != "") { sql += " and add_time = " + "'" + form.add_time + "'" }
+  if (form.car_fees != "") { sql += " and car_fees = " + "'" + form.car_fees + "'" }
+  if (form.company != "") { sql += " and company like " + "'%" + form.company + "%'" }
+  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  if (form.hang_board_no != "") { sql += " and hang_board_no like " + "'%" + form.hang_board_no + "%'" }
+  if (form.content != "") { sql += " and content like " + "'%" + form.content + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from vehicle_fee where id is not null ";
+  if (form.add_time != "") { sql += " and add_time = " + "'" + form.add_time + "'" }
+  if (form.car_fees != "") { sql += " and car_fees = " + "'" + form.car_fees + "'" }
+  if (form.company != "") { sql += " and company like " + "'%" + form.company + "%'" }
+  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  if (form.hang_board_no != "") { sql += " and hang_board_no like " + "'%" + form.hang_board_no + "%'" }
+  if (form.content != "") { sql += " and content like " + "'%" + form.content + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增车辆费用
+const addVehicleFee = async (req: Request, res: Response) => {
+  const {
+    driver,
+    company,
+    car_no,
+    hang_board_no,
+    car_fees,
+    content,
+    quantity,
+    amount,
+    allocation_month,
+    actual_amount,
+    settlement_confirm,
+    remark,
+    add_by
+  } = req.body;
+  let payload = null;
+  const add_time = dayjs(new Date()).format("YYYY-MM-DD");
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into vehicle_fee (add_time,driver,company,car_no,hang_board_no,car_fees,content,quantity,amount,allocation_month,actual_amount,settlement_confirm,remark,add_by) values ('${add_time}','${driver}','${company}','${car_no}','${hang_board_no}','${car_fees}','${content}','${quantity}','${amount}','${allocation_month}','${actual_amount}','${settlement_confirm}','${remark}','${add_by}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 修改车辆费用
+const editVehicleFee = async (req: Request, res: Response) => {
+  const {
+    id,
+    driver,
+    company,
+    car_no,
+    hang_board_no,
+    car_fees,
+    content,
+    quantity,
+    amount,
+    allocation_month,
+    actual_amount,
+    settlement_confirm,
+    remark
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE vehicle_fee SET driver = ?,company = ?,car_no = ?,hang_board_no = ?,car_fees = ?,content = ?,quantity = ?,amount = ?,allocation_month = ?,actual_amount = ?,settlement_confirm = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [driver,company,car_no,hang_board_no,car_fees,content,quantity,amount,allocation_month,actual_amount,settlement_confirm,remark,id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+// 删除车辆费用
+const deleteVehicleFee = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from vehicle_fee where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
 export {
   vehicleInfoList,
   addVehicleInfo,
@@ -726,7 +877,11 @@ export {
   vehicleRefuelList,
   addVehicleRefuel,
   editVehicleRefuel,
-  deleteVehicleRefuel
+  deleteVehicleRefuel,
+  vehicleFeeList,
+  addVehicleFee,
+  editVehicleFee,
+  deleteVehicleFee
 };
 
 
