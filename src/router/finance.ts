@@ -311,6 +311,54 @@ const generateAbnormalFee = async (req: Request, res: Response) => {
   console.log(55555, "generate abnormal_fee");
 };
 
+// 获取费用审核列表
+const financeCheckList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `SELECT a.id,a.type,a.status,a.account_period,a.custom_name,a.project_name,a.flow_direction,a.content,b.container_type,sum(a.amount) as amount,count(b.id) as total, COUNT(IF(left(b.container_type, 2) = '40',true,null)) as f, COUNT(IF(left(b.container_type, 2) = '20',true,null)) as t FROM container_fee as a left join container as b on a.container_id = b.id where a.status = "未审核" `;
+  if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
+  if (form.custom_name != "") { sql += " and a.custom_name = " + "'" + form.custom_name + "'" }
+  if (form.project_name != "") { sql += " and a.project_name = " + "'" + form.project_name + "'" }
+  if (form.account_period != "") { sql += " and a.account_period = " + "'" + form.account_period + "'" }
+  if (form.flow_direction != "") { sql += " and a.flow_direction = " + "'" + form.flow_direction + "'" }
+  sql +=" GROUP BY a.account_period, a.custom_name,a.project_name,a.flow_direction,a.content,b.container_type order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=`;select COUNT(*) FROM container_fee as a left join container as b on a.container_id = b.id where a.status = "未审核" `;
+  if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
+  if (form.custom_name != "") { sql += " and a.custom_name = " + "'" + form.custom_name + "'" }
+  if (form.project_name != "") { sql += " and a.project_name = " + "'" + form.project_name + "'" }
+  if (form.account_period != "") { sql += " and a.account_period = " + "'" + form.account_period + "'" }
+  if (form.flow_direction != "") { sql += " and a.flow_direction = " + "'" + form.flow_direction + "'" }
+  sql +=" GROUP BY a.account_period, a.custom_name,a.project_name,a.flow_direction,a.content,b.container_type";
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
 export {
   appliedFeeList,
   addAppliedFee,
@@ -322,5 +370,6 @@ export {
   generatePlanningFee,
   generateStorageFee,
   generateDispatchFee,
-  generateAbnormalFee
+  generateAbnormalFee,
+  financeCheckList
 };

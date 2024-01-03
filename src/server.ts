@@ -129,7 +129,8 @@ import {
   generatePlanningFee,
   generateStorageFee,
   generateDispatchFee,
-  generateAbnormalFee
+  generateAbnormalFee,
+  financeCheckList
 } from "./router/finance";
 
 import {
@@ -585,6 +586,10 @@ app.post("/generateDispatchFee", (req, res) => {
 // 财务 - 生成异常费
 app.post("/generateAbnormalFee", (req, res) => {
   generateAbnormalFee(req, res);
+})
+// 财务 - 费用审核列表
+app.post("/financeCheckList", (req, res) => {
+  financeCheckList(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {
