@@ -125,7 +125,20 @@ import {
 import {
   keepAppliedFee,
   cancelKeepAppliedFee,
+  generateOrderFee,
+  generatePlanningFee,
+  generateStorageFee,
+  generateDispatchFee,
+  generateAbnormalFee
 } from "./router/finance";
+
+import {
+  containerFeeList,
+  submitContainerFee,
+  setInvoiceNo,
+  setAmount,
+  setRemark
+} from "./router/statics";
 
 // 新建存放临时文件的文件夹
 const upload_tmp = multer({ dest: "upload_tmp/" });
@@ -300,44 +313,58 @@ app.post("/importJtoy", upload_tmp.any(), (req, res) => {
   importJtoy(req, res);
 })
 
+// 统计管理
 // 统计管理 - 门点价格列表接口
 app.post("/doorPriceList", (req, res) => {
   doorPriceList(req, res);
 })
-
 // 统计管理 - 添加门点价格接口
 app.post("/addDoorPrice", (req, res) => {
   addDoorPrice(req, res);
 })
-
 // 统计管理 - 删除门点价格接口
 app.post("/deleteDoorPrice", (req, res) => {
   deleteDoorPrice(req, res);
 })
-
 // 统计管理 - 编辑门点价格接口
 app.post("/editDoorPrice", (req, res) => {
   editDoorPrice(req, res);
 })
-
 // 统计管理 - 费用列表接口
 app.post("/projectFeeList", (req, res) => {
   projectFeeList(req, res);
 })
-
 // 统计管理 - 添加费用接口
 app.post("/addProjectFee", (req, res) => {
   addProjectFee(req, res);
 })
-
 // 统计管理 - 删除费用接口
 app.post("/deleteProjectFee", (req, res) => {
   deleteProjectFee(req, res);
 })
-
 // 统计管理 - 编辑费用接口
 app.post("/editProjectFee", (req, res) => {
   editProjectFee(req, res);
+})
+// 统计管理 - 统计费用列表接口
+app.post("/containerFeeList", (req, res) => {
+  containerFeeList(req, res);
+})
+// 统计管理 - 提交统计费用接口
+app.post("/submitContainerFee", (req, res) => {
+  submitContainerFee(req, res);
+})
+// 统计管理 - 提交统计费用接口
+app.post("/setInvoiceNo", (req, res) => {
+  setInvoiceNo(req, res);
+})
+// 统计管理 - 提交统计费用接口
+app.post("/setAmount", (req, res) => {
+  setAmount(req, res);
+})
+// 统计管理 - 提交统计费用接口
+app.post("/setRemark", (req, res) => {
+  setRemark(req, res);
 })
 
 // 调度管理
@@ -538,6 +565,26 @@ app.post("/keepAppliedFee", (req, res) => {
 // 财务 - 费用审核撤销
 app.post("/cancelKeepAppliedFee", (req, res) => {
   cancelKeepAppliedFee(req, res);
+})
+// 财务 - 生成打单费
+app.post("/generateOrderFee", (req, res) => {
+  generateOrderFee(req, res);
+})
+// 财务 - 生成码头计划费
+app.post("/generatePlanningFee", (req, res) => {
+  generatePlanningFee(req, res);
+})
+// 财务 - 生成堆存费
+app.post("/generateStorageFee", (req, res) => {
+  generateStorageFee(req, res);
+})
+// 财务 - 生成拖车费
+app.post("/generateDispatchFee", (req, res) => {
+  generateDispatchFee(req, res);
+})
+// 财务 - 生成异常费
+app.post("/generateAbnormalFee", (req, res) => {
+  generateAbnormalFee(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {

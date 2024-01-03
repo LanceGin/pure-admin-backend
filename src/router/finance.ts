@@ -215,11 +215,112 @@ const cancelKeepAppliedFee = async (req: Request, res: Response) => {
   });
 };
 
+// 生成打单费
+const generateOrderFee = async (req: Request, res: Response) => {
+  const select_track_no = req.body;
+  const type = "应付";
+  const fee_name = "打单费";
+  const amount = 100;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "insert into container_fee (container_id, type, fee_name, amount) "
+  sql += ` select id as container_id,"${type}" as type,"${fee_name}" as fee_name,"${amount}" as amount from container where track_no in ('${select_track_no.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+// 生成码头计划费
+const generatePlanningFee = async (req: Request, res: Response) => {
+  const {
+    type,
+    track_no
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  console.log(2222, "generate planning_fee");
+};
+
+// 生成堆存费
+const generateStorageFee = async (req: Request, res: Response) => {
+  const {
+    type,
+    track_no
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  console.log(3333, "generate storage_fee");
+};
+
+// 生成拖车费
+const generateDispatchFee = async (req: Request, res: Response) => {
+  const {
+    type,
+    track_no
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  console.log(4444, "generate dispatch_fee");
+};
+
+// 生成异常费
+const generateAbnormalFee = async (req: Request, res: Response) => {
+  const {
+    type,
+    track_no
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  console.log(55555, "generate abnormal_fee");
+};
+
 export {
   appliedFeeList,
   addAppliedFee,
   editAppliedFee,
   deleteAppliedFee,
   keepAppliedFee,
-  cancelKeepAppliedFee
+  cancelKeepAppliedFee,
+  generateOrderFee,
+  generatePlanningFee,
+  generateStorageFee,
+  generateDispatchFee,
+  generateAbnormalFee
 };
