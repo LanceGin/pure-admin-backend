@@ -762,12 +762,14 @@ const addVehicleFee = async (req: Request, res: Response) => {
     company,
     car_no,
     hang_board_no,
+    type,
     car_fees,
     content,
     quantity,
     amount,
     allocation_month,
     actual_amount,
+    tax_amount,
     settlement_confirm,
     remark,
     add_by
@@ -781,14 +783,23 @@ const addVehicleFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into vehicle_fee (add_time,driver,company,car_no,hang_board_no,car_fees,content,quantity,amount,allocation_month,actual_amount,settlement_confirm,remark,add_by) values ('${add_time}','${driver}','${company}','${car_no}','${hang_board_no}','${car_fees}','${content}','${quantity}','${amount}','${allocation_month}','${actual_amount}','${settlement_confirm}','${remark}','${add_by}')`;
+  let sql: string = `insert into vehicle_fee (add_time,driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,actual_amount,tax_amount,settlement_confirm,remark,add_by) values ('${add_time}','${driver}','${company}','${car_no}','${hang_board_no}','${type}','${car_fees}','${content}','${quantity}','${amount}','${allocation_month}','${actual_amount}','${tax_amount}','${settlement_confirm}','${remark}','${add_by}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
     } else {
-      await res.json({
-        success: true,
-        data: { message: Message[6] },
+      const is_admin = "业务";
+      const is_pay = "付";
+      let apply_fee_sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,apply_by,apply_department,create_time) values ('${is_admin}','${car_fees}','${is_pay}','${type}','${amount}','${actual_amount}','${tax_amount}','${add_by}','${company}','${add_time}')`;
+      connection.query(apply_fee_sql, async function (err, data) {
+        if (err) {
+          console.log(err);
+        } else {
+          await res.json({
+            success: true,
+            data: { message: Message[6] },
+          });
+        }
       });
     }
   });
@@ -802,12 +813,14 @@ const editVehicleFee = async (req: Request, res: Response) => {
     company,
     car_no,
     hang_board_no,
+    type,
     car_fees,
     content,
     quantity,
     amount,
     allocation_month,
     actual_amount,
+    tax_amount,
     settlement_confirm,
     remark
   } = req.body;
@@ -819,8 +832,8 @@ const editVehicleFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE vehicle_fee SET driver = ?,company = ?,car_no = ?,hang_board_no = ?,car_fees = ?,content = ?,quantity = ?,amount = ?,allocation_month = ?,actual_amount = ?,settlement_confirm = ?,remark = ? WHERE id = ?";
-  let modifyParams: string[] = [driver,company,car_no,hang_board_no,car_fees,content,quantity,amount,allocation_month,actual_amount,settlement_confirm,remark,id];
+  let modifySql: string = "UPDATE vehicle_fee SET driver = ?,company = ?,car_no = ?,hang_board_no = ?,type = ?,car_fees = ?,content = ?,quantity = ?,amount = ?,allocation_month = ?,actual_amount = ?,tax_amount = ?,settlement_confirm = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,actual_amount,tax_amount,settlement_confirm,remark,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);

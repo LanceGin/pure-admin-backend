@@ -360,6 +360,7 @@ const addAppliedFee = async (req: Request, res: Response) => {
     tax_amount,
     apply_by,
     apply_department,
+    remark,
   } = req.body;
   let payload = null;
   const create_time = dayjs(new Date()).format("YYYY-MM-DD");
@@ -370,7 +371,7 @@ const addAppliedFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,apply_by,apply_department,create_time) values ('${is_admin}','${fee_name}','${is_pay}','${pay_type}','${apply_amount}','${reimburse_amount}','${tax_amount}','${apply_by}','${apply_department}','${create_time}')`;
+  let sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,apply_by,apply_department,remark,create_time) values ('${is_admin}','${fee_name}','${is_pay}','${pay_type}','${apply_amount}','${reimburse_amount}','${tax_amount}','${apply_by}','${apply_department}','${remark}','${create_time}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -396,6 +397,7 @@ const editAppliedFee = async (req: Request, res: Response) => {
     tax_amount,
     apply_by,
     apply_department,
+    remark
   } = req.body;
   let payload = null;
   try {
@@ -405,8 +407,8 @@ const editAppliedFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE applied_fee SET is_admin = ?,fee_name = ?,is_pay = ?,pay_type = ?,apply_amount = ?,reimburse_amount = ?,tax_amount = ?,apply_by = ?,apply_department = ? WHERE id = ?";
-  let modifyParams: string[] = [is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,apply_by,apply_department,id];
+  let modifySql: string = "UPDATE applied_fee SET is_admin = ?,fee_name = ?,is_pay = ?,pay_type = ?,apply_amount = ?,reimburse_amount = ?,tax_amount = ?,apply_by = ?,apply_department = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,apply_by,apply_department,remark,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
