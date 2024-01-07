@@ -130,7 +130,12 @@ import {
   generateStorageFee,
   generateDispatchFee,
   generateAbnormalFee,
-  financeCheckList
+  financeCheckList,
+  invoicetList,
+  addInvoice,
+  editInvoice,
+  deleteInvoice,
+  setReceiptTime
 } from "./router/finance";
 
 import {
@@ -590,6 +595,26 @@ app.post("/generateAbnormalFee", (req, res) => {
 // 财务 - 费用审核列表
 app.post("/financeCheckList", (req, res) => {
   financeCheckList(req, res);
+})
+// 财务 - 发票列表
+app.post("/invoicetList", (req, res) => {
+  invoicetList(req, res);
+})
+// 财务 - 新增发票
+app.post("/addInvoice", (req, res) => {
+  addInvoice(req, res);
+})
+// 财务 - 编辑发票
+app.post("/editInvoice", (req, res) => {
+  editInvoice(req, res);
+})
+// 财务 - 删除发票
+app.post("/deleteInvoice", (req, res) => {
+  deleteInvoice(req, res);
+})
+// 财务 - 批量设置收款日期
+app.post("/setReceiptTime", (req, res) => {
+  setReceiptTime(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {

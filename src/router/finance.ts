@@ -210,6 +210,195 @@ const financeCheckList = async (req: Request, res: Response) => {
   });
 };
 
+// 获取发票列表
+const invoicetList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from invoice_info where id is not null ";
+  if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
+  if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
+  if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
+  if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
+  if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
+  if (form.seller_identification_no != "") { sql += " and seller_identification_no like " + "'%" + form.seller_identification_no + "%'" }
+  if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from invoice_info where id is not null ";
+  if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
+  if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
+  if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
+  if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
+  if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
+  if (form.seller_identification_no != "") { sql += " and seller_identification_no like " + "'%" + form.seller_identification_no + "%'" }
+  if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增发票
+const addInvoice = async (req: Request, res: Response) => {
+  const {
+    code,
+    no,
+    digital_ticket_no,
+    seller_identification_no,
+    seller_name,
+    buyer_identification_no,
+    buyer_name,
+    invoice_time,
+    amount,
+    tax_rate,
+    invoice_from,
+    invoice_type,
+    status,
+    is_positive,
+    risk_level,
+    invoice_by,
+    remark
+  } = req.body;
+  let payload = null;
+  const tax = amount * tax_rate;
+  const total_amount = Number(amount) + Number(tax);
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into invoice_info (code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,amount,tax_rate,tax,total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark) values ('${code}','${no}','${digital_ticket_no}','${seller_identification_no}','${seller_name}','${buyer_identification_no}','${buyer_name}','${invoice_time}','${amount}','${tax_rate}','${tax}','${total_amount}','${invoice_from}','${invoice_type}','${status}','${is_positive}','${risk_level}','${invoice_by}','${remark}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 修改发票
+const editInvoice = async (req: Request, res: Response) => {
+  const {
+    id,
+    code,
+    no,
+    digital_ticket_no,
+    seller_identification_no,
+    seller_name,
+    buyer_identification_no,
+    buyer_name,
+    invoice_time,
+    amount,
+    tax_rate,
+    invoice_from,
+    invoice_type,
+    status,
+    is_positive,
+    risk_level,
+    invoice_by,
+    remark
+  } = req.body;
+  let payload = null;
+  const tax = amount * tax_rate;
+  const total_amount = Number(amount) + Number(tax);
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE invoice_info SET code = ?,no = ?,digital_ticket_no = ?,seller_identification_no = ?,seller_name = ?,buyer_identification_no = ?,buyer_name = ?,invoice_time = ?,amount = ?,tax_rate = ?,tax = ?,total_amount = ?,invoice_from = ?,invoice_type = ?,status = ?,is_positive = ?,risk_level = ?,invoice_by = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,amount,tax_rate,tax,total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark,id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+// 删除发票
+const deleteInvoice = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from invoice_info where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+// 批量设置发票收款日期
+const setReceiptTime = async (req: Request, res: Response) => {
+  const { select_id, receipt_time } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE invoice_info SET receipt_time = '${receipt_time.value}', receipt_amount = total_amount WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 export {
   keepAppliedFee,
   cancelKeepAppliedFee,
@@ -218,5 +407,10 @@ export {
   generateStorageFee,
   generateDispatchFee,
   generateAbnormalFee,
-  financeCheckList
+  financeCheckList,
+  invoicetList,
+  addInvoice,
+  editInvoice,
+  deleteInvoice,
+  setReceiptTime
 };
