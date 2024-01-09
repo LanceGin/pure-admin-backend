@@ -589,7 +589,7 @@ const registerPayInvoice = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE pay_invoice_info SET is_invoice = '${form.is_invoice.value}',paid_time = '${form.paid_time.value}',certification_period = '${form.certification_period.value}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE pay_invoice_info SET is_invoice = '${form.is_invoice}',paid_time = '${form.paid_time}',certification_period = '${form.certification_period}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
