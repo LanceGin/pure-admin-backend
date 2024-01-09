@@ -399,6 +399,209 @@ const setReceiptTime = async (req: Request, res: Response) => {
   });
 };
 
+// 获取应付发票列表
+const payInvoicetList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from pay_invoice_info where id is not null ";
+  if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
+  if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
+  if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
+  if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
+  if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
+  if (form.seller_identification_no != "") { sql += " and seller_identification_no like " + "'%" + form.seller_identification_no + "%'" }
+  if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from pay_invoice_info where id is not null ";
+  if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
+  if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
+  if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
+  if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
+  if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
+  if (form.seller_identification_no != "") { sql += " and seller_identification_no like " + "'%" + form.seller_identification_no + "%'" }
+  if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增应付发票
+const addPayInvoice = async (req: Request, res: Response) => {
+  const {
+    code,
+    no,
+    digital_ticket_no,
+    seller_identification_no,
+    seller_name,
+    buyer_identification_no,
+    buyer_name,
+    invoice_time,
+    classification_code,
+    specific_type,
+    goods_or_taxable_service,
+    specification,
+    unit,
+    quantity,
+    unit_price,
+    tax_rate,
+    invoice_from,
+    invoice_type,
+    status,
+    is_positive,
+    risk_level,
+    invoice_by,
+    remark
+  } = req.body;
+  let payload = null;
+  const amount = quantity * unit_price;
+  const tax = amount * tax_rate;
+  const total_amount = Number(amount) + Number(tax);
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into pay_invoice_info (code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,classification_code,specific_type,goods_or_taxable_service,specification,unit,quantity,unit_price,amount,tax_rate,tax,total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark) values ('${code}','${no}','${digital_ticket_no}','${seller_identification_no}','${seller_name}','${buyer_identification_no}','${buyer_name}','${invoice_time}','${classification_code}','${specific_type}','${goods_or_taxable_service}','${specification}','${unit}','${quantity}','${unit_price}','${amount}','${tax_rate}','${tax}','${total_amount}','${invoice_from}','${invoice_type}','${status}','${is_positive}','${risk_level}','${invoice_by}','${remark}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 修改应付发票
+const editPayInvoice = async (req: Request, res: Response) => {
+  const {
+    id,
+    code,
+    no,
+    digital_ticket_no,
+    seller_identification_no,
+    seller_name,
+    buyer_identification_no,
+    buyer_name,
+    invoice_time,
+    classification_code,
+    specific_type,
+    goods_or_taxable_service,
+    specification,
+    unit,
+    quantity,
+    unit_price,
+    tax_rate,
+    invoice_from,
+    invoice_type,
+    status,
+    is_positive,
+    risk_level,
+    invoice_by,
+    remark
+  } = req.body;
+  let payload = null;
+  const amount = quantity * unit_price;
+  const tax = amount * tax_rate;
+  const total_amount = Number(amount) + Number(tax);
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE pay_invoice_info SET code = ?,no = ?,digital_ticket_no = ?,seller_identification_no = ?,seller_name = ?,buyer_identification_no = ?,buyer_name = ?,invoice_time = ?,classification_code = ?,specific_type = ?,goods_or_taxable_service = ?,specification = ?,unit = ?,quantity = ?,unit_price = ?,amount = ?,tax_rate = ?,tax = ?,total_amount = ?,invoice_from = ?,invoice_type = ?,status = ?,is_positive = ?,risk_level = ?,invoice_by = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,classification_code,specific_type,goods_or_taxable_service,specification,unit,quantity,unit_price,amount,tax_rate,tax,total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark,id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+// 删除应付发票
+const deletePayInvoice = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from pay_invoice_info where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+// 批量登记应付发票
+const registerPayInvoice = async (req: Request, res: Response) => {
+  const { select_id, form } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE pay_invoice_info SET is_invoice = '${form.is_invoice.value}',paid_time = '${form.paid_time.value}',certification_period = '${form.certification_period.value}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 export {
   keepAppliedFee,
   cancelKeepAppliedFee,
@@ -412,5 +615,10 @@ export {
   addInvoice,
   editInvoice,
   deleteInvoice,
-  setReceiptTime
+  setReceiptTime,
+  payInvoicetList,
+  addPayInvoice,
+  editPayInvoice,
+  deletePayInvoice,
+  registerPayInvoice
 };

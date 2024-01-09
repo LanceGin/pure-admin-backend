@@ -135,7 +135,12 @@ import {
   addInvoice,
   editInvoice,
   deleteInvoice,
-  setReceiptTime
+  setReceiptTime,
+  payInvoicetList,
+  addPayInvoice,
+  editPayInvoice,
+  deletePayInvoice,
+  registerPayInvoice
 } from "./router/finance";
 
 import {
@@ -615,6 +620,26 @@ app.post("/deleteInvoice", (req, res) => {
 // 财务 - 批量设置收款日期
 app.post("/setReceiptTime", (req, res) => {
   setReceiptTime(req, res);
+})
+// 财务 - 应付发票列表
+app.post("/payInvoicetList", (req, res) => {
+  payInvoicetList(req, res);
+})
+// 财务 - 新增应付发票
+app.post("/addPayInvoice", (req, res) => {
+  addPayInvoice(req, res);
+})
+// 财务 - 编辑应付发票
+app.post("/editPayInvoice", (req, res) => {
+  editPayInvoice(req, res);
+})
+// 财务 - 删除应付发票
+app.post("/deletePayInvoice", (req, res) => {
+  deletePayInvoice(req, res);
+})
+// 财务 - 批量登记应付发票
+app.post("/registerPayInvoice", (req, res) => {
+  registerPayInvoice(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {
