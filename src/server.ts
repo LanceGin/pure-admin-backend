@@ -136,11 +136,13 @@ import {
   editInvoice,
   deleteInvoice,
   setReceiptTime,
+  importInvoice,
   payInvoicetList,
   addPayInvoice,
   editPayInvoice,
   deletePayInvoice,
-  registerPayInvoice
+  registerPayInvoice,
+  importPayInvoice
 } from "./router/finance";
 
 import {
@@ -621,6 +623,10 @@ app.post("/deleteInvoice", (req, res) => {
 app.post("/setReceiptTime", (req, res) => {
   setReceiptTime(req, res);
 })
+// 财务 - 批量导入发票接口
+app.post("/importInvoice", upload_tmp.any(), (req, res) => {
+  importInvoice(req, res);
+})
 // 财务 - 应付发票列表
 app.post("/payInvoicetList", (req, res) => {
   payInvoicetList(req, res);
@@ -640,6 +646,10 @@ app.post("/deletePayInvoice", (req, res) => {
 // 财务 - 批量登记应付发票
 app.post("/registerPayInvoice", (req, res) => {
   registerPayInvoice(req, res);
+})
+// 财务 - 批量导入应付发票接口
+app.post("/importPayInvoice", upload_tmp.any(), (req, res) => {
+  importPayInvoice(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {

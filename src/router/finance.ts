@@ -12,6 +12,7 @@ import { Request, Response } from "express";
 import * as dayjs from "dayjs";
 
 const utils = require("@pureadmin/utils");
+const xlsx = require("node-xlsx");
 
 // 费用申请记账
 const keepAppliedFee = async (req: Request, res: Response) => {
@@ -399,6 +400,27 @@ const setReceiptTime = async (req: Request, res: Response) => {
   });
 };
 
+// 批量导入发票
+const importInvoice = async (req: Request, res: Response) => {
+  const file_path = req.files[0].path;
+  const sheets = xlsx.parse(file_path, { cellDates: true });
+  const values = sheets[0].data;
+  values.shift();
+  let sql: string = "insert into invoice_info (tmp_excel_no,code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,amount,tax,total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark) values ?"
+  connection.query(sql, [values], async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+        },
+      });
+    }
+  });
+};
+
 // 获取应付发票列表
 const payInvoicetList = async (req: Request, res: Response) => {
   const { pagination, form } = req.body;
@@ -602,6 +624,27 @@ const registerPayInvoice = async (req: Request, res: Response) => {
   });
 };
 
+// 批量导入应付发票
+const importPayInvoice = async (req: Request, res: Response) => {
+  const file_path = req.files[0].path;
+  const sheets = xlsx.parse(file_path, { cellDates: true });
+  const values = sheets[0].data;
+  values.shift();
+  let sql: string = "insert into pay_invoice_info (tmp_excel_no,code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,classification_code,specific_type,goods_or_taxable_service,specification,unit,quantity,unit_price,amount,tax_rate,tax,total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark) values ?"
+  connection.query(sql, [values], async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+        },
+      });
+    }
+  });
+};
+
 export {
   keepAppliedFee,
   cancelKeepAppliedFee,
@@ -616,9 +659,11 @@ export {
   editInvoice,
   deleteInvoice,
   setReceiptTime,
+  importInvoice,
   payInvoicetList,
   addPayInvoice,
   editPayInvoice,
   deletePayInvoice,
-  registerPayInvoice
+  registerPayInvoice,
+  importPayInvoice
 };
