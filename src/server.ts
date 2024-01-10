@@ -142,7 +142,10 @@ import {
   editPayInvoice,
   deletePayInvoice,
   registerPayInvoice,
-  importPayInvoice
+  importPayInvoice,
+  collectionContainerList,
+  approveCollection,
+  rejectCollection
 } from "./router/finance";
 
 import {
@@ -650,6 +653,18 @@ app.post("/registerPayInvoice", (req, res) => {
 // 财务 - 批量导入应付发票接口
 app.post("/importPayInvoice", upload_tmp.any(), (req, res) => {
   importPayInvoice(req, res);
+})
+// 财务 - 应收箱子接口
+app.post("/collectionContainerList", upload_tmp.any(), (req, res) => {
+  collectionContainerList(req, res);
+})
+// 财务 - 通过应收费用审核
+app.post("/approveCollection", upload_tmp.any(), (req, res) => {
+  approveCollection(req, res);
+})
+// 财务 - 驳回应收费用审核
+app.post("/rejectCollection", upload_tmp.any(), (req, res) => {
+  rejectCollection(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {

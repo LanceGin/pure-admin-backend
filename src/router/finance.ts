@@ -179,7 +179,7 @@ const financeCheckList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `SELECT a.id,a.type,a.status,a.account_period,a.custom_name,a.project_name,a.flow_direction,a.content,b.container_type,sum(a.amount) as amount,count(b.id) as total, COUNT(IF(left(b.container_type, 2) = '40',true,null)) as f, COUNT(IF(left(b.container_type, 2) = '20',true,null)) as t FROM container_fee as a left join container as b on a.container_id = b.id where a.status = "未审核" `;
+  let sql: string = `SELECT a.id,a.type,a.status,a.fee_name,a.account_period,a.custom_name,a.project_name,a.flow_direction,a.content,b.container_type,b.add_by,sum(a.amount) as amount,count(b.id) as total, COUNT(IF(left(b.container_type, 2) = '40',true,null)) as f, COUNT(IF(left(b.container_type, 2) = '20',true,null)) as t FROM container_fee as a left join container as b on a.container_id = b.id where a.status = "未审核" `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.custom_name != "") { sql += " and a.custom_name = " + "'" + form.custom_name + "'" }
   if (form.project_name != "") { sql += " and a.project_name = " + "'" + form.project_name + "'" }
@@ -197,7 +197,11 @@ const financeCheckList = async (req: Request, res: Response) => {
     if (err) {
       Logger.error(err);
     } else {
-      total = data[1][0]['COUNT(*)'];
+      if (data[1] == 0) {
+        total = 0;
+      } else {
+        total = data[1][0]['COUNT(*)'];
+      }
       await res.json({
         success: true,
         data: { 
@@ -645,6 +649,128 @@ const importPayInvoice = async (req: Request, res: Response) => {
   });
 };
 
+// 获取应收箱子记录
+const collectionContainerList = async (req: Request, res: Response) => {
+  const {
+    account_period,
+    custom_name,
+    project_name,
+    flow_direction,
+    content
+  }  = req.body.form;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `select a.*, b.amount from container as a left join container_fee as b on a.id = b.container_id where b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
+  sql += ` and b.custom_name = '${custom_name}'`;
+  sql += ` and b.project_name = '${project_name}'`;
+  sql += ` and b.flow_direction = '${flow_direction}'`;
+  sql += ` and b.content = '${content}'`;
+  console.log(2222, sql);
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data,
+        },
+      });
+    }
+  });
+};
+
+// 通过应收费用审核
+const approveCollection = async (req: Request, res: Response) => {
+  const {
+    account_period,
+    fee_name,
+    custom_name,
+    project_name,
+    flow_direction,
+    content,
+    amount,
+    add_by
+  }  = req.body;
+  let payload = null;
+  const status = '已审核';
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `update container_fee as b set b.status = '${status}' where b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
+  sql += ` and b.custom_name = '${custom_name}'`;
+  sql += ` and b.project_name = '${project_name}'`;
+  sql += ` and b.flow_direction = '${flow_direction}'`;
+  sql += ` and b.content = '${content}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      const is_admin = "业务";
+      const is_pay = "付";
+      const add_time = dayjs(new Date()).format("YYYY-MM-DD");
+      let apply_fee_sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,apply_amount,apply_by,create_time) values ('${is_admin}','${fee_name}','${is_pay}','${amount}','${add_by}','${add_time}')`;
+      connection.query(apply_fee_sql, async function (err, data) {
+        if (err) {
+          console.log(err);
+        } else {
+          await res.json({
+            success: true,
+            data: { message: Message[6] },
+          });
+        }
+      });
+    }
+  });
+};
+
+// 驳回应收费用审核
+const rejectCollection = async (req: Request, res: Response) => {
+  const {
+    account_period,
+    custom_name,
+    project_name,
+    flow_direction,
+    content
+  }  = req.body;
+  let payload = null;
+  const status = '未提交';
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `update container_fee as b set b.status = '${status}' where b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
+  sql += ` and b.custom_name = '${custom_name}'`;
+  sql += ` and b.project_name = '${project_name}'`;
+  sql += ` and b.flow_direction = '${flow_direction}'`;
+  sql += ` and b.content = '${content}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data,
+        },
+      });
+    }
+  });
+};
+
 export {
   keepAppliedFee,
   cancelKeepAppliedFee,
@@ -665,5 +791,8 @@ export {
   editPayInvoice,
   deletePayInvoice,
   registerPayInvoice,
-  importPayInvoice
+  importPayInvoice,
+  collectionContainerList,
+  approveCollection,
+  rejectCollection
 };
