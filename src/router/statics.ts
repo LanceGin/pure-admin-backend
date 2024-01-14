@@ -69,6 +69,9 @@ const containerFeeList = async (req: Request, res: Response) => {
 // 提交统计费用
 const submitContainerFee = async (req: Request, res: Response) => {
   const { select_id, data } = req.body;
+  const ids = select_id.length;
+  const less_amount = data.less_amount / ids;
+  const more_amount = data.more_amount / ids;
   const status = "未审核"
   let payload = null;
   try {
@@ -78,7 +81,7 @@ const submitContainerFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container_fee SET status = '${status}',account_period = '${data.account_period}',custom_name = '${data.custom_name}',project_name = '${data.project_name}',content = '${data.content}',flow_direction = '${data.flow_direction}',less_amount = '${data.less_amount}',more_amount = '${data.more_amount}',remark = '${data.remark}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container_fee SET status = '${status}',account_period = '${data.account_period}',custom_name = '${data.custom_name}',project_name = '${data.project_name}',content = '${data.content}',flow_direction = '${data.flow_direction}',less_amount = '${less_amount}',more_amount = '${more_amount}',remark = '${data.remark}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);

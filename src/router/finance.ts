@@ -179,20 +179,20 @@ const financeCheckList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `SELECT a.id,a.type,a.status,a.fee_name,a.account_period,a.custom_name,a.project_name,a.flow_direction,a.content,b.container_type,b.add_by,sum(a.amount) as amount,count(b.id) as total, COUNT(IF(left(b.container_type, 2) = '40',true,null)) as f, COUNT(IF(left(b.container_type, 2) = '20',true,null)) as t FROM container_fee as a left join container as b on a.container_id = b.id where a.status = "未审核" `;
+  let sql: string = `SELECT a.id,a.type,a.status,a.fee_name,a.account_period,a.custom_name,a.project_name,a.flow_direction,a.content,b.container_type,b.add_by,sum(a.amount) as amount,sum(a.less_amount) as less_amount,sum(a.more_amount) as more_amount,count(b.id) as total, COUNT(IF(left(b.container_type, 2) = '40',true,null)) as f, COUNT(IF(left(b.container_type, 2) = '20',true,null)) as t FROM container_fee as a left join container as b on a.container_id = b.id where a.status = "未审核" `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.custom_name != "") { sql += " and a.custom_name = " + "'" + form.custom_name + "'" }
   if (form.project_name != "") { sql += " and a.project_name = " + "'" + form.project_name + "'" }
   if (form.account_period != "") { sql += " and a.account_period = " + "'" + form.account_period + "'" }
   if (form.flow_direction != "") { sql += " and a.flow_direction = " + "'" + form.flow_direction + "'" }
-  sql +=" GROUP BY a.account_period, a.custom_name,a.project_name,a.flow_direction,a.content,b.container_type order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=" GROUP BY a.account_period, a.custom_name,a.project_name,a.flow_direction,a.content order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=`;select COUNT(*) FROM container_fee as a left join container as b on a.container_id = b.id where a.status = "未审核" `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.custom_name != "") { sql += " and a.custom_name = " + "'" + form.custom_name + "'" }
   if (form.project_name != "") { sql += " and a.project_name = " + "'" + form.project_name + "'" }
   if (form.account_period != "") { sql += " and a.account_period = " + "'" + form.account_period + "'" }
   if (form.flow_direction != "") { sql += " and a.flow_direction = " + "'" + form.flow_direction + "'" }
-  sql +=" GROUP BY a.account_period, a.custom_name,a.project_name,a.flow_direction,a.content,b.container_type";
+  sql +=" GROUP BY a.account_period, a.custom_name,a.project_name,a.flow_direction,a.content";
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
