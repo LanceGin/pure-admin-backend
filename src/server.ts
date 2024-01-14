@@ -145,7 +145,9 @@ import {
   importPayInvoice,
   collectionContainerList,
   approveCollection,
-  rejectCollection
+  rejectCollection,
+  approvePay,
+  rejectPay
 } from "./router/finance";
 
 import {
@@ -665,6 +667,14 @@ app.post("/approveCollection", upload_tmp.any(), (req, res) => {
 // 财务 - 驳回应收费用审核
 app.post("/rejectCollection", upload_tmp.any(), (req, res) => {
   rejectCollection(req, res);
+})
+// 财务 - 通过应付费用审核
+app.post("/approvePay", upload_tmp.any(), (req, res) => {
+  approvePay(req, res);
+})
+// 财务 - 驳回应付费用审核
+app.post("/rejectPay", upload_tmp.any(), (req, res) => {
+  rejectPay(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {

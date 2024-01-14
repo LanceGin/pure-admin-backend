@@ -179,7 +179,7 @@ const financeCheckList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `SELECT a.id,a.type,a.status,a.fee_name,a.account_period,a.custom_name,a.project_name,a.flow_direction,a.content,b.container_type,b.add_by,sum(a.amount) as amount,sum(a.less_amount) as less_amount,sum(a.more_amount) as more_amount,count(b.id) as total, COUNT(IF(left(b.container_type, 2) = '40',true,null)) as f, COUNT(IF(left(b.container_type, 2) = '20',true,null)) as t FROM container_fee as a left join container as b on a.container_id = b.id where a.status = "未审核" `;
+  let sql: string = `SELECT a.id,a.type,a.status,a.fee_name,a.account_period,a.custom_name,a.project_name,a.flow_direction,a.content,b.container_type,b.add_by,sum(a.amount) as amount,sum(a.less_amount) as less_amount,sum(a.more_amount) as more_amount,sum(a.amount-a.less_amount+a.more_amount) as actual_amount,count(b.id) as total, COUNT(IF(left(b.container_type, 2) = '40',true,null)) as f, COUNT(IF(left(b.container_type, 2) = '20',true,null)) as t FROM container_fee as a left join container as b on a.container_id = b.id where a.status = "未审核" `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.custom_name != "") { sql += " and a.custom_name = " + "'" + form.custom_name + "'" }
   if (form.project_name != "") { sql += " and a.project_name = " + "'" + form.project_name + "'" }
@@ -666,12 +666,11 @@ const collectionContainerList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `select a.*, b.amount from container as a left join container_fee as b on a.id = b.container_id where b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
+  let sql: string = `select a.*, b.amount,b.less_amount,b.more_amount,(b.amount-b.less_amount+b.more_amount) as actual_amount from container as a left join container_fee as b on a.id = b.container_id where b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
   sql += ` and b.custom_name = '${custom_name}'`;
   sql += ` and b.project_name = '${project_name}'`;
   sql += ` and b.flow_direction = '${flow_direction}'`;
   sql += ` and b.content = '${content}'`;
-  console.log(2222, sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -707,7 +706,7 @@ const approveCollection = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `update container_fee as b set b.status = '${status}' where b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
+  let sql: string = `update container_fee as b set b.status = '${status}' where b.type = "应收" and b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
   sql += ` and b.custom_name = '${custom_name}'`;
   sql += ` and b.project_name = '${project_name}'`;
   sql += ` and b.flow_direction = '${flow_direction}'`;
@@ -752,7 +751,80 @@ const rejectCollection = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `update container_fee as b set b.status = '${status}' where b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
+  let sql: string = `update container_fee as b set b.status = '${status}' where b.type = "应收" and b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
+  sql += ` and b.custom_name = '${custom_name}'`;
+  sql += ` and b.project_name = '${project_name}'`;
+  sql += ` and b.flow_direction = '${flow_direction}'`;
+  sql += ` and b.content = '${content}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data,
+        },
+      });
+    }
+  });
+};
+
+// 通过应付费用审核
+const approvePay = async (req: Request, res: Response) => {
+  const {
+    account_period,
+    fee_name,
+    custom_name,
+    project_name,
+    flow_direction,
+    content
+  }  = req.body;
+  let payload = null;
+  const status = '已审核';
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `update container_fee as b set b.status = '${status}' where b.type = "应付" and b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
+  sql += ` and b.custom_name = '${custom_name}'`;
+  sql += ` and b.project_name = '${project_name}'`;
+  sql += ` and b.flow_direction = '${flow_direction}'`;
+  sql += ` and b.content = '${content}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 驳回应付费用审核
+const rejectPay = async (req: Request, res: Response) => {
+  const {
+    account_period,
+    custom_name,
+    project_name,
+    flow_direction,
+    content
+  }  = req.body;
+  let payload = null;
+  const status = '未提交';
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `update container_fee as b set b.status = '${status}' where b.type = "应付" and b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
   sql += ` and b.custom_name = '${custom_name}'`;
   sql += ` and b.project_name = '${project_name}'`;
   sql += ` and b.flow_direction = '${flow_direction}'`;
@@ -794,5 +866,7 @@ export {
   importPayInvoice,
   collectionContainerList,
   approveCollection,
-  rejectCollection
+  rejectCollection,
+  approvePay,
+  rejectPay
 };
