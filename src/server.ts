@@ -160,7 +160,16 @@ import {
 } from "./router/statics";
 
 // 新建存放临时文件的文件夹
-const upload_tmp = multer({ dest: "upload_tmp/" });
+const upload_tmp = multer({
+  dest: "upload_tmp/",
+  fileFilter(req, file, callback) {
+    // 解决中文名乱码的问题
+    file.originalname = Buffer.from(file.originalname, "latin1").toString(
+      "utf8"
+    );
+    callback(null, true);
+  },
+});
 // 登录管理
 // 登录管理 - 登录接口
 app.post("/login", (req, res) => {
