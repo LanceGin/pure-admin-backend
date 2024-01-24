@@ -313,7 +313,7 @@ const appliedFeeList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `select * from applied_fee where id is not null`;
+  let sql: string = `select a.*,b.company_name,b.bank,b.account_no from applied_fee as a left join acc_company as b on a.acc_company_id = b.id where a.id is not null`;
   if (form.apply_by != "") { sql += " and apply_by = " + "'" + form.apply_by + "'" }
   if (form.apply_time != "") { sql += " and apply_time = " + "'" + form.apply_time + "'" }
   if (form.fee_no != "") { sql += " and fee_no like " + "'%" + form.fee_no + "%'" }
@@ -322,7 +322,7 @@ const appliedFeeList = async (req: Request, res: Response) => {
   if (form.pay_type != "") { sql += " and pay_type like " + "'%" + form.pay_type + "%'" }
   if (form.status != "") { sql += " and status like " + "'%" + form.status + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
-  sql +=`;select COUNT(*) from applied_fee where id is not null`;
+  sql +=`;select COUNT(*) from applied_fee as a left join acc_company as b on a.acc_company_id = b.id where a.id is not null`;
   if (form.apply_by != "") { sql += " and apply_by = " + "'" + form.apply_by + "'" }
   if (form.apply_time != "") { sql += " and apply_time = " + "'" + form.apply_time + "'" }
   if (form.fee_no != "") { sql += " and fee_no like " + "'%" + form.fee_no + "%'" }
@@ -358,6 +358,7 @@ const addAppliedFee = async (req: Request, res: Response) => {
     apply_amount,
     reimburse_amount,
     tax_amount,
+    acc_company_id,
     apply_by,
     apply_department,
     remark,
@@ -371,7 +372,7 @@ const addAppliedFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,apply_by,apply_department,remark,create_time) values ('${is_admin}','${fee_name}','${is_pay}','${pay_type}','${apply_amount}','${reimburse_amount}','${tax_amount}','${apply_by}','${apply_department}','${remark}','${create_time}')`;
+  let sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,apply_department,remark,create_time) values ('${is_admin}','${fee_name}','${is_pay}','${pay_type}','${apply_amount}','${reimburse_amount}','${tax_amount}','${acc_company_id}','${apply_by}','${apply_department}','${remark}','${create_time}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -395,6 +396,7 @@ const editAppliedFee = async (req: Request, res: Response) => {
     apply_amount,
     reimburse_amount,
     tax_amount,
+    acc_company_id,
     apply_by,
     apply_department,
     remark
@@ -407,8 +409,8 @@ const editAppliedFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE applied_fee SET is_admin = ?,fee_name = ?,is_pay = ?,pay_type = ?,apply_amount = ?,reimburse_amount = ?,tax_amount = ?,apply_by = ?,apply_department = ?,remark = ? WHERE id = ?";
-  let modifyParams: string[] = [is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,apply_by,apply_department,remark,id];
+  let modifySql: string = "UPDATE applied_fee SET is_admin = ?,fee_name = ?,is_pay = ?,pay_type = ?,apply_amount = ?,reimburse_amount = ?,tax_amount = ?,acc_company_id=?,apply_by = ?,apply_department = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,apply_department,remark,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);

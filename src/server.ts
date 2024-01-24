@@ -132,6 +132,7 @@ import {
   generateDispatchFee,
   generateAbnormalFee,
   financeCheckList,
+  financeStatList,
   invoicetList,
   addInvoice,
   editInvoice,
@@ -605,6 +606,10 @@ app.post("/generateAbnormalFee", (req, res) => {
 // 财务 - 费用审核列表
 app.post("/financeCheckList", (req, res) => {
   financeCheckList(req, res);
+})
+// 财务 - 费用报表列表
+app.post("/financeStatList", (req, res) => {
+  financeStatList(req, res);
 })
 // 财务 - 发票列表
 app.post("/invoicetList", (req, res) => {
