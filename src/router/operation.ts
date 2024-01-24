@@ -187,7 +187,7 @@ const importDocumentCheck = async (req: Request, res: Response) => {
   const sheets = xlsx.parse(file_path, { cellDates: true });
   const values = sheets[0].data;
   values.shift();
-  let sql: string = "insert into container (tmp_excel_no,ship_company,customer,subproject,arrive_time,start_port,target_port,containner_no,seal_no,container_type,ship_name,track_no,unload_port,door) values ?"
+  let sql: string = "insert into container (tmp_excel_no,ship_company,customer,subproject,arrive_time,start_port,target_port,containner_no,seal_no,container_type,ship_name,track_no,load_port,unload_port,door) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -266,7 +266,7 @@ const addContainer = async (req: Request, res: Response) => {
 
 // 删除单证记录
 const deleteDocumentCheck = async (req: Request, res: Response) => {
-  const id = req.body.id;
+  const select_track_no = req.body;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -275,7 +275,7 @@ const deleteDocumentCheck = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `DELETE from container where id = '${id}'`;
+  let sql: string = `DELETE from container where track_no in ('${select_track_no.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);

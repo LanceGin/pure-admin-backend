@@ -59,6 +59,7 @@ import {
   containerList,
   addContainer,
   importDocumentCheck,
+  deleteDocumentCheck,
   importExportContainer,
   submitDocumentCheck,
   pickBoxList,
@@ -197,85 +198,73 @@ app.post("/wxClockList", (req, res) => {
 app.post("/motorcadeList", (req, res) => {
   motorcadeList(req, res);
 })
-
 // 运作管理 - 添加客户接口
 app.post("/addMotorcade", (req, res) => {
   addMotorcade(req, res);
 })
-
 // 运作管理 - 删除客户接口
 app.post("/deleteMotorcade", (req, res) => {
   deleteMotorcade(req, res);
 })
-
 // 运作管理 - 编辑客户接口
 app.post("/editMotorcade", (req, res) => {
   editMotorcade(req, res);
 })
-
 // 运作管理 - 堆场列表接口
 app.post("/yardList", (req, res) => {
   yardList(req, res);
 })
-
 // 运作管理 - 添加堆场接口
 app.post("/addYard", (req, res) => {
   addYard(req, res);
 })
-
 // 运作管理 - 删除堆场接口
 app.post("/deleteYard", (req, res) => {
   deleteYard(req, res);
 })
-
 // 运作管理 - 编辑堆场接口
 app.post("/editYard", (req, res) => {
   editYard(req, res);
 })
-
 // 运作管理 - 代收费用列表接口
 app.post("/feeCollectionList", (req, res) => {
   feeCollectionList(req, res);
 })
-
 // 运作管理 - 添加代收费用接口
 app.post("/addFeeCollection", (req, res) => {
   addFeeCollection(req, res);
 })
-
 // 运作管理 - 删除代收费用接口
 app.post("/deleteFeeCollection", (req, res) => {
   deleteFeeCollection(req, res);
 })
-
 // 运作管理 - 编辑代收费用接口
 app.post("/editFeeCollection", (req, res) => {
   editFeeCollection(req, res);
 })
-
 // 运作管理 - 散货记录列表接口
 app.post("/bulkCargoList", (req, res) => {
   bulkCargoList(req, res);
 })
-
 // 运作管理 - 添加散货记录接口
 app.post("/addBulkCargo", (req, res) => {
   addBulkCargo(req, res);
 })
-
 // 运作管理 - 删除散货记录接口
 app.post("/deleteBulkCargo", (req, res) => {
   deleteBulkCargo(req, res);
 })
-
 // 运作管理 - 编辑散货记录接口
 app.post("/editBulkCargo", (req, res) => {
   editBulkCargo(req, res);
 })
-
 // 运作管理 - 单证列表接口
 app.post("/documentCheckList", (req, res) => {
   documentCheckList(req, res);
+})
+// 运作管理 - 删除单证列表接口
+app.post("/deleteDocumentCheck", (req, res) => {
+  deleteDocumentCheck(req, res);
 })
 // 运作管理 - 箱子列表接口
 app.post("/containerList", (req, res) => {
