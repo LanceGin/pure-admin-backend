@@ -379,16 +379,22 @@ const pickBoxList = async (req: Request, res: Response) => {
   if (form.ship_name != "") { sql += " and ship_name like " + "'%" + form.ship_name + "%'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.container_status != "") { sql += " and container_status like " + "'%" + form.container_status + "%'" }
+  if (form.containner_no != "") {
+    const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
+    sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
-  if (form.make_time != "") { sql += " and make_time = " + "'" + form.make_time + "'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from container where order_status = '已提交' ";
   if (form.arrive_time != "") { sql += " and arrive_time = " + "'" + form.arrive_time + "'" }
   if (form.ship_name != "") { sql += " and ship_name like " + "'%" + form.ship_name + "%'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.container_status != "") { sql += " and container_status like " + "'%" + form.container_status + "%'" }
+  if (form.containner_no != "") {
+    const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
+    sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
-  if (form.make_time != "") { sql += " and make_time = " + "'" + form.make_time + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
