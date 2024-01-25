@@ -67,6 +67,39 @@ const cancelKeepAppliedFee = async (req: Request, res: Response) => {
   });
 };
 
+// 生成应收费用
+const generateContainerFee = async (req: Request, res: Response) => {
+  const {
+    account_period,
+    custom_name,
+    project_name,
+    flow_direction,
+    content,
+    amount
+  } = req.body;
+  const type = "应收";
+  const status = "已审核";
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into container_fee (type,status,account_period,custom_name,project_name,flow_direction,content,amount) values ('${type}','${status}','${account_period}','${custom_name}','${project_name}','${flow_direction}','${content}','${amount}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
 // 生成打单费
 const generateOrderFee = async (req: Request, res: Response) => {
   const select_track_no = req.body;
@@ -902,6 +935,7 @@ const rejectPay = async (req: Request, res: Response) => {
 export {
   keepAppliedFee,
   cancelKeepAppliedFee,
+  generateContainerFee,
   generateOrderFee,
   generatePlanningFee,
   generateStorageFee,

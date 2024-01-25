@@ -126,6 +126,7 @@ import {
 import {
   keepAppliedFee,
   cancelKeepAppliedFee,
+  generateContainerFee,
   generateOrderFee,
   generatePlanningFee,
   generateStorageFee,
@@ -582,6 +583,10 @@ app.post("/keepAppliedFee", (req, res) => {
 // 财务 - 费用审核撤销
 app.post("/cancelKeepAppliedFee", (req, res) => {
   cancelKeepAppliedFee(req, res);
+})
+// 财务 - 生成应收费
+app.post("/generateContainerFee", (req, res) => {
+  generateContainerFee(req, res);
 })
 // 财务 - 生成打单费
 app.post("/generateOrderFee", (req, res) => {
