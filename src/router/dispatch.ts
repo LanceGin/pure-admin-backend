@@ -7,11 +7,12 @@ import Logger from "../loaders/logger";
 import { Message } from "../utils/enums";
 import getFormatDate from "../utils/date";
 import { connection } from "../utils/mysql";
-import { getRandomString } from "../utils/utils";
+import { getRandomString, formatDate } from "../utils/utils";
 import { Request, Response } from "express";
 import * as dayjs from "dayjs";
 
 const utils = require("@pureadmin/utils");
+const xlsx = require("node-xlsx");
 
 // 获取拆箱列表
 const unpackingList = async (req: Request, res: Response) => {
@@ -76,6 +77,34 @@ const dispatchCar = async (req: Request, res: Response) => {
       await res.json({
         success: true,
         data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+// 批量导入派车
+const importDispatch = async (req: Request, res: Response) => {
+  const file_path = req.files[0].path;
+  const sheets = xlsx.parse(file_path, {
+    // cellDates: true,
+    defval: ""
+  });
+  const values = sheets[0].data;
+  values.shift();
+  let sql: string = "";
+  values.forEach((v) => {
+    v[0] = formatDate(v[0], "/");
+    sql += ` update container set car_no = '${v[3]}', temp_port = '${v[4]}', container_status = '运输中', transport_status = '0' where containner_no = '${v[2]}' and container_status = '已挑箱';`
+  })
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+        },
       });
     }
   });
@@ -328,6 +357,7 @@ const tempDropDispatchList = async (req: Request, res: Response) => {
 export {
   unpackingList,
   dispatchCar,
+  importDispatch,
   importDispatchList,
   editContainerInfo,
   exportDispatchList,

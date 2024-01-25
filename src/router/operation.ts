@@ -23,13 +23,16 @@ const importYtoj = async (req: Request, res: Response) => {
   const file_split = file_name.split(/[-.]/);
   const add_time = file_split[0];
   const voyage = file_split[1];
-  const sheets = xlsx.parse(file_path, { cellDates: true });
+  const sheets = xlsx.parse(file_path, {
+    // cellDates: true,
+    defval: ""
+  });
   const values = sheets[0].data;
   values.shift();
   values.forEach((v) => {
     v.unshift("0", add_time, voyage);
   })
-  let sql: string = "insert into lightering (type,add_time,voyage,container_no,bl_no,customs_container_type,iso,container_type,container_holder,is_import,extra_operation,trade_type,seal_no,cargo_name,load_port,target_port) values ?"
+  let sql: string = "insert into lightering (type,add_time,voyage,container_no,bl_no,customs_container_type,iso,container_type,container_holder,is_import,extra_operation,trade_type,seal_no,cargo_name,load_port,target_port,unload_port,load_payer,total_weight,cargo_weight,volume,amount,cargo_owner,forwarder,remarks) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -51,7 +54,10 @@ const importJtoy = async (req: Request, res: Response) => {
   const file_split = file_name.split(/[-.]/);
   const add_time = file_split[0];
   const voyage = file_split[1];
-  const sheets = xlsx.parse(file_path, { cellDates: true });
+  const sheets = xlsx.parse(file_path, {
+    // cellDates: true,
+    defval: ""
+  });
   const values = sheets[0].data;
   values.shift();
   values.forEach((v) => {
@@ -192,9 +198,15 @@ const containerList = async (req: Request, res: Response) => {
 // 批量导入单证记录
 const importDocumentCheck = async (req: Request, res: Response) => {
   const file_path = req.files[0].path;
-  const sheets = xlsx.parse(file_path, { cellDates: true });
+  const sheets = xlsx.parse(file_path, {
+    // cellDates: true,
+    defval: ""
+  });
   const values = sheets[0].data;
   values.shift();
+  values.forEach((v) => {
+    v[4] = formatDate(v[4], "/");
+  })
   let sql: string = "insert into container (tmp_excel_no,ship_company,customer,subproject,arrive_time,start_port,target_port,containner_no,seal_no,container_type,ship_name,track_no,load_port,unload_port,door) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
