@@ -22,3 +22,16 @@ export function getRandomString(len){
     }
     return _str;
 }
+
+// 格式化时间
+export function formatDate(numb, format) {
+    let getDay = numb - 1
+    let t = Math.round((getDay - Math.floor(getDay)) * 24 * 60 * 60)
+    //当导入的excel日期中包含了时分秒，t则表示小数点后面的时间
+    let time = new Date(1900, 0, getDay, 0, 0, t);
+    //getDay是从1900开始计算的，因此new Date()的第一个参数是1900
+    let year = time.getFullYear();
+    let month = time.getMonth() + 1;
+    let date = time.getDate();
+    return year + format + (month < 10 ? "0" + month : month) + format + (date < 10 ? "0" + date : date);
+}

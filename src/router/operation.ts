@@ -7,7 +7,7 @@ import Logger from "../loaders/logger";
 import { Message } from "../utils/enums";
 import getFormatDate from "../utils/date";
 import { connection } from "../utils/mysql";
-import { getRandomString } from "../utils/utils";
+import { getRandomString, formatDate } from "../utils/utils";
 import { Request, Response } from "express";
 import * as dayjs from "dayjs";
 import { readFileSync } from 'fs'
@@ -213,13 +213,18 @@ const importDocumentCheck = async (req: Request, res: Response) => {
 // 批量导入出口箱子记录
 const importExportContainer = async (req: Request, res: Response) => {
   const file_path = req.files[0].path;
-  const sheets = xlsx.parse(file_path, { cellDates: true });
+  const sheets = xlsx.parse(file_path, {
+    // cellDates: true,
+    defval: ""
+  });
   let values = sheets[0].data;
-  values = values.slice(2);
+  values = values.slice(1);
   values.forEach((v) => {
     v.push("已提交", "出口", "已完成");
+    v[4] = formatDate(v[4], "/");
   })
-  let sql: string = "insert into container (tmp_excel_no,make_time,customer,load_port,container_type,containner_no,ship_name,track_no,seal_no,door,unload_port,target_port,car_no,order_status,order_type,container_status) values ?"
+  let sql: string = "insert into container (tmp_excel_no,ship_company,customer,subproject,make_time,load_port,ship_name,track_no,containner_no,container_type,seal_no,door,unload_port,car_no,start_port,target_port,transfer_port,package_count,gross_weight,volume,container_weight,order_status,order_type,container_status) values ?"
+  console.log(2222, sql);
   connection.query(sql, [values], async function (err, data) {
     if (err) {
       Logger.error(err);
