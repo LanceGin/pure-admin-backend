@@ -204,7 +204,7 @@ const exportDispatchList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select * from container where container_status = '已完成' and order_type = '出口' ";
-  if (form.make_time != "") { sql += " and date_format(make_time,'%Y-%m-%d') = " + "'" + form.make_time + "'" }
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
@@ -213,7 +213,7 @@ const exportDispatchList = async (req: Request, res: Response) => {
   if (form.container_status == "未完成") { sql += " and container_status != '已完成'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from container where container_status = '已完成' and order_type = '出口' ";
-  if (form.make_time != "") { sql += " and date_format(make_time,'%Y-%m-%d') = " + "'" + form.make_time + "'" }
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }

@@ -94,10 +94,10 @@ const lighteringStatList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select add_time, voyage, cargo_name, container_type, count(id) as total from lightering where type = " + form.type;
+  let sql: string = "select add_time, voyage, cargo_name, COUNT(IF(left(container_type, 2) = '40',true,null)) as f, COUNT(IF(left(container_type, 2) = '20',true,null)) as t from lightering where type = " + form.type;
   if (form.add_time.length > 0) { sql += " and add_time between " + "'" + form.add_time[0] + "' and '" + form.add_time[1] + "'" }
   if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
-  sql +=" group by add_time, voyage, cargo_name, container_type order by add_time asc limit " + size + " offset " + size * (page - 1);
+  sql +=" group by add_time, voyage, cargo_name order by add_time asc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from lightering where type = " + form.type;
   if (form.add_time.length > 0) { sql += " and add_time between " + "'" + form.add_time[0] + "' and '" + form.add_time[1] + "'" }
   if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
