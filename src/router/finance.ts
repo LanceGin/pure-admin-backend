@@ -103,7 +103,8 @@ const generateContainerFee = async (req: Request, res: Response) => {
 // 生成打单费
 const generateOrderFee = async (req: Request, res: Response) => {
   const select_track_no = req.body;
-  const type = "应付";
+  const type_pay = "应付";
+  const type_collect = "应收"
   const fee_name = "打单费";
   const amount = 100;
   let payload = null;
@@ -114,8 +115,8 @@ const generateOrderFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "insert into container_fee (container_id, type, fee_name, amount) "
-  sql += ` select id as container_id,"${type}" as type,"${fee_name}" as fee_name,"${amount}" as amount from container where track_no in ('${select_track_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `insert into container_fee (container_id, type, fee_name, amount) select id as container_id,"${type_pay}" as type,"${fee_name}" as fee_name,"${amount}" as amount from container where track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`;
+  sql += ` insert into container_fee (container_id, type, fee_name, amount) select id as container_id,"${type_collect}" as type,"${fee_name}" as fee_name,"${amount}" as amount from container where track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -131,9 +132,13 @@ const generateOrderFee = async (req: Request, res: Response) => {
 // 生成码头计划费
 const generatePlanningFee = async (req: Request, res: Response) => {
   const {
-    type,
-    track_no
+    actual_amount,
+    select_container_no
   } = req.body;
+  const type_pay = "应付";
+  const type_collect = "应收"
+  const fee_name = "计划费";
+  const amount = actual_amount.value;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -142,7 +147,18 @@ const generatePlanningFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  console.log(2222, "generate planning_fee");
+  console.log(2222, req.body,  amount, "generate planning_fee");
+  let sql: string = `select * from container_fee limit 1;`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
 };
 
 // 生成堆存费
