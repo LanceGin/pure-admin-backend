@@ -163,6 +163,7 @@ const editContainerInfo = async (req: Request, res: Response) => {
     id,
     car_no,
     door,
+    temp_port,
     make_time
   } = req.body;
   let payload = null;
@@ -173,8 +174,8 @@ const editContainerInfo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE container SET car_no = ?,door = ?,make_time = ? WHERE id = ?";
-  let modifyParams: string[] = [car_no,door,make_time,id];
+  let modifySql: string = "UPDATE container SET car_no = ?,door = ?,temp_port = ?,make_time = ? WHERE id = ?";
+  let modifyParams: string[] = [car_no,door,temp_port,make_time,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -354,6 +355,60 @@ const tempDropDispatchList = async (req: Request, res: Response) => {
   });
 };
 
+// 一键完成
+const oneStepFinish = async (req: Request, res: Response) => {
+  const select_container_no = req.body;
+  let payload = null;
+  const container_status = "已完成";
+  const transport_status = "5";
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE container SET container_status = '${container_status}', transport_status = '${transport_status}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+// 一键撤回
+const oneStepRevoke = async (req: Request, res: Response) => {
+  const select_container_no = req.body;
+  let payload = null;
+  const container_status = "已挑箱";
+  const car_no = "";
+  const transport_status = "0";
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE container SET container_status = '${container_status}', car_no = '${car_no}', transport_status = '${transport_status}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+
 export {
   unpackingList,
   dispatchCar,
@@ -364,4 +419,6 @@ export {
   exportTmpDispatchList,
   tmpDispatchCar,
   tempDropDispatchList,
+  oneStepFinish,
+  oneStepRevoke,
 };

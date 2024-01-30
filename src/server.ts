@@ -82,6 +82,8 @@ import {
   exportTmpDispatchList,
   tmpDispatchCar,
   tempDropDispatchList,
+  oneStepFinish,
+  oneStepRevoke,
 } from "./router/dispatch";
 
 import {
@@ -441,6 +443,14 @@ app.post("/exportTmpDispatchList", (req, res) => {
 // 调度管理 - 获取暂落派车列表
 app.post("/tempDropDispatchList", (req, res) => {
   tempDropDispatchList(req, res);
+})
+// 调度管理 - 一键完成
+app.post("/oneStepFinish", (req, res) => {
+  oneStepFinish(req, res);
+})
+// 调度管理 - 一键撤回
+app.post("/oneStepRevoke", (req, res) => {
+  oneStepRevoke(req, res);
 })
 
 // 车辆管理

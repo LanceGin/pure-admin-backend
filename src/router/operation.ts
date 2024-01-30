@@ -570,7 +570,7 @@ const pickBoxList = async (req: Request, res: Response) => {
 
 // 挑箱
 const pickBox = async (req: Request, res: Response) => {
-  const select_container_no = req.body;
+  const { select_container_no, actual_amount } = req.body;
   let payload = null;
   const container_status = "已挑箱";
   try {
@@ -580,7 +580,7 @@ const pickBox = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}', actual_amount_temp = '${actual_amount.value}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -595,7 +595,7 @@ const pickBox = async (req: Request, res: Response) => {
 
 // 暂落
 const tempDrop = async (req: Request, res: Response) => {
-  const select_container_no = req.body;
+  const { select_container_no, temp_port } = req.body;
   let payload = null;
   const container_status = "已暂落";
   const temp_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
@@ -606,7 +606,7 @@ const tempDrop = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}', temp_time = '${temp_time}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}', temp_time = '${temp_time}', temp_port = '${temp_port.value}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
