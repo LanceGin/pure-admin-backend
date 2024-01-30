@@ -169,6 +169,93 @@ const documentCheckList = async (req: Request, res: Response) => {
   });
 };
 
+// 获取箱子以及费用记录
+const containerWithFeeList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from container where id is not null ";
+  if (form.container_status != "") { sql += " and container_status like " + "'%" + form.container_status + "%'" }
+  if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
+  if (form.subproject != "") { sql += " and subproject like " + "'%" + form.subproject + "%'" }
+  if (form.order_type != "") { sql += " and order_type like " + "'%" + form.order_type + "%'" }
+  if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
+  if (form.seal_no != "") { sql += " and seal_no like " + "'%" + form.seal_no + "%'" }
+  if (form.order_time != "") { sql += " and order_time = " + "'" + form.order_time + "'" }
+  if (form.containner_no != "") {
+    const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
+    sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from ( select * from container where id is not null ";
+  if (form.container_status != "") { sql += " and container_status like " + "'%" + form.container_status + "%'" }
+  if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
+  if (form.subproject != "") { sql += " and subproject like " + "'%" + form.subproject + "%'" }
+  if (form.order_type != "") { sql += " and order_type like " + "'%" + form.order_type + "%'" }
+  if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
+  if (form.seal_no != "") { sql += " and seal_no like " + "'%" + form.seal_no + "%'" }
+  if (form.order_time != "") { sql += " and order_time = " + "'" + form.order_time + "'" }
+  if (form.containner_no != "") {
+    const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
+    sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  }
+  sql +=" ) as t";
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 获取箱子费用记录
+const getContainerFeeList = async (req: Request, res: Response) => {
+  const container_id  = req.body.form.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `select * from container_fee where container_id = '${container_id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data,
+        },
+      });
+    }
+  });
+};
+
+
 // 获取箱子记录
 const containerList = async (req: Request, res: Response) => {
   const track_no  = req.body.form.track_no;
@@ -284,6 +371,49 @@ const addContainer = async (req: Request, res: Response) => {
       await res.json({
         success: true,
         data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 新增箱子费用
+const addContainerFee = async (req: Request, res: Response) => {
+  const {
+    id,
+    fee_name,
+    amount,
+    add_by
+  } = req.body;
+  let payload = null;
+  const type = "应付"
+  const status = "已审核";
+  const add_time = dayjs(new Date()).format("YYYY-MM-DD");
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into container_fee (container_id,type,status,fee_name,amount) values ('${id}','${type}','${status}','${fee_name}','${amount}');select LAST_INSERT_ID() as last_id;`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      const is_admin = "业务";
+      const is_pay = "付";
+      const from = "运作";
+      const from_id = data[1][0].last_id;
+      let apply_fee_sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,apply_amount,apply_by,create_time,from_tb,from_id) values ('${is_admin}','${fee_name}','${is_pay}','${amount}','${add_by}','${add_time}','${from}','${from_id}')`;
+      connection.query(apply_fee_sql, async function (err, data) {
+        if (err) {
+          console.log(err);
+        } else {
+          await res.json({
+            success: true,
+            data: { message: Message[6] },
+          });
+        }
       });
     }
   });
@@ -543,8 +673,11 @@ export {
   importJtoy,
   lighteringStatList,
   documentCheckList,
+  containerWithFeeList,
   containerList,
+  getContainerFeeList,
   addContainer,
+  addContainerFee,
   importDocumentCheck,
   importExportContainer,
   editDocumentCheck,

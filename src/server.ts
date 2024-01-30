@@ -56,8 +56,11 @@ import {
   importJtoy,
   lighteringStatList,
   documentCheckList,
+  containerWithFeeList,
   containerList,
+  getContainerFeeList,
   addContainer,
+  addContainerFee,
   importDocumentCheck,
   deleteDocumentCheck,
   importExportContainer,
@@ -274,6 +277,10 @@ app.post("/editBulkCargo", (req, res) => {
 app.post("/documentCheckList", (req, res) => {
   documentCheckList(req, res);
 })
+// 运作管理 - 单证查看接口
+app.post("/containerWithFeeList", (req, res) => {
+  containerWithFeeList(req, res);
+})
 // 运作管理 - 删除单证列表接口
 app.post("/deleteDocumentCheck", (req, res) => {
   deleteDocumentCheck(req, res);
@@ -282,9 +289,17 @@ app.post("/deleteDocumentCheck", (req, res) => {
 app.post("/containerList", (req, res) => {
   containerList(req, res);
 })
+// 运作管理 - 箱子费用列表接口
+app.post("/getContainerFeeList", (req, res) => {
+  getContainerFeeList(req, res);
+})
 // 运作管理 - 新增箱子接口
 app.post("/addContainer", (req, res) => {
   addContainer(req, res);
+})
+// 运作管理 - 新增箱子费用接口
+app.post("/addContainerFee", (req, res) => {
+  addContainerFee(req, res);
 })
 // 运作管理 - 批量导入单证列表接口
 app.post("/importDocumentCheck", upload_tmp.any(), (req, res) => {
