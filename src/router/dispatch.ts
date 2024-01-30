@@ -94,7 +94,7 @@ const importDispatch = async (req: Request, res: Response) => {
   let sql: string = "";
   values.forEach((v) => {
     v[0] = formatDate(v[0], "/");
-    sql += ` update container set car_no = '${v[3]}', temp_port = '${v[4]}', container_status = '运输中', transport_status = '0' where containner_no = '${v[2]}' and container_status = '已挑箱';`
+    sql += ` update container set car_no = '${v[2]}', container_status = '运输中', transport_status = '0' where containner_no = '${v[1]}' and container_status = '已挑箱';`
   })
   connection.query(sql, async function (err, data) {
     if (err) {
