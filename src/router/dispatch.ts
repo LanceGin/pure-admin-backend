@@ -126,19 +126,20 @@ const importDispatchList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select * from container where container_status = '运输中' and order_type = '进口' ";
+  let sql: string = "select * from container where container_status = '运输中' and order_type = '进口' and temp_status is null ";
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.container_type != "") { sql += " and container_type = " + "'" + form.container_type + "'" }
   if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
-  sql +=";select COUNT(*) from container where container_status = '运输中' and order_type = '进口' ";
+  sql +=";select COUNT(*) from container where container_status = '运输中' and order_type = '进口' and temp_status is null ";
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.container_type != "") { sql += " and container_type = " + "'" + form.container_type + "'" }
   if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  console.log(1111, sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);

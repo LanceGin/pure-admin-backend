@@ -668,6 +668,32 @@ const makeTime = async (req: Request, res: Response) => {
   });
 };
 
+// 获取堆场价格列表
+const yardPriceList = async (req: Request, res: Response) => {
+  const { id } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `select * from yard_price where yard_id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data,
+        },
+      });
+    }
+  });
+};
+
 
 export {
   importYtoj,
@@ -689,4 +715,5 @@ export {
   tempDrop,
   loadPort,
   makeTime,
+  yardPriceList,
 };

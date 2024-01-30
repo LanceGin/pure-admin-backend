@@ -70,6 +70,7 @@ import {
   tempDrop,
   loadPort,
   makeTime,
+  yardPriceList,
 } from "./router/operation";
 
 import {
@@ -330,6 +331,10 @@ app.post("/loadPort", (req, res) => {
 // 运作管理 - 批量设置提箱时间接口
 app.post("/makeTime", (req, res) => {
   makeTime(req, res);
+})
+// 运作管理 - 堆场价格列表
+app.post("/yardPriceList", (req, res) => {
+  yardPriceList(req, res);
 })
 
 // 运作管理 - 驳运记录列表接口
