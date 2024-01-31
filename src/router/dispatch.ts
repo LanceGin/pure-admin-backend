@@ -289,6 +289,7 @@ const tmpDispatchCar = async (req: Request, res: Response) => {
   } = req.body;
   let payload = null;
   let status = "已派车"
+  let transport_status = "0";
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -296,7 +297,7 @@ const tmpDispatchCar = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into tmp_dispatch (door,car_no,status) values ('${door}','${car_no}','${status}')`;
+  let sql: string = `insert into tmp_dispatch (door,car_no,status,transport_status) values ('${door}','${car_no}','${status}','${transport_status})'`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
