@@ -191,15 +191,16 @@ const generateStorageFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  console.log(3333, "generate storage_fee");
 };
 
 // 生成拖车费
 const generateDispatchFee = async (req: Request, res: Response) => {
   const {
-    type,
-    track_no
+    select_container
   } = req.body;
+  const type_pay = "应付";
+  const type_collect = "应收"
+  let fee_name = "拖车费";
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -208,7 +209,30 @@ const generateDispatchFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  console.log(4444, "generate dispatch_fee");
+  select_container.forEach((container) => {
+    const select_sql:string = `select * from door_price where customer = '${container.customer}' and project = '${container.subproject}' and door = '${container.door}' and port = '${container.load_port}';`
+    connection.query(select_sql, function (err, data) {
+      if (err) {
+        console.log(err);
+      } else {
+        const amount_pay = 240;
+        const amount_collect = 260;
+        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_pay}','${fee_name}','${amount_pay}');`;
+        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_collect}','${fee_name}','${amount_collect}');`
+        connection.query(insert_sql, async function (err, data) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(data)
+          }
+        });
+      }
+    });
+  })
+  return res.json({
+    success: true,
+    data: { message: Message[8] },
+  });
 };
 
 // 生成异常费
