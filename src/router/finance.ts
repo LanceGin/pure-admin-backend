@@ -7,7 +7,7 @@ import Logger from "../loaders/logger";
 import { Message } from "../utils/enums";
 import getFormatDate from "../utils/date";
 import { connection } from "../utils/mysql";
-import { getRandomString } from "../utils/utils";
+import { getRandomString, calPlanningFee } from "../utils/utils";
 import { Request, Response } from "express";
 import * as dayjs from "dayjs";
 
@@ -133,12 +133,12 @@ const generateOrderFee = async (req: Request, res: Response) => {
 const generatePlanningFee = async (req: Request, res: Response) => {
   const {
     actual_amount,
-    select_container_no
+    select_container
   } = req.body;
   const type_pay = "应付";
   const type_collect = "应收"
-  const fee_name = "计划费";
-  const amount = actual_amount.value;
+  let fee_name = "计划费";
+  let amount = actual_amount.value;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -147,17 +147,33 @@ const generatePlanningFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  console.log(2222, req.body,  amount, "generate planning_fee");
-  let sql: string = `select * from container_fee limit 1;`;
-  connection.query(sql, async function (err, data) {
-    if (err) {
-      console.log(err);
-    } else {
-      await res.json({
-        success: true,
-        data: { message: Message[8] },
-      });
-    }
+  select_container.forEach((container) => {
+    const select_sql:string = `select a.*, b.yard_name from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.load_port}';`
+    connection.query(select_sql, function (err, data) {
+      if (err) {
+        console.log(err);
+      } else {
+        if (amount === null) {
+          amount = calPlanningFee(data,container.arrive_time)
+        }
+        if (container.temp_status == "已暂落") {
+          fee_name = "堆存费";
+        }
+        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_pay}','${fee_name}','${amount}');`;
+        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_collect}','${fee_name}','${amount}');`
+        connection.query(insert_sql, async function (err, data) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(data)
+          }
+        });
+      }
+    });
+  })
+  return res.json({
+    success: true,
+    data: { message: Message[8] },
   });
 };
 

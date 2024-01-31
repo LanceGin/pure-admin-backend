@@ -438,12 +438,12 @@ const yardList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select * from base_fleet_yard where yard_name is not null";
+  let sql: string = "select * from base_fleet_yard where flag = '0'";
   if (form.yard_name != "") { sql += " and yard_name like " + "'%" + form.yard_name + "%'" }
   if (form.contacts_name != "") { sql += " and contacts_name like " + "'%" + form.contacts_name + "%'" }
   if (form.is_dock != "") { sql += " and is_dock = " + "'" + form.is_dock + "'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
-  sql +=";select COUNT(*) from base_fleet_yard where yard_name is not null"
+  sql +=";select COUNT(*) from base_fleet_yard where flag = '0'"
   if (form.yard_name != "") { sql += " and yard_name like " + "'%" + form.yard_name + "%'" }
   if (form.contacts_name != "") { sql += " and contacts_name like " + "'%" + form.contacts_name + "%'" }
   if (form.is_dock != "") { sql += " and is_dock = " + "'" + form.is_dock + "'" }

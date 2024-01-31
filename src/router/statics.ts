@@ -38,7 +38,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
   if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
-  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=" order by a.id desc limit " + size + " offset " + size * (page - 1);
   sql +=`;select COUNT(*) FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null`;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.status != "") { sql += " and a.status = " + "'" + form.status + "'" }

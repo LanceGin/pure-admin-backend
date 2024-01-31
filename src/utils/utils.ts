@@ -35,3 +35,9 @@ export function formatDate(numb, format) {
     let date = time.getDate();
     return year + format + (month < 10 ? "0" + month : month) + format + (date < 10 ? "0" + date : date);
 }
+
+// 计算计划费
+export function calPlanningFee(data, time) {
+    console.log(1111,data,time);
+    return 242;
+}
