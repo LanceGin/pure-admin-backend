@@ -843,9 +843,7 @@ const approveCollection = async (req: Request, res: Response) => {
     custom_name,
     project_name,
     flow_direction,
-    content,
-    amount,
-    add_by
+    content
   }  = req.body;
   let payload = null;
   const status = '已审核';
@@ -863,21 +861,11 @@ const approveCollection = async (req: Request, res: Response) => {
   sql += ` and b.content = '${content}'`;
   connection.query(sql, async function (err, data) {
     if (err) {
-      Logger.error(err);
+      console.log(err);
     } else {
-      const is_admin = "业务";
-      const is_pay = "付";
-      const add_time = dayjs(new Date()).format("YYYY-MM-DD");
-      let apply_fee_sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,apply_amount,apply_by,create_time) values ('${is_admin}','${fee_name}','${is_pay}','${amount}','${add_by}','${add_time}')`;
-      connection.query(apply_fee_sql, async function (err, data) {
-        if (err) {
-          console.log(err);
-        } else {
-          await res.json({
-            success: true,
-            data: { message: Message[6] },
-          });
-        }
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
       });
     }
   });
@@ -928,7 +916,9 @@ const approvePay = async (req: Request, res: Response) => {
     custom_name,
     project_name,
     flow_direction,
-    content
+    content,
+    amount,
+    add_by
   }  = req.body;
   let payload = null;
   const status = '已审核';
@@ -946,15 +936,26 @@ const approvePay = async (req: Request, res: Response) => {
   sql += ` and b.content = '${content}'`;
   connection.query(sql, async function (err, data) {
     if (err) {
-      console.log(err);
+      Logger.error(err);
     } else {
-      await res.json({
-        success: true,
-        data: { message: Message[6] },
+      const is_admin = "业务";
+      const is_pay = "付";
+      const add_time = dayjs(new Date()).format("YYYY-MM-DD");
+      let apply_fee_sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,apply_amount,apply_by,create_time) values ('${is_admin}','${fee_name}','${is_pay}','${amount}','${add_by}','${add_time}')`;
+      connection.query(apply_fee_sql, async function (err, data) {
+        if (err) {
+          console.log(err);
+        } else {
+          await res.json({
+            success: true,
+            data: { message: Message[6] },
+          });
+        }
       });
     }
   });
 };
+
 
 // 驳回应付费用审核
 const rejectPay = async (req: Request, res: Response) => {
