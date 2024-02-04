@@ -357,6 +357,33 @@ const tempDropDispatchList = async (req: Request, res: Response) => {
   });
 };
 
+// 暂落一键完成
+const tempDropFinish = async (req: Request, res: Response) => {
+  const select_container_no = req.body;
+  let payload = null;
+  const container_status = "待挑箱";
+  const transport_status = "5";
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE container SET container_status = '${container_status}', transport_status = '${transport_status}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+
 // 一键完成
 const oneStepFinish = async (req: Request, res: Response) => {
   const select_container_no = req.body;
@@ -447,6 +474,7 @@ export {
   exportTmpDispatchList,
   tmpDispatchCar,
   tempDropDispatchList,
+  tempDropFinish,
   oneStepFinish,
   oneStepRevoke,
   dispatchRevoke,
