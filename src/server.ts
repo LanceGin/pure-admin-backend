@@ -128,7 +128,8 @@ import {
   addAppliedFee,
   editAppliedFee,
   deleteAppliedFee,
-  submitAppliedFee
+  submitAppliedFee,
+  revokeAppliedFee,
 } from "./router/daily";
 
 import {
@@ -613,6 +614,10 @@ app.post("/editAppliedFee", (req, res) => {
 // 通用 - 提交费用申请接口
 app.post("/submitAppliedFee", (req, res) => {
   submitAppliedFee(req, res);
+})
+// 通用 - 撤销费用申请接口
+app.post("/revokeAppliedFee", (req, res) => {
+  revokeAppliedFee(req, res);
 })
 
 // 财务

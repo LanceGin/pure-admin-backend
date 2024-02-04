@@ -473,6 +473,31 @@ const submitAppliedFee = async (req: Request, res: Response) => {
   });
 };
 
+// 撤销费用申请
+const revokeAppliedFee = async (req: Request, res: Response) => {
+  const select_id = req.body;
+  let payload = null;
+  const status = "未提交";
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE applied_fee SET status = '${status}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
 
 export {
   accCompanyList,
@@ -487,5 +512,6 @@ export {
   addAppliedFee,
   editAppliedFee,
   deleteAppliedFee,
-  submitAppliedFee
+  submitAppliedFee,
+  revokeAppliedFee
 };
