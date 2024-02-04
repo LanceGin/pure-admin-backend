@@ -16,10 +16,15 @@ const xlsx = require("node-xlsx");
 
 // 费用申请记账
 const keepAppliedFee = async (req: Request, res: Response) => {
-  const { select_id, username } = req.body;
+  const { select_id, username, keep_time } = req.body;
   let payload = null;
   const status = "已记账";
-  const keep_time = dayjs(new Date()).format("YYYY-MM-DD");
+  let time;
+  if (keep_time.value === null) {
+    time = dayjs(new Date()).format("YYYY-MM-DD");
+  } else {
+    time = keep_time.value;
+  }
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -27,7 +32,7 @@ const keepAppliedFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE applied_fee SET status = '${status}',keep_time = '${keep_time}',keep_by = '${username}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE applied_fee SET status = '${status}',keep_time = '${time}',keep_by = '${username}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
