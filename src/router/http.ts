@@ -912,7 +912,7 @@ const lighteringList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select * from lightering where type = " + form.type;
+  let sql: string = "select id,type,container_no,seal_no,is_import,cargo_name,voyage,voyage_index,customs_container_type,container_type,container_holder,iso,extra_operation,trade_type,bl_no,load_port,target_port,unload_port,load_payer,unload_payer,total_weight,cargo_weight,volume,amount,cargo_owner,forwarder,remarks,date_format(add_time, '%Y-%m-%d') as add_time,empty_weight,transfer_type from lightering where type = " + form.type;
   if (form.seal_no != "") { sql += " and seal_no = " + "'" + form.seal_no + "'" }
   if (form.container_no != "") { sql += " and container_no = " + "'" + form.container_no + "'" }
   if (form.container_type != "") { sql += " and container_type = " + "'" + form.container_type + "'" }
