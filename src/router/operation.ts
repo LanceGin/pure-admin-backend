@@ -534,6 +534,8 @@ const pickBoxList = async (req: Request, res: Response) => {
   if (form.ship_name != "") { sql += " and ship_name like " + "'%" + form.ship_name + "%'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.container_status != "") { sql += " and container_status like " + "'%" + form.container_status + "%'" }
+  if (form.temp_status == "已暂落") { sql += " and temp_status = " + "'" + form.temp_status + "'" }
+  if (form.temp_status == "未暂落") { sql += " and temp_status is null" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
@@ -545,6 +547,8 @@ const pickBoxList = async (req: Request, res: Response) => {
   if (form.ship_name != "") { sql += " and ship_name like " + "'%" + form.ship_name + "%'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.container_status != "") { sql += " and container_status like " + "'%" + form.container_status + "%'" }
+  if (form.temp_status == "已暂落") { sql += " and temp_status = " + "'" + form.temp_status + "'" }
+  if (form.temp_status == "未暂落") { sql += " and temp_status is null" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
