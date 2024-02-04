@@ -85,6 +85,7 @@ import {
   tempDropDispatchList,
   oneStepFinish,
   oneStepRevoke,
+  dispatchRevoke,
 } from "./router/dispatch";
 
 import {
@@ -456,6 +457,10 @@ app.post("/oneStepFinish", (req, res) => {
 // 调度管理 - 一键撤回
 app.post("/oneStepRevoke", (req, res) => {
   oneStepRevoke(req, res);
+})
+// 调度管理 - 派车撤回
+app.post("/dispatchRevoke", (req, res) => {
+  dispatchRevoke(req, res);
 })
 
 // 车辆管理

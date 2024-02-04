@@ -410,6 +410,32 @@ const oneStepRevoke = async (req: Request, res: Response) => {
   });
 };
 
+// 派车撤回
+const dispatchRevoke = async (req: Request, res: Response) => {
+  const select_container_no = req.body;
+  let payload = null;
+  const container_status = "待挑箱";
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+
 
 export {
   unpackingList,
@@ -423,4 +449,5 @@ export {
   tempDropDispatchList,
   oneStepFinish,
   oneStepRevoke,
+  dispatchRevoke,
 };
