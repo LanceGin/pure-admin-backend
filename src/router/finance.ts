@@ -274,6 +274,7 @@ const financeCheckList = async (req: Request, res: Response) => {
   let total = 0;
   let pageSize = 0;
   let currentPage = 0;
+  const account_period = dayjs(form.account_period).format("YYYY-MM-DD");
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -286,7 +287,7 @@ const financeCheckList = async (req: Request, res: Response) => {
   if (form.status != "") { sql += " and a.status = " + "'" + form.status + "'" }
   if (form.custom_name != "") { sql += " and a.custom_name = " + "'" + form.custom_name + "'" }
   if (form.project_name != "") { sql += " and a.project_name = " + "'" + form.project_name + "'" }
-  if (form.account_period != "") { sql += " and a.account_period = " + "'" + form.account_period + "'" }
+  if (form.account_period != "") { sql += " and a.account_period = " + "'" + account_period + "'" }
   if (form.flow_direction != "") { sql += " and a.flow_direction = " + "'" + form.flow_direction + "'" }
   sql +=" GROUP BY a.account_period, a.custom_name,a.project_name,a.flow_direction,a.content order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=`;select COUNT(*) FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null `;
@@ -294,7 +295,7 @@ const financeCheckList = async (req: Request, res: Response) => {
   if (form.status != "") { sql += " and a.status = " + "'" + form.status + "'" }
   if (form.custom_name != "") { sql += " and a.custom_name = " + "'" + form.custom_name + "'" }
   if (form.project_name != "") { sql += " and a.project_name = " + "'" + form.project_name + "'" }
-  if (form.account_period != "") { sql += " and a.account_period = " + "'" + form.account_period + "'" }
+  if (form.account_period != "") { sql += " and a.account_period = " + "'" + account_period + "'" }
   if (form.flow_direction != "") { sql += " and a.flow_direction = " + "'" + form.flow_direction + "'" }
   sql +=" GROUP BY a.account_period, a.custom_name,a.project_name,a.flow_direction,a.content";
   connection.query(sql, async function (err, data) {
