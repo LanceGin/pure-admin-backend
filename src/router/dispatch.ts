@@ -357,6 +357,53 @@ const tempDropDispatchList = async (req: Request, res: Response) => {
   });
 };
 
+// 获取武汉派车列表
+const whDispatchList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from container where container_status = '运输中' and load_port in ('阳逻码头','金口码头') ";
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
+  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
+  if (form.load_port != "") { sql += " and load_port = " + "'" + form.load_port + "'" }
+  if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
+  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from container where container_status = '运输中' and load_port in ('阳逻码头','金口码头') ";
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
+  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
+  if (form.load_port != "") { sql += " and load_port = " + "'" + form.load_port + "'" }
+  if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
+  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
 // 暂落一键完成
 const tempDropFinish = async (req: Request, res: Response) => {
   const select_container_no = req.body;
@@ -474,6 +521,7 @@ export {
   exportTmpDispatchList,
   tmpDispatchCar,
   tempDropDispatchList,
+  whDispatchList,
   tempDropFinish,
   oneStepFinish,
   oneStepRevoke,
