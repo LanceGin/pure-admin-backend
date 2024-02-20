@@ -12,6 +12,7 @@ import { Request, Response } from "express";
 import * as dayjs from "dayjs";
 
 const utils = require("@pureadmin/utils");
+const xlsx = require("node-xlsx");
 
 // 获取统计费用列表
 const containerFeeList = async (req: Request, res: Response) => {
@@ -255,10 +256,42 @@ const cancelKeepAppliedFee = async (req: Request, res: Response) => {
   });
 };
 
+// 批量导入门点价格列表
+const importDoorPrice = async (req: Request, res: Response) => {
+  const file_path = req.files[0].path;
+  const is_pay = req.body.is_pay;
+  const status = "1";
+  const add_time = dayjs(new Date()).format("YYYY-MM-DD");
+  const sheets = xlsx.parse(file_path, {
+    // cellDates: true,
+    defval: ""
+  });
+  const values = sheets[0].data;
+  values.shift();
+  values.forEach((v) => {
+    v.push(is_pay, status, add_time);
+  })
+  let sql: string = "insert into door_price (customer,project,door,port,i20gp,i40gp,i20tk,i40hc,o20gp,o40gp,o20tk,o40hc,is_pay,status,add_time) values ?"
+  connection.query(sql, [values], async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+        },
+      });
+    }
+  });
+};
+
+
 export {
   containerFeeList,
   submitContainerFee,
   setInvoiceNo,
   setAmount,
-  setRemark
+  setRemark,
+  importDoorPrice
 };

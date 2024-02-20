@@ -169,7 +169,8 @@ import {
   submitContainerFee,
   setInvoiceNo,
   setAmount,
-  setRemark
+  setRemark,
+  importDoorPrice
 } from "./router/statics";
 
 // 新建存放临时文件的文件夹
@@ -410,6 +411,10 @@ app.post("/setAmount", (req, res) => {
 // 统计管理 - 提交统计费用接口
 app.post("/setRemark", (req, res) => {
   setRemark(req, res);
+})
+// 统计管理 - 批量导入门点价格接口
+app.post("/importDoorPrice", upload_tmp.any(), (req, res) => {
+  importDoorPrice(req, res);
 })
 
 // 调度管理
