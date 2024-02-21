@@ -373,14 +373,14 @@ const whDispatchList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select * from container where container_status = '运输中' and load_port in ('阳逻码头','金口码头') ";
+  let sql: string = "select * from container where container_status = '运输中' and load_port in ('武汉阳逻','武汉金口') ";
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.load_port != "") { sql += " and load_port = " + "'" + form.load_port + "'" }
   if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
-  sql +=";select COUNT(*) from container where container_status = '运输中' and load_port in ('阳逻码头','金口码头') ";
+  sql +=";select COUNT(*) from container where container_status = '运输中' and load_port in ('武汉阳逻','武汉金口') ";
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.load_port != "") { sql += " and load_port = " + "'" + form.load_port + "'" }
