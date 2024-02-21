@@ -93,10 +93,12 @@ import {
 import {
   vehicleInfoList,
   addVehicleInfo,
+  importVehicleInfo,
   editVehicleInfo,
   deleteVehicleInfo,
   driverInfoList,
   addDriverInfo,
+  importDriverInfo,
   editDriverInfo,
   deleteDriverInfo,
   vehicleExtraInfoList,
@@ -488,6 +490,10 @@ app.post("/vehicleInfoList", (req, res) => {
 app.post("/addVehicleInfo", (req, res) => {
   addVehicleInfo(req, res);
 })
+// 车辆管理 - 批量导入车辆信息
+app.post("/importVehicleInfo", upload_tmp.any(), (req, res) => {
+  importVehicleInfo(req, res);
+})
 // 车辆管理 - 删除车辆信息接口
 app.post("/deleteVehicleInfo", (req, res) => {
   deleteVehicleInfo(req, res);
@@ -503,6 +509,10 @@ app.post("/driverInfoList", (req, res) => {
 // 车辆管理 - 添加司机信息接口
 app.post("/addDriverInfo", (req, res) => {
   addDriverInfo(req, res);
+})
+// 车辆管理 - 批量导入司机信息
+app.post("/importDriverInfo", upload_tmp.any(), (req, res) => {
+  importDriverInfo(req, res);
 })
 // 车辆管理 - 删除司机信息接口
 app.post("/deleteDriverInfo", (req, res) => {

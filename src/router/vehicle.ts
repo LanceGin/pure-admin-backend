@@ -12,6 +12,7 @@ import { Request, Response } from "express";
 import * as dayjs from "dayjs";
 
 const utils = require("@pureadmin/utils");
+const xlsx = require("node-xlsx");
 
 // 获取车辆信息列表
 const vehicleInfoList = async (req: Request, res: Response) => {
@@ -94,6 +95,31 @@ const addVehicleInfo = async (req: Request, res: Response) => {
     }
   });
 };
+
+// 批量导入车辆信息列表
+const importVehicleInfo = async (req: Request, res: Response) => {
+  const file_path = req.files[0].path;
+  const sheets = xlsx.parse(file_path, {
+    // cellDates: true,
+    defval: ""
+  });
+  const values = sheets[0].data;
+  values.shift();
+  let sql: string = "insert into vehicle_info (territory,brand,car_no,emission,life,axles,owner,attachment,oil_card_owner,hang_board_no,driver,mobile,attribute,remark) values ?"
+  connection.query(sql, [values], async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+        },
+      });
+    }
+  });
+};
+
 
 // 修改车辆信息
 const editVehicleInfo = async (req: Request, res: Response) => {
@@ -231,6 +257,31 @@ const addDriverInfo = async (req: Request, res: Response) => {
     }
   });
 };
+
+// 批量导入司机信息列表
+const importDriverInfo = async (req: Request, res: Response) => {
+  const file_path = req.files[0].path;
+  const sheets = xlsx.parse(file_path, {
+    // cellDates: true,
+    defval: ""
+  });
+  const values = sheets[0].data;
+  values.shift();
+  let sql: string = "insert into driver_info (name,id_no,mobile,attribute,settlement_company,remark) values ?"
+  connection.query(sql, [values], async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+        },
+      });
+    }
+  });
+};
+
 
 // 修改司机信息
 const editDriverInfo = async (req: Request, res: Response) => {
@@ -873,10 +924,12 @@ const deleteVehicleFee = async (req: Request, res: Response) => {
 export {
   vehicleInfoList,
   addVehicleInfo,
+  importVehicleInfo,
   editVehicleInfo,
   deleteVehicleInfo,
   driverInfoList,
   addDriverInfo,
+  importDriverInfo,
   editDriverInfo,
   deleteDriverInfo,
   vehicleExtraInfoList,

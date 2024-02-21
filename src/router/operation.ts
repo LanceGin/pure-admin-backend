@@ -63,6 +63,7 @@ const importJtoy = async (req: Request, res: Response) => {
   values.forEach((v) => {
     v.unshift("1", add_time, voyage);
   })
+  console.log(11111, values);
   let sql: string = "insert into lightering (type,add_time,voyage,bl_no,load_port,unload_port,target_port,total_weight,container_no,container_holder,extra_operation,container_type,customs_container_type,iso,is_import,empty_weight,trade_type,seal_no,cargo_name,unload_payer,transfer_type) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
