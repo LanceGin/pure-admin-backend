@@ -314,6 +314,7 @@ const importDocumentCheck = async (req: Request, res: Response) => {
 // 批量导入出口箱子记录
 const importExportContainer = async (req: Request, res: Response) => {
   const file_path = req.files[0].path;
+  const add_by = req.body.add_by;
   const sheets = xlsx.parse(file_path, {
     // cellDates: true,
     defval: ""
@@ -323,9 +324,9 @@ const importExportContainer = async (req: Request, res: Response) => {
   values.forEach((v) => {
     v.push("已提交", "出口", "已完成");
     v[4] = formatDate(v[4], "/");
+    v.push(add_by);
   })
-  let sql: string = "insert into container (tmp_excel_no,ship_company,customer,subproject,make_time,load_port,ship_name,track_no,containner_no,container_type,seal_no,door,unload_port,car_no,start_port,target_port,transfer_port,package_count,gross_weight,volume,container_weight,order_status,order_type,container_status) values ?"
-  console.log(2222, sql);
+  let sql: string = "insert into container (tmp_excel_no,ship_company,customer,subproject,make_time,load_port,ship_name,track_no,containner_no,container_type,seal_no,door,unload_port,car_no,start_port,target_port,transfer_port,package_count,gross_weight,volume,container_weight,order_status,order_type,container_status,add_by) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
       Logger.error(err);
