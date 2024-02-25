@@ -193,7 +193,7 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   if (form.order_type != "") { sql += " and order_type like " + "'%" + form.order_type + "%'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.seal_no != "") { sql += " and seal_no like " + "'%" + form.seal_no + "%'" }
-  if (form.order_time_range && form.order_time_range.length > 0) { sql += " and order_time between " + "'" + form.order_time_range[0] + "' and '" + form.order_time_range[1] + "'" }
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
@@ -206,12 +206,13 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   if (form.order_type != "") { sql += " and order_type like " + "'%" + form.order_type + "%'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.seal_no != "") { sql += " and seal_no like " + "'%" + form.seal_no + "%'" }
-  if (form.order_time_range && form.order_time_range.length > 0) { sql += " and order_time between " + "'" + form.order_time_range[0] + "' and '" + form.order_time_range[1] + "'" }
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   sql +=" ) as t";
+  console.log(1111, sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
