@@ -286,6 +286,33 @@ const importDoorPrice = async (req: Request, res: Response) => {
   });
 };
 
+// 数据比对
+const dataCheck = async (req: Request, res: Response) => {
+  const file_path = req.files[0].path;
+  const sheets = xlsx.parse(file_path, {
+    // cellDates: true,
+    defval: ""
+  });
+  const values = sheets[0].data;
+  let sql: string = "";
+  values.shift();
+  values.forEach((v) => {
+    sql += `select * from container where track_no = '${v[0]}' and containner_no = '${v[1]}' and seal_no = '${v[2]}' and container_type = '${v[3]}' and door = '${v[4]}';`;
+  })
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+        },
+      });
+    }
+  });
+};
+
 
 export {
   containerFeeList,
@@ -293,5 +320,6 @@ export {
   setInvoiceNo,
   setAmount,
   setRemark,
-  importDoorPrice
+  importDoorPrice,
+  dataCheck
 };

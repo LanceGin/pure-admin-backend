@@ -172,7 +172,8 @@ import {
   setInvoiceNo,
   setAmount,
   setRemark,
-  importDoorPrice
+  importDoorPrice,
+  dataCheck
 } from "./router/statics";
 
 // 新建存放临时文件的文件夹
@@ -418,6 +419,11 @@ app.post("/setRemark", (req, res) => {
 app.post("/importDoorPrice", upload_tmp.any(), (req, res) => {
   importDoorPrice(req, res);
 })
+// 统计管理 - 数据比对接口
+app.post("/dataCheck", upload_tmp.any(), (req, res) => {
+  dataCheck(req, res);
+})
+
 
 // 调度管理
 // 调度管理 - 拆箱列表
