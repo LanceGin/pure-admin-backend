@@ -336,7 +336,7 @@ const financeStatList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `SELECT a.id,a.type,a.status,a.fee_name,a.account_period,a.custom_name,a.project_name,a.flow_direction,a.content,a.is_invoice,b.container_type,b.door,b.add_by,sum(a.amount) as amount,sum(a.less_amount) as less_amount,sum(a.more_amount) as more_amount,sum(a.amount-a.less_amount+a.more_amount) as actual_amount,count(b.id) as total, COUNT(IF(left(b.container_type, 2) = '40',true,null)) as f, COUNT(IF(left(b.container_type, 2) = '20',true,null)) as t FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null`;
+  let sql: string = `SELECT a.id,a.type,a.status,a.fee_name,a.account_period,a.custom_name,a.project_name,a.flow_direction,a.content,a.is_invoice,b.container_type,b.door,b.add_by,sum(a.amount) as amount,sum(a.less_amount) as less_amount,sum(a.more_amount) as more_amount,sum(a.amount-a.less_amount+a.more_amount) as actual_amount,count(b.id) as total, COUNT(IF(left(b.container_type, 2) = '40',true,null)) as f, COUNT(IF(left(b.container_type, 2) = '20',true,null)) as t FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null and a.status in ('未审核', '已审核')`;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.status != "") { sql += " and a.status = " + "'" + form.status + "'" }
   if (form.custom_name != "") { sql += " and a.custom_name = " + "'" + form.custom_name + "'" }
@@ -352,6 +352,7 @@ const financeStatList = async (req: Request, res: Response) => {
   if (form.account_period != "") { sql += " and a.account_period = " + "'" + form.account_period + "'" }
   if (form.flow_direction != "") { sql += " and a.flow_direction = " + "'" + form.flow_direction + "'" }
   sql +=" GROUP BY a.custom_name,a.project_name,b.door";
+  console.log(1111, sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
