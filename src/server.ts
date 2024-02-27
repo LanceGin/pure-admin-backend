@@ -71,6 +71,9 @@ import {
   loadPort,
   makeTime,
   yardPriceList,
+  addYardPrice,
+  editYardPrice,
+  deleteYardPrice
 } from "./router/operation";
 
 import {
@@ -343,6 +346,18 @@ app.post("/makeTime", (req, res) => {
 // 运作管理 - 堆场价格列表
 app.post("/yardPriceList", (req, res) => {
   yardPriceList(req, res);
+})
+// 运作管理 - 新增堆场价格
+app.post("/addYardPrice", (req, res) => {
+  addYardPrice(req, res);
+})
+// 运作管理 - 编辑堆场价格
+app.post("/editYardPrice", (req, res) => {
+  editYardPrice(req, res);
+})
+// 运作管理 - 删除堆场价格
+app.post("/deleteYardPrice", (req, res) => {
+  deleteYardPrice(req, res);
 })
 
 // 运作管理 - 驳运记录列表接口

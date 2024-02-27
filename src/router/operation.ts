@@ -707,6 +707,87 @@ const yardPriceList = async (req: Request, res: Response) => {
   });
 };
 
+// 新增堆场价格
+const addYardPrice = async (req: Request, res: Response) => {
+  const {
+    yard_id,
+    yard_price
+  } = req.body;
+  const price = yard_price.split('/');
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into yard_price (yard_id,day_min,day_max,price_20,price_40) values ('${yard_id}','${price[0]}','${price[1]}','${price[2]}','${price[3]}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 修改堆场价格
+const editYardPrice = async (req: Request, res: Response) => {
+  const {
+    id,
+    yard_price
+  } = req.body;
+  const price = yard_price.split('/');
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE yard_price SET day_min = ?,day_max = ?,price_20 = ?,price_40 = ? WHERE id = ?";
+  let modifyParams: string[] = [price[0],price[1],price[2],price[3],id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+// 删除堆场价格
+const deleteYardPrice = async (req: Request, res: Response) => {
+  const { id } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from yard_price where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
 
 export {
   importYtoj,
@@ -729,4 +810,7 @@ export {
   loadPort,
   makeTime,
   yardPriceList,
+  addYardPrice,
+  editYardPrice,
+  deleteYardPrice
 };

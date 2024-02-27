@@ -478,7 +478,8 @@ const addYard = async (req: Request, res: Response) => {
     longitude,
     latitude,
     base_price_20,
-    base_price_40
+    base_price_40,
+    price_rule
   } = req.body;
   const hash_id = getRandomString(20);
   const create_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
@@ -490,7 +491,7 @@ const addYard = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into base_fleet_yard (old_id, is_dock,yard_name,port_name,yard_adress,contacts_name,mobile,remarks,longitude,latitude,base_price_20,base_price_40,create_time) values ('${hash_id}', '${is_dock}', '${yard_name}', '${port_name}', '${yard_adress}', '${contacts_name}', '${mobile}', '${remarks}', '${longitude}', '${latitude}', '${base_price_20}', '${base_price_40}','${create_time}')`;
+  let sql: string = `insert into base_fleet_yard (old_id, is_dock,yard_name,port_name,yard_adress,contacts_name,mobile,remarks,longitude,latitude,base_price_20,base_price_40,price_rule,create_time) values ('${hash_id}', '${is_dock}', '${yard_name}', '${port_name}', '${yard_adress}', '${contacts_name}', '${mobile}', '${remarks}', '${longitude}', '${latitude}', '${base_price_20}', '${base_price_40}','${price_rule}','${create_time}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -542,7 +543,8 @@ const editYard = async (req: Request, res: Response) => {
     longitude,
     latitude,
     base_price_20,
-    base_price_40
+    base_price_40,
+    price_rule
   } = req.body;
   let payload = null;
   try {
@@ -552,8 +554,8 @@ const editYard = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE base_fleet_yard SET is_dock = ?, yard_name = ?, port_name = ?, yard_adress = ?, contacts_name = ?, mobile = ?, remarks = ?, longitude = ?, latitude = ?, base_price_20 = ?, base_price_40 = ? WHERE id = ?";
-  let modifyParams: string[] = [is_dock, yard_name, port_name, yard_adress, contacts_name, mobile, remarks, longitude, latitude, base_price_20, base_price_40, id];
+  let modifySql: string = "UPDATE base_fleet_yard SET is_dock = ?, yard_name = ?, port_name = ?, yard_adress = ?, contacts_name = ?, mobile = ?, remarks = ?, longitude = ?, latitude = ?, base_price_20 = ?, base_price_40 = ?, price_rule = ? WHERE id = ?";
+  let modifyParams: string[] = [is_dock, yard_name, port_name, yard_adress, contacts_name, mobile, remarks, longitude, latitude, base_price_20, base_price_40, price_rule, id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
