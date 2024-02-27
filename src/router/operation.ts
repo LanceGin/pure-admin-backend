@@ -188,6 +188,7 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   }
   let sql: string = "select * from container where id is not null ";
   if (form.container_status != "") { sql += " and container_status like " + "'%" + form.container_status + "%'" }
+  if (form.temp_status != "") { sql += " and temp_status like " + "'%" + form.temp_status + "%'" }
   if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.order_type != "") { sql += " and order_type like " + "'%" + form.order_type + "%'" }
@@ -201,6 +202,7 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from ( select * from container where id is not null ";
   if (form.container_status != "") { sql += " and container_status like " + "'%" + form.container_status + "%'" }
+  if (form.temp_status != "") { sql += " and temp_status like " + "'%" + form.temp_status + "%'" }
   if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.order_type != "") { sql += " and order_type like " + "'%" + form.order_type + "%'" }
@@ -212,7 +214,6 @@ const containerWithFeeList = async (req: Request, res: Response) => {
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   sql +=" ) as t";
-  console.log(1111, sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);

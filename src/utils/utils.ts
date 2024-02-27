@@ -1,3 +1,5 @@
+import * as dayjs from "dayjs";
+
 // 生成随机字符串
 export function getRandomString(len){
     let _charStr = 'abacdefghjklmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ0123456789',
@@ -37,7 +39,49 @@ export function formatDate(numb, format) {
 }
 
 // 计算计划费
-export function calPlanningFee(data, time) {
-    console.log(1111,data,time);
-    return 242;
+export function calPlanningFee(data, container) {
+    const a_time = dayjs(container.arrive_time).format("YYYY-MM-DD");
+    const now_time = dayjs().format("YYYY-MM-DD");
+    const delta_days = dayjs(now_time).diff(a_time, "day").toString();
+
+    const c_type = container.container_type.substring(0,2);
+    if (c_type == "40") {
+        let amount = Number(data[0].base_price_40);
+        if (data[0].price_rule == "单价异步") {
+            for (let i = 0; i < data.length; ++i) {
+                if (Number(delta_days) <= Number(data[i].day_max)) {
+                    amount += (Number(delta_days) - Number(data[i].day_min) + 1) * Number(data[i].price_40);
+                    return amount
+                } else {
+                    amount += (Number(data[i].day_max) - Number(data[i].day_min) + 1) * Number(data[i].price_40)
+                }
+            }
+        } else {
+            for (let i = 0; i < data.length; ++i) {
+                if (Number(delta_days) <= Number(data[i].day_max)) {
+                    amount += Number(delta_days) * Number(data[i].price_40);
+                    return amount
+                }
+            }
+        }
+    } else if (c_type == "20") {
+        let amount = Number(data[0].base_price_20);
+        if (data[0].price_rule == "单价异步") {
+            for (let i = 0; i < data.length; ++i) {
+                if (Number(delta_days) <= Number(data[i].day_max)) {
+                    amount += (Number(delta_days) - Number(data[i].day_min) + 1) * Number(data[i].price_20);
+                    return amount
+                } else {
+                    amount += (Number(data[i].day_max) - Number(data[i].day_min) + 1) * Number(data[i].price_20)
+                }
+            }
+        } else {
+            for (let i = 0; i < data.length; ++i) {
+                if (Number(delta_days) <= Number(data[i].day_max)) {
+                    amount += Number(delta_days) * Number(data[i].price_20);
+                    return amount
+                }
+            }
+        }
+    }
 }

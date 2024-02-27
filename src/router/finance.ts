@@ -153,13 +153,13 @@ const generatePlanningFee = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   select_container.forEach((container) => {
-    const select_sql:string = `select a.*, b.yard_name from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.load_port}';`
+    const select_sql:string = `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.load_port}';`
     connection.query(select_sql, function (err, data) {
       if (err) {
         console.log(err);
       } else {
         if (amount === null) {
-          amount = calPlanningFee(data,container.arrive_time)
+          amount = calPlanningFee(data,container)
         }
         if (container.temp_status == "已暂落") {
           fee_name = "堆存费";
