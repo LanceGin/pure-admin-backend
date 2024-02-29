@@ -228,9 +228,14 @@ const generateDispatchFee = async (req: Request, res: Response) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(1111, data);
-        const amount_pay = data[0][0][b];
-        const amount_collect = data[1][0][b];
+        let amount_pay = 0;
+        let amount_collect = 0;
+        if (data[0].length > 0) {
+          amount_pay = data[0][0][b];
+        }
+        if (data[1].length > 0) {
+          amount_collect = data[1][0][b];
+        }
         let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_pay}','${fee_name}','${amount_pay}');`;
         insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_collect}','${fee_name}','${amount_collect}');`
         connection.query(insert_sql, async function (err, data) {
