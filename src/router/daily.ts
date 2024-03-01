@@ -315,7 +315,7 @@ const appliedFeeList = async (req: Request, res: Response) => {
   }
   let sql: string = `select a.*,b.company_name,b.bank,b.account_no from applied_fee as a left join acc_company as b on a.acc_company_id = b.id where a.id is not null`;
   if (form.apply_by != "") { sql += " and apply_by = " + "'" + form.apply_by + "'" }
-  if (form.apply_time != "") { sql += " and apply_time = " + "'" + form.apply_time + "'" }
+  if (form.apply_time_range && form.apply_time_range.length > 0) { sql += " and DATE_FORMAT(apply_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.apply_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.apply_time_range[1] + "','%Y%m%d')" }
   if (form.fee_no != "") { sql += " and fee_no like " + "'%" + form.fee_no + "%'" }
   if (form.fee_name != "") { sql += " and fee_name like " + "'%" + form.fee_name + "%'" }
   if (form.is_pay != "") { sql += " and is_pay like " + "'%" + form.is_pay + "%'" }
@@ -324,12 +324,13 @@ const appliedFeeList = async (req: Request, res: Response) => {
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=`;select COUNT(*) from applied_fee as a left join acc_company as b on a.acc_company_id = b.id where a.id is not null`;
   if (form.apply_by != "") { sql += " and apply_by = " + "'" + form.apply_by + "'" }
-  if (form.apply_time != "") { sql += " and apply_time = " + "'" + form.apply_time + "'" }
+  if (form.apply_time_range && form.apply_time_range.length > 0) { sql += " and DATE_FORMAT(apply_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.apply_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.apply_time_range[1] + "','%Y%m%d')" }
   if (form.fee_no != "") { sql += " and fee_no like " + "'%" + form.fee_no + "%'" }
   if (form.fee_name != "") { sql += " and fee_name like " + "'%" + form.fee_name + "%'" }
   if (form.is_pay != "") { sql += " and is_pay like " + "'%" + form.is_pay + "%'" }
   if (form.pay_type != "") { sql += " and pay_type like " + "'%" + form.pay_type + "%'" }
   if (form.status != "") { sql += " and status like " + "'%" + form.status + "%'" }
+  console.log(1111,sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);

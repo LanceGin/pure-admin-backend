@@ -148,7 +148,6 @@ const importDispatchList = async (req: Request, res: Response) => {
   if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.container_status != "") { sql += " and container_status like " + "'%" + form.container_status + "%'" }
-  console.log(1111 , sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
