@@ -491,9 +491,11 @@ const oilConsumptionList = async (req: Request, res: Response) => {
   }
   let sql: string = "select * from vehicle_oil_consumption where id is not null ";
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  if (form.month != "") { sql += " and month = " + "'" + form.month + "'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from vehicle_oil_consumption where id is not null ";
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  if (form.month != "") { sql += " and month = " + "'" + form.month + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -516,18 +518,18 @@ const oilConsumptionList = async (req: Request, res: Response) => {
 const addOilConsumption = async (req: Request, res: Response) => {
   const {
     car_no,
-    mileage_6m,
+    month,
+    mileage,
     oil_standard,
     mileage_fix,
-    volume,
-    unit_price,
-    amount,
     actual_volume,
     total_amount,
-    delta_volume,
-    reward_amount
+    remark
   } = req.body;
   let payload = null;
+  const volume = Math.round(Number(mileage) / 100 * Number(oil_standard) * ( 1 + Number(mileage_fix.replace("%","")) / 100));
+  const delta_volume = Math.round(Number(actual_volume) - Number(volume));
+  const reward_amount = Math.round(Number(delta_volume) * (-3));
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -535,7 +537,7 @@ const addOilConsumption = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into vehicle_oil_consumption (car_no,mileage_6m,oil_standard,mileage_fix,volume,unit_price,amount,actual_volume,total_amount,delta_volume,reward_amount) values ('${car_no}','${mileage_6m}','${oil_standard}','${mileage_fix}','${volume}','${unit_price}','${amount}','${actual_volume}','${total_amount}','${delta_volume}','${reward_amount}')`;
+  let sql: string = `insert into vehicle_oil_consumption (car_no,month,mileage,oil_standard,mileage_fix,volume,actual_volume,total_amount,delta_volume,reward_amount,remark) values ('${car_no}','${month}','${mileage}','${oil_standard}','${mileage_fix}','${volume}','${actual_volume}','${total_amount}','${delta_volume}','${reward_amount}','${remark}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -553,18 +555,18 @@ const editOilConsumption = async (req: Request, res: Response) => {
   const {
     id,
     car_no,
-    mileage_6m,
+    month,
+    mileage,
     oil_standard,
     mileage_fix,
-    volume,
-    unit_price,
-    amount,
     actual_volume,
     total_amount,
-    delta_volume,
-    reward_amount
+    remark
   } = req.body;
   let payload = null;
+  const volume = Math.round(Number(mileage) / 100 * Number(oil_standard) * ( 1 + Number(mileage_fix.replace("%","")) / 100));
+  const delta_volume = Math.round(Number(actual_volume) - Number(volume));
+  const reward_amount = Math.round(Number(delta_volume) * (-3));
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -572,8 +574,8 @@ const editOilConsumption = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE vehicle_oil_consumption SET car_no = ?,mileage_6m = ?,oil_standard = ?,mileage_fix = ?,volume = ?,unit_price = ?,amount = ?,actual_volume = ?,total_amount = ?,delta_volume = ?,reward_amount = ? WHERE id = ?";
-  let modifyParams: string[] = [car_no,mileage_6m,oil_standard,mileage_fix,volume,unit_price,amount,actual_volume,total_amount,delta_volume,reward_amount,id];
+  let modifySql: string = "UPDATE vehicle_oil_consumption SET car_no = ?,month = ?,mileage = ?,oil_standard = ?,mileage_fix = ?,volume = ?,actual_volume = ?,total_amount = ?,delta_volume = ?,reward_amount = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [car_no,month,mileage,oil_standard,mileage_fix,volume,actual_volume,total_amount,delta_volume,reward_amount,remark,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
