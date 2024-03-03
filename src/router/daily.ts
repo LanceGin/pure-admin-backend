@@ -358,6 +358,7 @@ const addAppliedFee = async (req: Request, res: Response) => {
     pay_type,
     apply_amount,
     reimburse_amount,
+    reimburse_by,
     tax_amount,
     acc_company_id,
     apply_by,
@@ -366,6 +367,7 @@ const addAppliedFee = async (req: Request, res: Response) => {
   } = req.body;
   let payload = null;
   const create_time = dayjs(new Date()).format("YYYY-MM-DD");
+  const fee_no = "FAO" + dayjs(new Date()).format("YYYYMMDD") + Math.floor(Math.random()*10000);
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -373,7 +375,7 @@ const addAppliedFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,apply_department,remark,create_time) values ('${is_admin}','${fee_name}','${is_pay}','${pay_type}','${apply_amount}','${reimburse_amount}','${tax_amount}','${acc_company_id}','${apply_by}','${apply_department}','${remark}','${create_time}')`;
+  let sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,reimburse_by,tax_amount,acc_company_id,apply_by,apply_department,remark,create_time,fee_no) values ('${is_admin}','${fee_name}','${is_pay}','${pay_type}','${apply_amount}','${reimburse_amount}','${reimburse_by}','${tax_amount}','${acc_company_id}','${apply_by}','${apply_department}','${remark}','${create_time}','${fee_no}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -396,6 +398,7 @@ const editAppliedFee = async (req: Request, res: Response) => {
     pay_type,
     apply_amount,
     reimburse_amount,
+    reimburse_by,
     tax_amount,
     acc_company_id,
     apply_by,
@@ -410,8 +413,8 @@ const editAppliedFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE applied_fee SET is_admin = ?,fee_name = ?,is_pay = ?,pay_type = ?,apply_amount = ?,reimburse_amount = ?,tax_amount = ?,acc_company_id=?,apply_by = ?,apply_department = ?,remark = ? WHERE id = ?";
-  let modifyParams: string[] = [is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,apply_department,remark,id];
+  let modifySql: string = "UPDATE applied_fee SET is_admin = ?,fee_name = ?,is_pay = ?,pay_type = ?,apply_amount = ?,reimburse_amount = ?,reimburse_by = ?,tax_amount = ?,acc_company_id=?,apply_by = ?,apply_department = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,reimburse_by,tax_amount,acc_company_id,apply_by,apply_department,remark,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
