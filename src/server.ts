@@ -157,6 +157,7 @@ import {
   setReceiptTime,
   importInvoice,
   payInvoicetList,
+  payInvoicetOrigList,
   addPayInvoice,
   editPayInvoice,
   deletePayInvoice,
@@ -734,6 +735,10 @@ app.post("/importInvoice", upload_tmp.any(), (req, res) => {
 // 财务 - 应付发票列表
 app.post("/payInvoicetList", (req, res) => {
   payInvoicetList(req, res);
+})
+// 财务 - 原始应付发票列表
+app.post("/payInvoicetOrigList", (req, res) => {
+  payInvoicetOrigList(req, res);
 })
 // 财务 - 新增应付发票
 app.post("/addPayInvoice", (req, res) => {

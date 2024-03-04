@@ -610,6 +610,58 @@ const payInvoicetList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
+  let sql: string = "select code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,classification_code,specific_type,goods_or_taxable_service,specification,unit,quantity,unit_price,sum(amount) as amount,tax_rate,sum(tax) as tax, sum(total_amount) as total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark,is_invoice,paid_time,certification_period,tmp_excel_no from pay_invoice_info where id is not null ";
+  if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
+  if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
+  if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
+  if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
+  if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
+  if (form.seller_identification_no != "") { sql += " and seller_identification_no like " + "'%" + form.seller_identification_no + "%'" }
+  if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
+  sql +=" group by digital_ticket_no,no,code order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from ( select * from pay_invoice_info where id is not null ";
+  if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
+  if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
+  if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
+  if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
+  if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
+  if (form.seller_identification_no != "") { sql += " and seller_identification_no like " + "'%" + form.seller_identification_no + "%'" }
+  if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
+  sql +=" group by digital_ticket_no,no,code ) as t";
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 获取应付发票列表
+const payInvoicetOrigList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
   let sql: string = "select * from pay_invoice_info where id is not null ";
   if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
   if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
@@ -1034,6 +1086,7 @@ export {
   setReceiptTime,
   importInvoice,
   payInvoicetList,
+  payInvoicetOrigList,
   addPayInvoice,
   editPayInvoice,
   deletePayInvoice,
