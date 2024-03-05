@@ -216,23 +216,21 @@ const exportDispatchList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select * from container where container_status = '已完成' and order_type = '出口' ";
-  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
-  if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
-  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
-  if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
-  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
-  if (form.container_status == "已完成") { sql += " and container_status = '已完成'" }
-  if (form.container_status == "未完成") { sql += " and container_status != '已完成'" }
+  let sql: string = "select a.id as dispatch_id, a.type, a.status, a.car_no as dispatch_car_no, a.trans_status, b.* from dispatch as a left join container as b on b.id = a.container_id where a.type = '装箱' and a.status = '已派车' ";
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(b.make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
+  if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
+  if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
+  if (form.containner_no != "") { sql += " and b.containner_no like " + "'%" + form.containner_no + "%'" }
+  if (form.car_no != "") { sql += " and a.car_no like " + "'%" + form.car_no + "%'" }
+  if (form.container_status != "") { sql += " and b.container_status like " + "'%" + form.container_status + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
-  sql +=";select COUNT(*) from container where container_status = '已完成' and order_type = '出口' ";
-  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
-  if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
-  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
-  if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
-  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
-  if (form.container_status == "已完成") { sql += " and container_status = '已完成'" }
-  if (form.container_status == "未完成") { sql += " and container_status != '已完成'" }
+  sql +=";select COUNT(*) from dispatch as a left join container as b on b.id = a.container_id where a.type = '装箱' and a.status = '已派车' ";
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(b.make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
+  if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
+  if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
+  if (form.containner_no != "") { sql += " and b.containner_no like " + "'%" + form.containner_no + "%'" }
+  if (form.car_no != "") { sql += " and a.car_no like " + "'%" + form.car_no + "%'" }
+  if (form.container_status != "") { sql += " and b.container_status like " + "'%" + form.container_status + "%'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);

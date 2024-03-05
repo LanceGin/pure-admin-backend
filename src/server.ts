@@ -68,6 +68,7 @@ import {
   importDocumentCheck,
   deleteDocumentCheck,
   importExportContainer,
+  generateExportDispatch,
   submitDocumentCheck,
   pickBoxList,
   pickBox,
@@ -502,6 +503,10 @@ app.post("/exportDispatchList", (req, res) => {
 // 运作管理 - 批量导入出口派车列表接口
 app.post("/importExportContainer", upload_tmp.any(), (req, res) => {
   importExportContainer(req, res);
+})
+// 运作管理 - 生成装箱派车单
+app.post("/generateExportDispatch", (req, res) => {
+  generateExportDispatch(req, res);
 })
 // 调度管理 - 获取临时出口派车列表
 app.post("/exportTmpDispatchList", (req, res) => {

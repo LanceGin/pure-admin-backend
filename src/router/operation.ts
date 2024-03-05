@@ -348,6 +348,38 @@ const importExportContainer = async (req: Request, res: Response) => {
   });
 };
 
+// 生成出口派车单
+const generateExportDispatch = async (req: Request, res: Response) => {
+  const {
+    select_container
+  } = req.body;
+  const add_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
+  const status = "已派车";
+  const trans_status = "已完成";
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = ``;
+  select_container.forEach(container => {
+    sql += `insert into dispatch (type,container_id,car_no,status,trans_status,add_time) values ('装箱','${container.id}','${container.car_no}','${status}','${trans_status}','${add_time}');`
+  })
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
 // 新增箱子记录
 const addContainer = async (req: Request, res: Response) => {
   const {
@@ -837,6 +869,7 @@ export {
   addContainerFee,
   importDocumentCheck,
   importExportContainer,
+  generateExportDispatch,
   editDocumentCheck,
   deleteDocumentCheck,
   submitDocumentCheck,
