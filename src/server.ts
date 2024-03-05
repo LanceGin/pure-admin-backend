@@ -22,6 +22,10 @@ import {
   addMotorcade,
   deleteMotorcade,
   editMotorcade,
+  shipCompanyList,
+  addShipCompany,
+  deleteShipCompany,
+  editShipCompany,
   yardList,
   addYard,
   deleteYard,
@@ -240,6 +244,22 @@ app.post("/deleteMotorcade", (req, res) => {
 // 运作管理 - 编辑客户接口
 app.post("/editMotorcade", (req, res) => {
   editMotorcade(req, res);
+})
+// 运作管理 - 船公司列表接口
+app.post("/shipCompanyList", (req, res) => {
+  shipCompanyList(req, res);
+})
+// 运作管理 - 添加船公司接口
+app.post("/addShipCompany", (req, res) => {
+  addShipCompany(req, res);
+})
+// 运作管理 - 删除船公司接口
+app.post("/deleteShipCompany", (req, res) => {
+  deleteShipCompany(req, res);
+})
+// 运作管理 - 编辑船公司接口
+app.post("/editShipCompany", (req, res) => {
+  editShipCompany(req, res);
 })
 // 运作管理 - 堆场列表接口
 app.post("/yardList", (req, res) => {

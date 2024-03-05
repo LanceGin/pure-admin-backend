@@ -422,6 +422,131 @@ const editMotorcade = async (req: Request, res: Response) => {
   });
 };
 
+// 获取船公司列表
+const shipCompanyList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from ship_company where id is not null";
+  if (form.name != "") { sql += " and name like " + "'%" + form.name + "%'" }
+  if (form.area != "") { sql += " and area like " + "'%" + form.area + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from ship_company where id is not null"
+  if (form.name != "") { sql += " and name like " + "'%" + form.name + "%'" }
+  if (form.area != "") { sql += " and area like " + "'%" + form.area + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增船公司
+const addShipCompany = async (req: Request, res: Response) => {
+  const {
+    name,
+    area,
+    order_fee
+  } = req.body;
+  const add_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into ship_company (name, area, order_fee, add_time) values ('${name}', '${area}', '${order_fee}', '${add_time}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 删除船公司
+const deleteShipCompany = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from ship_company where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+
+// 编辑船公司
+const editShipCompany = async (req: Request, res: Response) => {
+  const {
+    id,
+    name,
+    area,
+    order_fee
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE ship_company SET name = ?, area = ?, order_fee = ? WHERE id = ?";
+  let modifyParams: string[] = [name, area, order_fee, id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 // 获取堆场列表
 const yardList = async (req: Request, res: Response) => {
   const { pagination, form } = req.body;
@@ -1540,6 +1665,10 @@ export {
   addMotorcade,
   deleteMotorcade,
   editMotorcade,
+  shipCompanyList,
+  addShipCompany,
+  deleteShipCompany,
+  editShipCompany,
   yardList,
   addYard,
   deleteYard,
