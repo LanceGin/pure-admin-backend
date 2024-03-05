@@ -30,15 +30,15 @@ const unpackingList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select * from container where container_status in ('已挑箱','已暂落') and order_type = '进口' ";
-  if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
-  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
-  if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
+  let sql: string = "select a.id as dispatch_id, a.type, a.status, b.* from dispatch as a left join container as b on b.id = a.container_id where a.type in ('拆箱','暂落') and a.status = '未派车' ";
+  if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
+  if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
+  if (form.containner_no != "") { sql += " and b.containner_no like " + "'%" + form.containner_no + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
-  sql +=";select COUNT(*) from container where container_status in ('已挑箱','已暂落') and order_type = '进口' ";
-  if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
-  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
-  if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
+  sql +=";select COUNT(*) from dispatch as a left join container as b on b.id = a.container_id where a.type in ('拆箱','暂落') and a.status = '未派车' ";
+  if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
+  if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
+  if (form.containner_no != "") { sql += " and b.containner_no like " + "'%" + form.containner_no + "%'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -59,9 +59,11 @@ const unpackingList = async (req: Request, res: Response) => {
 
 // 派车
 const dispatchCar = async (req: Request, res: Response) => {
-  const { select_container_no, car_no } = req.body;
+  const { select_container_id, select_dispatch_id, car_no } = req.body;
   let payload = null;
   const container_status = "运输中";
+  const dispatch_status = "已派车";
+  const trans_status = "已执行";
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -69,7 +71,8 @@ const dispatchCar = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}', car_no = '${car_no.value}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  sql += `UPDATE dispatch SET status = '${dispatch_status}', trans_status = '${trans_status}', car_no = '${car_no}' WHERE id in ('${select_dispatch_id.toString().replaceAll(",", "','")}')`
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
