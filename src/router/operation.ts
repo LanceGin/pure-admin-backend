@@ -584,9 +584,10 @@ const pickBoxList = async (req: Request, res: Response) => {
 
 // 挑箱
 const pickBox = async (req: Request, res: Response) => {
-  const { select_container_no, actual_amount } = req.body;
+  const { select_container_id, actual_amount } = req.body;
   let payload = null;
   const container_status = "已挑箱";
+  const add_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -594,7 +595,10 @@ const pickBox = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}', actual_amount_temp = '${actual_amount.value}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}', actual_amount_temp = '${actual_amount.value}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  select_container_id.forEach(id => {
+    sql += `insert into dispatch (type, container_id,add_time) values ('拆箱','${id}', '${add_time}');`
+  })
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -609,7 +613,7 @@ const pickBox = async (req: Request, res: Response) => {
 
 // 暂落
 const tempDrop = async (req: Request, res: Response) => {
-  const { select_container_no, temp_port } = req.body;
+  const { select_container_id, temp_port } = req.body;
   let payload = null;
   const container_status = "已挑箱";
   const temp_status = "已暂落"
@@ -621,7 +625,10 @@ const tempDrop = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}', temp_status = '${temp_status}', temp_time = '${temp_time}', temp_port = '${temp_port.value}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}', temp_status = '${temp_status}', temp_time = '${temp_time}', temp_port = '${temp_port.value}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  select_container_id.forEach(id => {
+    sql += `insert into dispatch (type, container_id,add_time) values ('暂落','${id}', '${temp_time}');`
+  })
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
