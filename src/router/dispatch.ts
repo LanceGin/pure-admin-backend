@@ -422,7 +422,7 @@ const tempDropFinish = async (req: Request, res: Response) => {
   const select_container_no = req.body;
   let payload = null;
   const container_status = "待挑箱";
-  const transport_status = "5";
+  const trans_status = "已完成";
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -430,7 +430,8 @@ const tempDropFinish = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}', transport_status = '${transport_status}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE id in ('${select_container_no.toString().replaceAll(",", "','")}');`;
+  sql += `UPDATE dispatch SET trans_status = '${trans_status}' WHERE container_id in ('${select_container_no.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -446,10 +447,9 @@ const tempDropFinish = async (req: Request, res: Response) => {
 
 // 一键完成
 const oneStepFinish = async (req: Request, res: Response) => {
-  const select_container_no = req.body;
+  const select_container_id = req.body;
   let payload = null;
   const container_status = "已完成";
-  const transport_status = "5";
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -457,7 +457,8 @@ const oneStepFinish = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}', transport_status = '${transport_status}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  sql += `UPDATE dispatch SET trans_status = '${container_status}' WHERE container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -472,11 +473,12 @@ const oneStepFinish = async (req: Request, res: Response) => {
 
 // 一键撤回
 const oneStepRevoke = async (req: Request, res: Response) => {
-  const select_container_no = req.body;
+  const select_container_id = req.body;
   let payload = null;
   const container_status = "已挑箱";
+  const status = "未派车";
   const car_no = "";
-  const transport_status = "0";
+  const trans_status = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -484,7 +486,8 @@ const oneStepRevoke = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}', car_no = '${car_no}', transport_status = '${transport_status}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  sql += `UPDATE dispatch SET status = '${status}', car_no = '${car_no}', trans_status = ${trans_status} WHERE container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);

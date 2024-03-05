@@ -153,16 +153,19 @@ const generatePlanningFee = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   select_container.forEach((container) => {
-    const select_sql:string = `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.load_port}';`
+    let select_sql = '';
+    if (container.temp_status == "已暂落") {
+      fee_name = "堆存费";
+      select_sql += `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.temp_port}';`
+    } else {
+      select_sql += `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.load_port}';`
+    }
     connection.query(select_sql, function (err, data) {
       if (err) {
         console.log(err);
       } else {
         if (amount === null) {
           amount = calPlanningFee(data,container)
-        }
-        if (container.temp_status == "已暂落") {
-          fee_name = "堆存费";
         }
         let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_pay}','${fee_name}','${amount}');`;
         insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_collect}','${fee_name}','${amount}');`
@@ -185,9 +188,11 @@ const generatePlanningFee = async (req: Request, res: Response) => {
 // 生成堆存费
 const generateStorageFee = async (req: Request, res: Response) => {
   const {
-    type,
-    track_no
+    select_container
   } = req.body;
+  const type_pay = "应付";
+  const type_collect = "应收"
+  let fee_name = "堆存费";
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -196,6 +201,29 @@ const generateStorageFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
+  select_container.forEach((container) => {
+    const select_sql:string = `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.temp_port}';`
+    connection.query(select_sql, function (err, data) {
+      if (err) {
+        console.log(err);
+      } else {
+        const amount = calPlanningFee(data,container)
+        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_pay}','${fee_name}','${amount}');`;
+        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_collect}','${fee_name}','${amount}');`
+        connection.query(insert_sql, async function (err, data) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(data)
+          }
+        });
+      }
+    });
+  })
+  return res.json({
+    success: true,
+    data: { message: Message[8] },
+  });
 };
 
 // 生成拖车费
