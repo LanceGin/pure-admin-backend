@@ -94,6 +94,7 @@ import {
   tempDropDispatchList,
   tempDropFinish,
   whDispatchList,
+  editWhExport,
   oneStepFinish,
   oneStepRevoke,
   dispatchRevoke,
@@ -519,6 +520,10 @@ app.post("/tempDropDispatchList", (req, res) => {
 // 调度管理 - 获取武汉派车列表
 app.post("/whDispatchList", (req, res) => {
   whDispatchList(req, res);
+})
+// 调度管理 - 编辑武汉装箱信息
+app.post("/editWhExport", (req, res) => {
+  editWhExport(req, res);
 })
 // 调度管理 - 暂落一键完成
 app.post("/tempDropFinish", (req, res) => {

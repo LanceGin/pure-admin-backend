@@ -386,19 +386,20 @@ const whDispatchList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select * from container where container_status in ('运输中','已挑箱') and load_port in ('武汉阳逻','武汉金口') ";
-  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
-  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
-  if (form.load_port != "") { sql += " and load_port = " + "'" + form.load_port + "'" }
-  if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
-  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  let sql: string = "select a.id as dispatch_id, a.type, a.status, a.car_no as dispatch_car_no, a.trans_status,a.export_seal_no, a.export_port, b.* from dispatch as a left join container as b on b.id = a.container_id where b.load_port in ('武汉阳逻','武汉金口') ";
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(b.make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
+  if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
+  if (form.load_port != "") { sql += " and b.load_port = " + "'" + form.load_port + "'" }
+  if (form.containner_no != "") { sql += " and b.containner_no like " + "'%" + form.containner_no + "%'" }
+  if (form.car_no != "") { sql += " and a.car_no like " + "'%" + form.car_no + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
-  sql +=";select COUNT(*) from container where container_status in ('运输中','已挑箱') and load_port in ('武汉阳逻','武汉金口') ";
-  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
-  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
-  if (form.load_port != "") { sql += " and load_port = " + "'" + form.load_port + "'" }
-  if (form.containner_no != "") { sql += " and containner_no like " + "'%" + form.containner_no + "%'" }
-  if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
+  sql +=";select COUNT(*) from (select b.* from dispatch as a left join container as b on b.id = a.container_id where b.load_port in ('武汉阳逻','武汉金口') ";
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(b.make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
+  if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
+  if (form.load_port != "") { sql += " and b.load_port = " + "'" + form.load_port + "'" }
+  if (form.containner_no != "") { sql += " and b.containner_no like " + "'%" + form.containner_no + "%'" }
+  if (form.car_no != "") { sql += " and a.car_no like " + "'%" + form.car_no + "%'" }
+  sql += " ) as t;"
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -416,6 +417,35 @@ const whDispatchList = async (req: Request, res: Response) => {
     }
   });
 };
+
+// 编辑武汉装箱信息
+const editWhExport = async (req: Request, res: Response) => {
+  const {
+    dispatch_id,
+    export_seal_no,
+    export_port,
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `update dispatch set export_seal_no = '${export_seal_no}', export_port = '${export_port}' where id = '${dispatch_id}';`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
 
 // 暂落一键完成
 const tempDropFinish = async (req: Request, res: Response) => {
@@ -538,6 +568,7 @@ export {
   tmpDispatchCar,
   tempDropDispatchList,
   whDispatchList,
+  editWhExport,
   tempDropFinish,
   oneStepFinish,
   oneStepRevoke,
