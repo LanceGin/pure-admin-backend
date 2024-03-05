@@ -682,6 +682,35 @@ const makeTime = async (req: Request, res: Response) => {
   });
 };
 
+// 批量设置箱子信息
+const settingContainer = async (req: Request, res: Response) => {
+  const {
+    select_container_no,
+    make_time,
+    load_port,
+    remark
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE container SET make_time = '${make_time}', load_port = '${load_port}', remark = '${remark}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 // 获取堆场价格列表
 const yardPriceList = async (req: Request, res: Response) => {
   const { id } = req.body;
@@ -810,6 +839,7 @@ export {
   tempDrop,
   loadPort,
   makeTime,
+  settingContainer,
   yardPriceList,
   addYardPrice,
   editYardPrice,

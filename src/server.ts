@@ -74,6 +74,7 @@ import {
   tempDrop,
   loadPort,
   makeTime,
+  settingContainer,
   yardPriceList,
   addYardPrice,
   editYardPrice,
@@ -364,6 +365,10 @@ app.post("/loadPort", (req, res) => {
 // 运作管理 - 批量设置提箱时间接口
 app.post("/makeTime", (req, res) => {
   makeTime(req, res);
+})
+// 运作管理 - 批量设置箱信息接口
+app.post("/settingContainer", (req, res) => {
+  settingContainer(req, res);
 })
 // 运作管理 - 堆场价格列表
 app.post("/yardPriceList", (req, res) => {
