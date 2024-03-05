@@ -60,7 +60,6 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
-  console.log(11111, sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -120,7 +119,6 @@ const setInvoiceNo = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `UPDATE container_fee SET invoice_no = '${invoice_no.value}' WHERE id in ('${select_id  .toString().replaceAll(",", "','")}')`;
-  console.log(111, sql);
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -289,8 +287,8 @@ const importDoorPrice = async (req: Request, res: Response) => {
   });
 };
 
-// 数据比对
-const dataCheck = async (req: Request, res: Response) => {
+// 应收数据比对
+const dataCheckCollection = async (req: Request, res: Response) => {
   const file_path = req.files[0].path;
   const sheets = xlsx.parse(file_path, {
     // cellDates: true,
@@ -300,7 +298,7 @@ const dataCheck = async (req: Request, res: Response) => {
   let sql: string = "";
   values.shift();
   values.forEach((v) => {
-    sql += `select * from container where track_no = '${v[0]}' and containner_no = '${v[1]}' and seal_no = '${v[2]}' and container_type = '${v[3]}' and door = '${v[4]}';`;
+    sql += `select * from container where seal_no = '${v[0]}' and containner_no = '${v[1]}' and container_type = '${v[2]}' and door = '${v[3]}';`;
   })
   connection.query(sql, async function (err, data) {
     if (err) {
@@ -309,7 +307,34 @@ const dataCheck = async (req: Request, res: Response) => {
       await res.json({
         success: true,
         data: { 
-          list: data[0],
+          list: data,
+        },
+      });
+    }
+  });
+};
+
+// 应付数据比对
+const dataCheckPay = async (req: Request, res: Response) => {
+  const file_path = req.files[0].path;
+  const sheets = xlsx.parse(file_path, {
+    // cellDates: true,
+    defval: ""
+  });
+  const values = sheets[0].data;
+  let sql: string = "";
+  values.shift();
+  values.forEach((v) => {
+    sql += `select * from container where containner_no = '${v[0]}' and container_type = '${v[1]}' and door = '${v[2]}';`;
+  })
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data,
         },
       });
     }
@@ -324,5 +349,6 @@ export {
   setAmount,
   setRemark,
   importDoorPrice,
-  dataCheck
+  dataCheckCollection,
+  dataCheckPay
 };
