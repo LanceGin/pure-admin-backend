@@ -186,32 +186,30 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select * from container where id is not null ";
-  if (form.container_status != "") { sql += " and container_status like " + "'%" + form.container_status + "%'" }
-  if (form.temp_status != "") { sql += " and temp_status like " + "'%" + form.temp_status + "%'" }
-  if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
-  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
-  if (form.order_type != "") { sql += " and order_type like " + "'%" + form.order_type + "%'" }
-  if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
-  if (form.seal_no != "") { sql += " and seal_no like " + "'%" + form.seal_no + "%'" }
-  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
+  let sql: string = "select a.id as dispatch_id, a.type, a.status, a.car_no as dispatch_car_no, a.trans_status, a.abnormal_fee, a.remark as dispatch_remark, b.* from dispatch as a left join container as b on b.id = a.container_id where a.trans_status = '已完成' ";
+  if (form.container_status != "") { sql += " and b.container_status like " + "'%" + form.container_status + "%'" }
+  if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
+  if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
+  if (form.order_type != "") { sql += " and a.type like " + "'%" + form.order_type + "%'" }
+  if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
+  if (form.seal_no != "") { sql += " and b.seal_no like " + "'%" + form.seal_no + "%'" }
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and b.make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
-    sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+    sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
-  sql +=";select COUNT(*) from ( select * from container where id is not null ";
-  if (form.container_status != "") { sql += " and container_status like " + "'%" + form.container_status + "%'" }
-  if (form.temp_status != "") { sql += " and temp_status like " + "'%" + form.temp_status + "%'" }
-  if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
-  if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
-  if (form.order_type != "") { sql += " and order_type like " + "'%" + form.order_type + "%'" }
-  if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
-  if (form.seal_no != "") { sql += " and seal_no like " + "'%" + form.seal_no + "%'" }
-  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
+  sql +=";select COUNT(*) from ( select a.id from dispatch as a left join container as b on b.id = a.container_id where a.trans_status = '已完成' ";
+  if (form.container_status != "") { sql += " and b.container_status like " + "'%" + form.container_status + "%'" }
+  if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
+  if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
+  if (form.order_type != "") { sql += " and a.type like " + "'%" + form.order_type + "%'" }
+  if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
+  if (form.seal_no != "") { sql += " and b.seal_no like " + "'%" + form.seal_no + "%'" }
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and b.make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
-    sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+    sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   sql +=" ) as t";
   connection.query(sql, async function (err, data) {
@@ -421,15 +419,12 @@ const addContainer = async (req: Request, res: Response) => {
 // 新增箱子费用
 const addContainerFee = async (req: Request, res: Response) => {
   const {
-    id,
-    fee_name,
-    amount,
+    dispatch_id,
+    abnormal_fee,
+    dispatch_remark,
     add_by
   } = req.body;
   let payload = null;
-  const type = "应付"
-  const status = "已审核";
-  const add_time = dayjs(new Date()).format("YYYY-MM-DD");
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -437,25 +432,14 @@ const addContainerFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into container_fee (container_id,type,status,fee_name,amount) values ('${id}','${type}','${status}','${fee_name}','${amount}');select LAST_INSERT_ID() as last_id;`;
+  let sql: string = `update dispatch set abnormal_fee = '${abnormal_fee}', remark = '${dispatch_remark}' where id = '${dispatch_id}';`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
     } else {
-      const is_admin = "业务";
-      const is_pay = "付";
-      const from = "运作";
-      const from_id = data[1][0].last_id;
-      let apply_fee_sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,apply_amount,apply_by,create_time,from_tb,from_id) values ('${is_admin}','${fee_name}','${is_pay}','${amount}','${add_by}','${add_time}','${from}','${from_id}')`;
-      connection.query(apply_fee_sql, async function (err, data) {
-        if (err) {
-          console.log(err);
-        } else {
-          await res.json({
-            success: true,
-            data: { message: Message[6] },
-          });
-        }
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
       });
     }
   });
