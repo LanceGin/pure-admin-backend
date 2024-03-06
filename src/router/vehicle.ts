@@ -841,18 +841,9 @@ const addVehicleFee = async (req: Request, res: Response) => {
     if (err) {
       console.log(err);
     } else {
-      const is_admin = "业务";
-      const is_pay = "付";
-      let apply_fee_sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,apply_by,apply_department,create_time) values ('${is_admin}','${car_fees}','${is_pay}','${type}','${amount}','${actual_amount}','${tax_amount}','${add_by}','${company}','${add_time}')`;
-      connection.query(apply_fee_sql, async function (err, data) {
-        if (err) {
-          console.log(err);
-        } else {
-          await res.json({
-            success: true,
-            data: { message: Message[6] },
-          });
-        }
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
       });
     }
   });
