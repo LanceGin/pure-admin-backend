@@ -124,6 +124,36 @@ const importDispatch = async (req: Request, res: Response) => {
   });
 };
 
+// 根据箱子数据生成派车单
+const generateDispatchWithContainer = async (req: Request, res: Response) => {
+  const { select_container } = req.body;
+  let payload = null;
+  const status = '已派车';
+  const trans_status = '已执行';
+  const add_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = ``;
+  select_container.forEach(container => {
+    sql += `update dispatch set car_no = '${container.car_no}', status = '${status}', trans_status = '${trans_status}' where container_id = '${container.id}' and status = '未派车';`
+  })
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 // 获取进口派车列表
 const importDispatchList = async (req: Request, res: Response) => {
   const { pagination, form } = req.body;
@@ -591,6 +621,7 @@ export {
   unpackingList,
   dispatchCar,
   importDispatch,
+  generateDispatchWithContainer,
   importDispatchList,
   editContainerInfo,
   exportDispatchList,

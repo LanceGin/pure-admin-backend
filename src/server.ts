@@ -86,6 +86,7 @@ import {
   unpackingList,
   dispatchCar,
   importDispatch,
+  generateDispatchWithContainer,
   importDispatchList,
   editContainerInfo,
   exportDispatchList,
@@ -484,6 +485,10 @@ app.post("/dispatchCar", (req, res) => {
 // 调度管理 - 导入派车
 app.post("/importDispatch", upload_tmp.any(), (req, res) => {
   importDispatch(req, res);
+})
+// 调度管理 - 根据导入的箱子更新派车单
+app.post("/generateDispatchWithContainer", upload_tmp.any(), (req, res) => {
+  generateDispatchWithContainer(req, res);
 })
 // 调度管理 - 临时出口派车
 app.post("/tmpDispatchCar", (req, res) => {
