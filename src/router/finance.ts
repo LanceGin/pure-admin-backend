@@ -641,21 +641,23 @@ const payInvoicetList = async (req: Request, res: Response) => {
   }
   let sql: string = "select code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,classification_code,specific_type,goods_or_taxable_service,specification,unit,quantity,unit_price,sum(amount) as amount,tax_rate,sum(tax) as tax, sum(total_amount) as total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark,is_invoice,paid_time,certification_period,tmp_excel_no from pay_invoice_info where id is not null ";
   if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
-  if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
   if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
   if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
   if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
   if (form.seller_identification_no != "") { sql += " and seller_identification_no like " + "'%" + form.seller_identification_no + "%'" }
+  if (form.seller_name != "") { sql += " and seller_name like " + "'%" + form.seller_name + "%'" }
   if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
+  if (form.buyer_name != "") { sql += " and buyer_name like " + "'%" + form.buyer_name + "%'" }
   sql +=" group by digital_ticket_no,no,code order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from ( select * from pay_invoice_info where id is not null ";
   if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
-  if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
   if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
   if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
   if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
   if (form.seller_identification_no != "") { sql += " and seller_identification_no like " + "'%" + form.seller_identification_no + "%'" }
+  if (form.seller_name != "") { sql += " and seller_name like " + "'%" + form.seller_name + "%'" }
   if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
+  if (form.buyer_name != "") { sql += " and buyer_name like " + "'%" + form.buyer_name + "%'" }
   sql +=" group by digital_ticket_no,no,code ) as t";
   connection.query(sql, async function (err, data) {
     if (err) {
@@ -693,21 +695,31 @@ const payInvoicetOrigList = async (req: Request, res: Response) => {
   }
   let sql: string = "select * from pay_invoice_info where id is not null ";
   if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
-  if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
-  if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
+  if (form.invoice_type != "") { sql += " and invoice_type like " + "'%" + form.invoice_type + "%'" }
+  if (form.status != "") { sql += " and status = " + "'" + form.status + "'" }
+  if (form.certification_period != "" && form.certification_period != null) { sql += " and certification_period = " + "'" + form.certification_period + "'" }
+  if (form.tax_rate != "") { sql += " and tax_rate = " + "'" + form.tax_rate + "'" }
+  if (form.code != "") { sql += " and code = " + "'" + form.code + "'" }
   if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
-  if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
+  if (form.digital_ticket_no != "") { sql += " and digital_ticket_no = " + "'" + form.digital_ticket_no + "'" }
   if (form.seller_identification_no != "") { sql += " and seller_identification_no like " + "'%" + form.seller_identification_no + "%'" }
+  if (form.seller_name != "") { sql += " and seller_name like " + "'%" + form.seller_name + "%'" }
   if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
+  if (form.buyer_name != "") { sql += " and buyer_name like " + "'%" + form.buyer_name + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from pay_invoice_info where id is not null ";
   if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
-  if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
-  if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
+  if (form.invoice_type != "") { sql += " and invoice_type like " + "'%" + form.invoice_type + "%'" }
+  if (form.status != "") { sql += " and status = " + "'" + form.status + "'" }
+  if (form.certification_period != "" && form.certification_period != null) { sql += " and certification_period = " + "'" + form.certification_period + "'" }
+  if (form.tax_rate != "") { sql += " and tax_rate = " + "'" + form.tax_rate + "'" }
+  if (form.code != "") { sql += " and code = " + "'" + form.code + "'" }
   if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
-  if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
+  if (form.digital_ticket_no != "") { sql += " and digital_ticket_no = " + "'" + form.digital_ticket_no + "'" }
   if (form.seller_identification_no != "") { sql += " and seller_identification_no like " + "'%" + form.seller_identification_no + "%'" }
+  if (form.seller_name != "") { sql += " and seller_name like " + "'%" + form.seller_name + "%'" }
   if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
+  if (form.buyer_name != "") { sql += " and buyer_name like " + "'%" + form.buyer_name + "%'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
