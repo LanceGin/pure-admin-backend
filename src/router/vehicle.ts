@@ -646,7 +646,7 @@ const vehicleRefuelList = async (req: Request, res: Response) => {
       const a = data[2];
       let remain_oil = 0;
       a.forEach((v) => {
-        if(v.type == "买入") {
+        if(v.type == "买入" || v.type == "注销") {
           remain_oil += v.total;
         } else {
           remain_oil -= v.total;
@@ -811,6 +811,7 @@ const vehicleFeeList = async (req: Request, res: Response) => {
 // 新增车辆费用
 const addVehicleFee = async (req: Request, res: Response) => {
   const {
+    is_submit,
     driver,
     company,
     car_no,
@@ -836,7 +837,43 @@ const addVehicleFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into vehicle_fee (add_time,driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,actual_amount,tax_amount,settlement_confirm,remark,add_by) values ('${add_time}','${driver}','${company}','${car_no}','${hang_board_no}','${type}','${car_fees}','${content}','${quantity}','${amount}','${allocation_month}','${actual_amount}','${tax_amount}','${settlement_confirm}','${remark}','${add_by}')`;
+  let sql: string = `insert into vehicle_fee (is_submit,add_time,driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,actual_amount,tax_amount,settlement_confirm,remark,add_by) values ('${is_submit}','${add_time}','${driver}','${company}','${car_no}','${hang_board_no}','${type}','${car_fees}','${content}','${quantity}','${amount}','${allocation_month}','${actual_amount}','${tax_amount}','${settlement_confirm}','${remark}','${add_by}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 提交车辆费用
+const submitVehicleFee = async (req: Request, res: Response) => {
+  const {
+    id,
+    amount,
+    actual_amount,
+    tax_amount,
+    add_by,
+    fee_name,
+    company,
+    type
+  } = req.body;
+  let payload = null;
+  const add_time = dayjs(new Date()).format("YYYY-MM-DD");
+  const fee_no = "FAO" + dayjs(new Date()).format("YYYYMMDD") + Math.floor(Math.random()*10000);
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `update vehicle_fee set is_submit = '已提交' where id in ('${id.toString().replaceAll(",", "','")}');`;
+  sql += ` insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,create_time,fee_no) values ('业务','${fee_name}','付','${type}','${amount}','${actual_amount}','${tax_amount}','${company}','${add_by}','${add_time}','${fee_no}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -853,6 +890,7 @@ const addVehicleFee = async (req: Request, res: Response) => {
 const editVehicleFee = async (req: Request, res: Response) => {
   const {
     id,
+    is_submit,
     driver,
     company,
     car_no,
@@ -876,8 +914,8 @@ const editVehicleFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE vehicle_fee SET driver = ?,company = ?,car_no = ?,hang_board_no = ?,type = ?,car_fees = ?,content = ?,quantity = ?,amount = ?,allocation_month = ?,actual_amount = ?,tax_amount = ?,settlement_confirm = ?,remark = ? WHERE id = ?";
-  let modifyParams: string[] = [driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,actual_amount,tax_amount,settlement_confirm,remark,id];
+  let modifySql: string = "UPDATE vehicle_fee SET is_submit = ?,driver = ?,company = ?,car_no = ?,hang_board_no = ?,type = ?,car_fees = ?,content = ?,quantity = ?,amount = ?,allocation_month = ?,actual_amount = ?,tax_amount = ?,settlement_confirm = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [is_submit,driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,actual_amount,tax_amount,settlement_confirm,remark,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -892,7 +930,7 @@ const editVehicleFee = async (req: Request, res: Response) => {
 
 // 删除车辆费用
 const deleteVehicleFee = async (req: Request, res: Response) => {
-  const id = req.body.id;
+  const { select_id } = req.body;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -901,7 +939,7 @@ const deleteVehicleFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `DELETE from vehicle_fee where id = '${id}'`;
+  let sql: string = `DELETE from vehicle_fee where id in ('${select_id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -939,6 +977,7 @@ export {
   deleteVehicleRefuel,
   vehicleFeeList,
   addVehicleFee,
+  submitVehicleFee,
   editVehicleFee,
   deleteVehicleFee
 };

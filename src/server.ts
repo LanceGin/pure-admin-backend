@@ -126,6 +126,7 @@ import {
   deleteVehicleRefuel,
   vehicleFeeList,
   addVehicleFee,
+  submitVehicleFee,
   editVehicleFee,
   deleteVehicleFee,
 } from "./router/vehicle";
@@ -643,6 +644,10 @@ app.post("/vehicleFeeList", (req, res) => {
 // 车辆管理 - 添加车辆费用接口
 app.post("/addVehicleFee", (req, res) => {
   addVehicleFee(req, res);
+})
+// 车辆管理 - 提交车辆费用接口
+app.post("/submitVehicleFee", (req, res) => {
+  submitVehicleFee(req, res);
 })
 // 车辆管理 - 删除车辆费用接口
 app.post("/deleteVehicleFee", (req, res) => {
