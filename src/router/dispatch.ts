@@ -124,7 +124,7 @@ const importDispatch = async (req: Request, res: Response) => {
   });
 };
 
-// 根据箱子数据生成派车单
+// 根据箱子数据更新派车单
 const generateDispatchWithContainer = async (req: Request, res: Response) => {
   const { select_container } = req.body;
   let payload = null;
@@ -449,7 +449,7 @@ const whDispatchList = async (req: Request, res: Response) => {
     sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.car_no != "") { sql += " and a.car_no like " + "'%" + form.car_no + "%'" }
-  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=" order by door asc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from (select b.* from dispatch as a left join container as b on b.id = a.container_id where b.load_port in ('武汉阳逻','武汉金口') ";
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(b.make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
@@ -592,7 +592,7 @@ const oneStepRevoke = async (req: Request, res: Response) => {
 
 // 派车撤回
 const dispatchRevoke = async (req: Request, res: Response) => {
-  const select_container_no = req.body;
+  const select_container_id = req.body;
   let payload = null;
   const container_status = "待挑箱";
   try {
@@ -602,7 +602,8 @@ const dispatchRevoke = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  sql += `update dispatch set car_no = '', status = '未派车', trans_status = '' where container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);

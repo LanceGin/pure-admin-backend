@@ -186,7 +186,7 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select a.id as dispatch_id, a.type, a.status, a.car_no as dispatch_car_no, a.trans_status, a.abnormal_fee, a.remark as dispatch_remark, b.* from dispatch as a left join container as b on b.id = a.container_id where a.trans_status = '已完成' ";
+  let sql: string = "select a.id as dispatch_id, a.type, a.status, a.car_no as dispatch_car_no, a.trans_status, a.abnormal_fee, a.remark as dispatch_remark, b.*, c.amount from dispatch as a left join container as b on b.id = a.container_id left join container_fee as c on c.container_id = b.id where a.trans_status = '已完成' and c.fee_name = '拖车费' and c.type = '应付' ";
   if (form.container_status != "") { sql += " and b.container_status like " + "'%" + form.container_status + "%'" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
@@ -268,7 +268,7 @@ const containerList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `select * from container where track_no = '${track_no}'`;
+  let sql: string = `select * from container where track_no = '${track_no}' and order_type = '进口';`;
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -560,8 +560,7 @@ const pickBoxList = async (req: Request, res: Response) => {
   if (form.ship_name != "") { sql += " and ship_name like " + "'%" + form.ship_name + "%'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.container_status != "") { sql += " and container_status like " + "'%" + form.container_status + "%'" }
-  if (form.temp_status == "已暂落") { sql += " and temp_status = " + "'" + form.temp_status + "'" }
-  if (form.temp_status == "未暂落") { sql += " and temp_status is null" }
+  if (form.temp_status != "") { sql += " and temp_status like " + "'%" + form.temp_status + "%'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
@@ -573,8 +572,7 @@ const pickBoxList = async (req: Request, res: Response) => {
   if (form.ship_name != "") { sql += " and ship_name like " + "'%" + form.ship_name + "%'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.container_status != "") { sql += " and container_status like " + "'%" + form.container_status + "%'" }
-  if (form.temp_status == "已暂落") { sql += " and temp_status = " + "'" + form.temp_status + "'" }
-  if (form.temp_status == "未暂落") { sql += " and temp_status is null" }
+  if (form.temp_status != "") { sql += " and temp_status like " + "'%" + form.temp_status + "%'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
