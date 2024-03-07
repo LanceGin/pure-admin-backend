@@ -259,13 +259,13 @@ const wxClockList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select * from wx_user_clock where userName is not null";
-  if (form.clock_date.length > 0) { sql += " and clock_date between " + "'" + form.clock_date[0] + "' and '" + form.clock_date[1] + "'" }
+  if (form.clock_date && form.clock_date.length > 0) { sql += " and clock_date between " + "'" + form.clock_date[0] + "' and '" + form.clock_date[1] + "'" }
   if (form.userName != "") { sql += " and userName = " + "'" + form.userName + "'" }
   if (form.clockin_type != "") { sql += " and clockin_type = " + "'" + form.clockin_type + "'" }
   if (form.clockout_type != "") { sql += " and clockout_type = " + "'" + form.clockout_type + "'" }
   sql +=" order by clockin_time desc limit " + size + " offset " + size * (page - 1);
   sql +=" ;select COUNT(*) from wx_user_clock where userName is not null"
-  if (form.clock_date.length > 0) { sql += " and clock_date between " + "'" + form.clock_date[0] + "' and '" + form.clock_date[1] + "'" }
+  if (form.clock_date && form.clock_date.length > 0) { sql += " and clock_date between " + "'" + form.clock_date[0] + "' and '" + form.clock_date[1] + "'" }
   if (form.userName != "") { sql += " and userName = " + "'" + form.userName + "'" }
   if (form.clockin_type != "") { sql += " and clockin_type = " + "'" + form.clockin_type + "'" }
   if (form.clockout_type != "") { sql += " and clockout_type = " + "'" + form.clockout_type + "'" }
