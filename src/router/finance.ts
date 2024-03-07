@@ -1110,6 +1110,128 @@ const rejectPay = async (req: Request, res: Response) => {
   });
 };
 
+// 获取费用名列表
+const feeNameList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from fee_name where id is not null";
+  if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
+  if (form.name != "") { sql += " and name like " + "'%" + form.name + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from fee_name where id is not null"
+  if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
+  if (form.name != "") { sql += " and name like " + "'%" + form.name + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增费用名
+const addFeeName = async (req: Request, res: Response) => {
+  const {
+    code,
+    name
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into fee_name (code, name) values ('${code}', '${name}');`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 删除费用名
+const deleteFeeName = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from fee_name where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+
+// 编辑费用名
+const editFeeName = async (req: Request, res: Response) => {
+  const {
+    id,
+    code,
+    name
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE fee_name SET code = ?, name = ? WHERE id = ?";
+  let modifyParams: string[] = [code, name, id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 export {
   keepAppliedFee,
   cancelKeepAppliedFee,
@@ -1138,5 +1260,9 @@ export {
   approveCollection,
   rejectCollection,
   approvePay,
-  rejectPay
+  rejectPay,
+  feeNameList,
+  addFeeName,
+  deleteFeeName,
+  editFeeName
 };

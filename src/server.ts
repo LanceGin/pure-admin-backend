@@ -176,7 +176,11 @@ import {
   approveCollection,
   rejectCollection,
   approvePay,
-  rejectPay
+  rejectPay,
+  feeNameList,
+  addFeeName,
+  deleteFeeName,
+  editFeeName
 } from "./router/finance";
 
 import {
@@ -828,6 +832,22 @@ app.post("/approvePay", upload_tmp.any(), (req, res) => {
 // 财务 - 驳回应付费用审核
 app.post("/rejectPay", upload_tmp.any(), (req, res) => {
   rejectPay(req, res);
+})
+// 财务 - 费用名列表
+app.post("/feeNameList", (req, res) => {
+  feeNameList(req, res);
+})
+// 财务 - 新增费用名
+app.post("/addFeeName", (req, res) => {
+  addFeeName(req, res);
+})
+// 财务 - 编辑费用名
+app.post("/editFeeName", (req, res) => {
+  editFeeName(req, res);
+})
+// 财务 - 删除费用名
+app.post("/deleteFeeName", (req, res) => {
+  deleteFeeName(req, res);
 })
 
 app.put("/updateList/:id", (req, res) => {
