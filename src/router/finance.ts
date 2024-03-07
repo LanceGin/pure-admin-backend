@@ -32,7 +32,7 @@ const keepAppliedFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE applied_fee SET status = '${status}',keep_time = '${time}',keep_by = '${username}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE applied_fee as a left join pay_invoice_info as b on a.invoice_no = if(b.no='', b.digital_ticket_no, b.no) SET a.status = '${status}',a.keep_time = '${time}',a.keep_by = '${username}',b.paid_time = '${time}' WHERE a.id in ('${select_id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -50,7 +50,7 @@ const cancelKeepAppliedFee = async (req: Request, res: Response) => {
   const select_id = req.body;
   let payload = null;
   const status = "通过审批";
-  const keep_time = "";
+  const keep_time = null;
   const username = "";
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -59,7 +59,7 @@ const cancelKeepAppliedFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE applied_fee SET status = '${status}',keep_time = '${keep_time}',keep_by = '${username}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE applied_fee as a left join pay_invoice_info as b on a.invoice_no = if(b.no='', b.digital_ticket_no, b.no) SET a.status = '${status}',a.keep_time = '${keep_time}',a.keep_by = '${username}',b.paid_time = '${keep_time}' WHERE a.id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
