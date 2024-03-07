@@ -1040,22 +1040,22 @@ const lighteringList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select id,type,container_no,seal_no,is_import,cargo_name,voyage,voyage_index,customs_container_type,container_type,container_holder,iso,extra_operation,trade_type,bl_no,load_port,target_port,unload_port,load_payer,unload_payer,total_weight,cargo_weight,volume,amount,cargo_owner,forwarder,remarks,date_format(add_time, '%Y-%m-%d') as add_time,empty_weight,transfer_type from lightering where type = " + form.type;
-  if (form.seal_no != "") { sql += " and seal_no = " + "'" + form.seal_no + "'" }
-  if (form.container_no != "") { sql += " and container_no = " + "'" + form.container_no + "'" }
-  if (form.container_type != "") { sql += " and container_type = " + "'" + form.container_type + "'" }
-  if (form.bl_no != "") { sql += " and bl_no = " + "'" + form.bl_no + "'" }
-  if (form.container_holder != "") { sql += " and container_holder like " + "'%" + form.container_holder + "%'" }
-  if (form.extra_operation != "") { sql += " and extra_operation like " + "'%" + form.extra_operation + "%'" }
+  if (form.add_time && form.add_time.length > 0) { sql += " and DATE_FORMAT(add_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.add_time[0] + "','%Y%m%d') and DATE_FORMAT('" + form.add_time[1] + "','%Y%m%d')" }
+  if (form.voyage != "") { sql += " and voyage like " + "'%" + form.voyage + "%'" }
   if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
+  if (form.container_no != "") {
+    const select_container_no = form.container_no.split(/\r\n|\r|\n/);
+    sql += ` and container_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from lightering where type = " + form.type;
-  if (form.seal_no != "") { sql += " and seal_no = " + "'" + form.seal_no + "'" }
-  if (form.container_no != "") { sql += " and container_no = " + "'" + form.container_no + "'" }
-  if (form.container_type != "") { sql += " and container_type = " + "'" + form.container_type + "'" }
-  if (form.bl_no != "") { sql += " and bl_no = " + "'" + form.bl_no + "'" }
-  if (form.container_holder != "") { sql += " and container_holder like " + "'%" + form.container_holder + "%'" }
-  if (form.extra_operation != "") { sql += " and extra_operation like " + "'%" + form.extra_operation + "%'" }
+  if (form.add_time && form.add_time.length > 0) { sql += " and DATE_FORMAT(add_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.add_time[0] + "','%Y%m%d') and DATE_FORMAT('" + form.add_time[1] + "','%Y%m%d')" }
+  if (form.voyage != "") { sql += " and voyage like " + "'%" + form.voyage + "%'" }
   if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
+  if (form.container_no != "") {
+    const select_container_no = form.container_no.split(/\r\n|\r|\n/);
+    sql += ` and container_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
