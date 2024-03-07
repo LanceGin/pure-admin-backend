@@ -103,8 +103,8 @@ const importDispatch = async (req: Request, res: Response) => {
   let sql: string = "";
   let select_sql: string = "select * from container where containner_no in ( ";
   values.forEach((v) => {
-    v[0] = formatDate(v[0], "/");
-    sql += ` update container set car_no = '${v[2]}', container_status = '运输中', transport_status = '0' where containner_no = '${v[1]}' and container_status = '已挑箱';`
+    const dispatch_time = dayjs().hour(dayjs(v[0]).hour()).minute(dayjs(v[0]).minute()).format('YYYY-MM-DD HH:mm');
+    sql += ` update container set make_time = '${dispatch_time}', car_no = '${v[2]}', container_status = '运输中', transport_status = '0' where containner_no = '${v[1]}' and container_status = '已挑箱';`
     select_sql += `'${v[1]}',`;
   })
   select_sql = select_sql.replace(/,$/, '') + ");";
