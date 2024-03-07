@@ -677,6 +677,32 @@ const payInvoicetList = async (req: Request, res: Response) => {
   });
 };
 
+// 获取应付发票列表 仅供筛选使用
+const selectPayInvoicetList = async (req: Request, res: Response) => {
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select if(a.no='', a.digital_ticket_no, a.no) as invoice_no from pay_invoice_info as a left join applied_fee as b on b.invoice_no = if(a.no='', a.digital_ticket_no, a.no) where b.id is null ";
+  sql +=" group by a.digital_ticket_no,a.no,a.code order by a.id desc;";
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data
+        },
+      });
+    }
+  });
+};
+
 // 获取应付发票列表
 const payInvoicetOrigList = async (req: Request, res: Response) => {
   const { pagination, form } = req.body;
@@ -1250,6 +1276,7 @@ export {
   setReceiptTime,
   importInvoice,
   payInvoicetList,
+  selectPayInvoicetList,
   payInvoicetOrigList,
   addPayInvoice,
   editPayInvoice,

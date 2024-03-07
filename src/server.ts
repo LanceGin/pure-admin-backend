@@ -166,6 +166,7 @@ import {
   setReceiptTime,
   importInvoice,
   payInvoicetList,
+  selectPayInvoicetList,
   payInvoicetOrigList,
   addPayInvoice,
   editPayInvoice,
@@ -788,6 +789,10 @@ app.post("/importInvoice", upload_tmp.any(), (req, res) => {
 // 财务 - 应付发票列表
 app.post("/payInvoicetList", (req, res) => {
   payInvoicetList(req, res);
+})
+// 财务 - 应付发票列表 仅供选项使用
+app.post("/selectPayInvoicetList", (req, res) => {
+  selectPayInvoicetList(req, res);
 })
 // 财务 - 原始应付发票列表
 app.post("/payInvoicetOrigList", (req, res) => {
