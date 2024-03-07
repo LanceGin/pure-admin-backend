@@ -364,8 +364,10 @@ const generateExportDispatch = async (req: Request, res: Response) => {
   }
   let sql: string = ``;
   select_container.forEach(container => {
-    sql += `insert into dispatch (type,container_id,car_no,status,trans_status,add_time) values ('装箱','${container.id}','${container.car_no}','${status}','${trans_status}','${add_time}');`
+    sql += `insert into dispatch (type,container_id,car_no,status,trans_status,add_time) values ('装箱','${container.id}','${container.car_no}','${status}','${trans_status}','${add_time}');`;
+    sql += `update dispatch as a left join container as b on b.id = a.container_id set a.export_seal_no = '${container.seal_no}', a.export_port = '${container.load_port}' where b.containner_no = '${container.containner_no}' and b.make_time = '${container.make_time}' and a.type = '拆箱';`
   })
+  console.log("导入出口运单同步更新进口运单数据：", sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
