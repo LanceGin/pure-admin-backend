@@ -298,7 +298,11 @@ const dataCheckCollection = async (req: Request, res: Response) => {
   let sql: string = "";
   values.shift();
   values.forEach((v) => {
-    sql += `select * from container where seal_no = '${v[0]}' and containner_no = '${v[1]}' and container_type = '${v[2]}' and door = '${v[3]}';`;
+    sql += `select * from container where seal_no = '${v[0]}' and containner_no = '${v[1]}' `;
+    if (v[2] != "") {
+      sql += ` and track_no = '${v[2]}'`;
+    }
+    sql += ` and container_type = '${v[3]}' and door = '${v[4]}';`
   })
   connection.query(sql, async function (err, data) {
     if (err) {
@@ -325,7 +329,11 @@ const dataCheckPay = async (req: Request, res: Response) => {
   let sql: string = "";
   values.shift();
   values.forEach((v) => {
-    sql += `select * from container where containner_no = '${v[0]}' and container_type = '${v[1]}' and door = '${v[2]}';`;
+    sql += `select * from container where containner_no = '${v[0]}' `;
+    if (v[1] != "") {
+      sql += ` and track_no = '${v[1]}'`;
+    }
+    sql += ` and container_type = '${v[2]}' and door = '${v[3]}';`
   })
   connection.query(sql, async function (err, data) {
     if (err) {
