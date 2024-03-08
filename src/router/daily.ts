@@ -376,7 +376,7 @@ const addAppliedFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,reimburse_by,tax_amount,acc_company_id,apply_by,apply_department,remark,create_time,fee_no,invoice_no) values ('${is_admin}','${fee_name}','${is_pay}','${pay_type}','${apply_amount}','${reimburse_amount}','${reimburse_by}','${tax_amount}','${acc_company_id}','${apply_by}','${apply_department}','${remark}','${create_time}','${fee_no},'${invoice_no}')`;
+  let sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,reimburse_by,tax_amount,acc_company_id,apply_by,apply_department,remark,create_time,fee_no,invoice_no) values ('${is_admin}','${fee_name}','${is_pay}','${pay_type}','${apply_amount}','${reimburse_amount}','${reimburse_by}','${tax_amount}','${acc_company_id}','${apply_by}','${apply_department}','${remark}','${create_time}','${fee_no}','${invoice_no}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
