@@ -596,6 +596,8 @@ const dispatchRevoke = async (req: Request, res: Response) => {
   const select_container_id = req.body;
   let payload = null;
   const container_status = "待挑箱";
+  const temp = null;
+  const temp_status = "未暂落";
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -603,8 +605,8 @@ const dispatchRevoke = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
-  sql += `update dispatch set car_no = '', status = '未派车', trans_status = '' where container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}', temp_status = '${temp_status}', temp_port = ${temp}, temp_time = ${temp} WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  sql += `delete from dispatch where container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
