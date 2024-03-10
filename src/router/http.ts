@@ -917,6 +917,7 @@ const addBulkCargo = async (req: Request, res: Response) => {
     container_no,
     container_type,
     seal_no,
+    start_point,
     flow_direction,
     voyage,
     address,
@@ -938,7 +939,7 @@ const addBulkCargo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into bulk_cargo (type,customer,ship_company,fleet,load_area,unload_area,load_address,unload_address,bl_no,container_no,container_type,seal_no,flow_direction,voyage,address,car_type,car_no,driver_mobile,booking_fee,exchange_fee,freight,error_fee,remarks,add_time) values ('${type}','${customer}','${ship_company}','${fleet}','${load_area}','${unload_area}','${load_address}','${unload_address}','${bl_no}','${container_no}','${container_type}','${seal_no}','${flow_direction}','${voyage}','${address}','${car_type}','${car_no}','${driver_mobile}','${booking_fee}','${exchange_fee}','${freight}','${error_fee}','${remarks}','${add_time}')`;
+  let sql: string = `insert into bulk_cargo (type,customer,ship_company,fleet,load_area,unload_area,load_address,unload_address,bl_no,container_no,container_type,seal_no,start_point,flow_direction,voyage,address,car_type,car_no,driver_mobile,booking_fee,exchange_fee,freight,error_fee,remarks,add_time) values ('${type}','${customer}','${ship_company}','${fleet}','${load_area}','${unload_area}','${load_address}','${unload_address}','${bl_no}','${container_no}','${container_type}','${seal_no}','${start_point}','${flow_direction}','${voyage}','${address}','${car_type}','${car_no}','${driver_mobile}','${booking_fee}','${exchange_fee}','${freight}','${error_fee}','${remarks}','${add_time}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -992,6 +993,7 @@ const editBulkCargo = async (req: Request, res: Response) => {
     container_no,
     container_type,
     seal_no,
+    start_point,
     flow_direction,
     voyage,
     address,
@@ -1013,8 +1015,8 @@ const editBulkCargo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE bulk_cargo SET type = ?,customer = ?,ship_company = ?,fleet = ?,load_area = ?,unload_area = ?,load_address = ?,unload_address = ?,bl_no = ?,container_no = ?,container_type = ?,seal_no = ?,flow_direction = ?,voyage = ?,address = ?,car_type = ?,car_no = ?,driver_mobile = ?,booking_fee = ?,exchange_fee = ?,freight = ?,error_fee = ?,remarks = ?,add_time = ? WHERE id = ?";
-  let modifyParams: string[] = [type,customer,ship_company,fleet,load_area,unload_area,load_address,unload_address,bl_no,container_no,container_type,seal_no,flow_direction,voyage,address,car_type,car_no,driver_mobile,booking_fee,exchange_fee,freight,error_fee,remarks,add_time, id];
+  let modifySql: string = "UPDATE bulk_cargo SET type = ?,customer = ?,ship_company = ?,fleet = ?,load_area = ?,unload_area = ?,load_address = ?,unload_address = ?,bl_no = ?,container_no = ?,container_type = ?,seal_no = ?,start_point = ?,flow_direction = ?,voyage = ?,address = ?,car_type = ?,car_no = ?,driver_mobile = ?,booking_fee = ?,exchange_fee = ?,freight = ?,error_fee = ?,remarks = ?,add_time = ? WHERE id = ?";
+  let modifyParams: string[] = [type,customer,ship_company,fleet,load_area,unload_area,load_address,unload_address,bl_no,container_no,container_type,seal_no,start_point,flow_direction,voyage,address,car_type,car_no,driver_mobile,booking_fee,exchange_fee,freight,error_fee,remarks,add_time, id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
