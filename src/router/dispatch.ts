@@ -180,7 +180,7 @@ const importDispatchList = async (req: Request, res: Response) => {
     sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.car_no != "") { sql += " and a.car_no like " + "'%" + form.car_no + "%'" }
-  if (form.container_status != "") { sql += " and b.container_status like " + "'%" + form.container_status + "%'" }
+  if (form.trans_status != "") { sql += " and a.trans_status like " + "'%" + form.trans_status + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from dispatch as a left join container as b on b.id = a.container_id where a.type = '拆箱' and a.status = '已派车' ";
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(b.make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
@@ -192,7 +192,7 @@ const importDispatchList = async (req: Request, res: Response) => {
     sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.car_no != "") { sql += " and a.car_no like " + "'%" + form.car_no + "%'" }
-  if (form.container_status != "") { sql += " and b.container_status like " + "'%" + form.container_status + "%'" }
+  if (form.trans_status != "") { sql += " and a.trans_status like " + "'%" + form.trans_status + "%'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -393,7 +393,7 @@ const tempDropDispatchList = async (req: Request, res: Response) => {
     sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.car_no != "") { sql += " and a.car_no like " + "'%" + form.car_no + "%'" }
-  if (form.container_status != "") { sql += " and b.container_status like " + "'%" + form.container_status + "%'" }
+  if (form.trans_status != "") { sql += " and a.trans_status like " + "'%" + form.trans_status + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from dispatch as a left join container as b on b.id = a.container_id where a.type = '暂落' and a.status = '已派车' ";
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(b.make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
@@ -405,7 +405,7 @@ const tempDropDispatchList = async (req: Request, res: Response) => {
     sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.car_no != "") { sql += " and a.car_no like " + "'%" + form.car_no + "%'" }
-  if (form.container_status != "") { sql += " and b.container_status like " + "'%" + form.container_status + "%'" }
+  if (form.trans_status != "") { sql += " and a.trans_status like " + "'%" + form.trans_status + "%'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
