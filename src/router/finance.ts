@@ -1206,7 +1206,7 @@ const addFeeName = async (req: Request, res: Response) => {
 
 // 删除费用名
 const deleteFeeName = async (req: Request, res: Response) => {
-  const id = req.body.id;
+  const { select_id } = req.body;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -1215,7 +1215,7 @@ const deleteFeeName = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `DELETE from fee_name where id = '${id}'`;
+  let sql: string = `DELETE from fee_name where id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
