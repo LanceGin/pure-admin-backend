@@ -95,7 +95,7 @@ const dispatchCar = async (req: Request, res: Response) => {
 const importDispatch = async (req: Request, res: Response) => {
   const file_path = req.files[0].path;
   const sheets = xlsx.parse(file_path, {
-    // cellDates: true,
+    cellDates: true,
     defval: ""
   });
   const values = sheets[0].data;
