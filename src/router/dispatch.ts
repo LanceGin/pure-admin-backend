@@ -354,7 +354,7 @@ const tmpDispatchCar = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into tmp_dispatch (door,car_no,status,transport_status) values ('${door}','${car_no}','${status}','${transport_status})'`;
+  let sql: string = `insert into tmp_dispatch (door,car_no,status,transport_status) values ('${door}','${car_no}','${status}','${transport_status}');`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);

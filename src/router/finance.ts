@@ -687,7 +687,7 @@ const selectPayInvoicetList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select if(a.no='', a.digital_ticket_no, a.no) as invoice_no from pay_invoice_info as a left join applied_fee as b on b.invoice_no = if(a.no='', a.digital_ticket_no, a.no) where b.id is null ";
+  let sql: string = `select if(a.no='', a.digital_ticket_no, a.no) as invoice_no from pay_invoice_info as a left join applied_fee as b on FIND_IN_SET(if(a.no='', a.digital_ticket_no, a.no), b.invoice_no) > 0 where b.id is null `;
   sql +=" group by a.digital_ticket_no,a.no,a.code order by a.id desc;";
   connection.query(sql, async function (err, data) {
     if (err) {
