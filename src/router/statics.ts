@@ -30,7 +30,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `SELECT a.id as fee_id, a.status, a.account_period, a.type, a.amount,a.invoice_no, a.fee_name, a.fee_type, a.custom_name, a.project_name, a.content, a.flow_direction,a.remark, b.* FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null`;
+  let sql: string = `SELECT a.id as fee_id, a.status, a.account_period, a.type, a.amount,a.invoice_no, a.fee_name, a.fee_type, a.custom_name, a.project_name, a.content, a.flow_direction,a.remark, b.* FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null and a.amount != '0' `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.fee_name != "") { sql += " and a.fee_name = " + "'" + form.fee_name + "'" }
   if (form.status != "") { sql += " and a.status = " + "'" + form.status + "'" }
@@ -42,11 +42,12 @@ const containerFeeList = async (req: Request, res: Response) => {
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
+  if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
   if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
   sql +=" order by a.id desc limit " + size + " offset " + size * (page - 1);
-  sql +=`;select COUNT(*) FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null`;
+  sql +=`;select COUNT(*) FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null and a.amount != '0' `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.fee_name != "") { sql += " and a.fee_name = " + "'" + form.fee_name + "'" }
   if (form.status != "") { sql += " and a.status = " + "'" + form.status + "'" }
@@ -57,6 +58,7 @@ const containerFeeList = async (req: Request, res: Response) => {
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
+  if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
   if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }

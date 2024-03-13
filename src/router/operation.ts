@@ -95,13 +95,18 @@ const lighteringStatList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select date_format(add_time, '%Y-%m-%d') as add_time, voyage, cargo_name, COUNT(IF(left(container_type, 2) = '40',true,null)) as f, COUNT(IF(left(container_type, 2) = '20',true,null)) as t from lightering where type = " + form.type;
+  let sql: string = "select date_format(add_time, '%Y-%m-%d') as add_time, voyage, cargo_name, COUNT(IF(left(container_type, 2) = '40',true,null)) as f, COUNT(IF(left(container_type, 2) = '20',true,null)) as t from lightering where id is not null ";
   if (form.add_time_range && form.add_time_range.length > 0) { sql += " and DATE_FORMAT(add_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.add_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.add_time_range[1] + "','%Y%m%d')" }
   if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
-  sql +=" group by add_time, voyage, cargo_name order by add_time asc limit " + size + " offset " + size * (page - 1);
-  sql +=";select COUNT(*) from lightering where type = " + form.type;
+  if (form.voyage != "") { sql += " and voyage like " + "'%" + form.voyage + "%'" }
+  if (form.type != "") { sql += " and type like " + "'%" + form.type + "%'" }
+  sql +=" group by add_time, voyage, cargo_name order by add_time desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from ( select date_format(add_time, '%Y-%m-%d') as add_time, voyage, cargo_name, COUNT(IF(left(container_type, 2) = '40',true,null)) as f, COUNT(IF(left(container_type, 2) = '20',true,null)) as t from lightering where id is not null ";
   if (form.add_time_range && form.add_time_range.length > 0) { sql += " and DATE_FORMAT(add_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.add_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.add_time_range[1] + "','%Y%m%d')" }
+  if (form.type != "") { sql += " and type like " + "'%" + form.type + "%'" }
   if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
+  if (form.voyage != "") { sql += " and voyage like " + "'%" + form.voyage + "%'" }
+  sql +=" group by add_time, voyage, cargo_name order by add_time asc ) as t;";
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);

@@ -330,7 +330,6 @@ const appliedFeeList = async (req: Request, res: Response) => {
   if (form.is_pay != "") { sql += " and is_pay like " + "'%" + form.is_pay + "%'" }
   if (form.pay_type != "") { sql += " and pay_type like " + "'%" + form.pay_type + "%'" }
   if (form.status != "") { sql += " and status like " + "'%" + form.status + "%'" }
-  console.log(1111,sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -431,7 +430,7 @@ const editAppliedFee = async (req: Request, res: Response) => {
 
 // 删除费用申请
 const deleteAppliedFee = async (req: Request, res: Response) => {
-  const id = req.body.id;
+  const select_id = req.body;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -440,7 +439,7 @@ const deleteAppliedFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `DELETE from applied_fee where id = '${id}'`;
+  let sql: string = `DELETE from applied_fee where id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
