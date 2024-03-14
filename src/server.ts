@@ -192,7 +192,8 @@ import {
   setRemark,
   importDoorPrice,
   dataCheckCollection,
-  dataCheckPay
+  dataCheckPay,
+  vehicleFeeStatList
 } from "./router/statics";
 
 // 新建存放临时文件的文件夹
@@ -478,6 +479,11 @@ app.post("/dataCheckCollection", upload_tmp.any(), (req, res) => {
 app.post("/dataCheckPay", upload_tmp.any(), (req, res) => {
   dataCheckPay(req, res);
 })
+// 统计管理 - 车辆费用统计接口
+app.post("/vehicleFeeStatList", (req, res) => {
+  vehicleFeeStatList(req, res);
+})
+
 
 // 调度管理
 // 调度管理 - 拆箱列表

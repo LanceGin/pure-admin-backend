@@ -822,6 +822,7 @@ const addVehicleFee = async (req: Request, res: Response) => {
     quantity,
     amount,
     allocation_month,
+    allocation_start,
     actual_amount,
     tax_amount,
     settlement_confirm,
@@ -837,7 +838,7 @@ const addVehicleFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into vehicle_fee (is_submit,add_time,driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,actual_amount,tax_amount,settlement_confirm,remark,add_by) values ('${is_submit}','${add_time}','${driver}','${company}','${car_no}','${hang_board_no}','${type}','${car_fees}','${content}','${quantity}','${amount}','${allocation_month}','${actual_amount}','${tax_amount}','${settlement_confirm}','${remark}','${add_by}')`;
+  let sql: string = `insert into vehicle_fee (is_submit,add_time,driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,allocation_start,actual_amount,tax_amount,settlement_confirm,remark,add_by) values ('${is_submit}','${add_time}','${driver}','${company}','${car_no}','${hang_board_no}','${type}','${car_fees}','${content}','${quantity}','${amount}','${allocation_month}','${allocation_start}','${actual_amount}','${tax_amount}','${settlement_confirm}','${remark}','${add_by}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -873,16 +874,36 @@ const submitVehicleFee = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `update vehicle_fee set is_submit = '已提交' where id in ('${id.toString().replaceAll(",", "','")}');`;
-  sql += ` insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,create_time,fee_no) values ('业务','${fee_name}','付','${type}','${amount}','${actual_amount}','${tax_amount}','${company}','${add_by}','${add_time}','${fee_no}')`;
+  sql += ` insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,create_time,fee_no) values ('业务','${fee_name}','付','${type}','${amount}','${actual_amount}','${tax_amount}','${company}','${add_by}','${add_time}','${fee_no}');`;
+  sql += `select * from vehicle_fee where id in ('${id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
     } else {
-      await res.json({
-        success: true,
-        data: { message: Message[6] },
-      });
-    }
+      let fees = [];
+      let insert_sql: string = '';
+      fees = JSON.parse(JSON.stringify(data[2]));
+      fees.forEach(fee => {
+        if (fee.allocation_month === '') {
+          insert_sql += `insert into vehicle_fee_stat (vehicle_fee_id, allocation_amount, account_period) values ('${fee.id}', '${fee.amount}', DATE_FORMAT(CONVERT_TZ('${fee.add_time}','+00:00','+08:00'), '%Y-%m'));`;
+        } else {
+          const allocation_amount = Number(fee.amount) / Number(fee.allocation_month);
+          for (let i = 0; i < fee.allocation_month; i++) {
+            insert_sql += `insert into vehicle_fee_stat (vehicle_fee_id, allocation_amount, account_period) values ('${fee.id}', '${allocation_amount.toFixed(2)}', DATE_FORMAT(DATE_ADD(DATE_FORMAT(STR_TO_DATE('${fee.allocation_start}', '%Y-%m'), '%Y-%m-01'),INTERVAL ${i} MONTH), '%Y-%m'));`;
+          }
+        }
+      })
+      connection.query(insert_sql, async function (err, data) {
+        if (err) {
+          console.log(err);
+        } else {
+          await res.json({
+            success: true,
+            data: { message: Message[6] },
+          });
+        };
+      })
+    };
   });
 };
 
@@ -901,6 +922,7 @@ const editVehicleFee = async (req: Request, res: Response) => {
     quantity,
     amount,
     allocation_month,
+    allocation_start,
     actual_amount,
     tax_amount,
     settlement_confirm,
@@ -914,8 +936,8 @@ const editVehicleFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE vehicle_fee SET is_submit = ?,driver = ?,company = ?,car_no = ?,hang_board_no = ?,type = ?,car_fees = ?,content = ?,quantity = ?,amount = ?,allocation_month = ?,actual_amount = ?,tax_amount = ?,settlement_confirm = ?,remark = ? WHERE id = ?";
-  let modifyParams: string[] = [is_submit,driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,actual_amount,tax_amount,settlement_confirm,remark,id];
+  let modifySql: string = "UPDATE vehicle_fee SET is_submit = ?,driver = ?,company = ?,car_no = ?,hang_board_no = ?,type = ?,car_fees = ?,content = ?,quantity = ?,amount = ?,allocation_month = ?,allocation_start = ?,actual_amount = ?,tax_amount = ?,settlement_confirm = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [is_submit,driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,allocation_start,actual_amount,tax_amount,settlement_confirm,remark,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);

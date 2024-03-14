@@ -351,6 +351,55 @@ const dataCheckPay = async (req: Request, res: Response) => {
   });
 };
 
+// 获取车辆费用统计列表
+const vehicleFeeStatList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select a.allocation_amount, a.account_period, b.* from vehicle_fee_stat as a left join vehicle_fee as b on b.id = a.vehicle_fee_id where a.id is not null ";
+  if (form.account_period != "") { sql += " and a.account_period = " + "'" + form.account_period + "'" }
+  if (form.car_fees != "") { sql += " and b.car_fees = " + "'" + form.car_fees + "'" }
+  if (form.company != "") { sql += " and b.company like " + "'%" + form.company + "%'" }
+  if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
+  if (form.hang_board_no != "") { sql += " and b.hang_board_no like " + "'%" + form.hang_board_no + "%'" }
+  if (form.content != "") { sql += " and b.content like " + "'%" + form.content + "%'" }
+  sql +=" order by a.account_period desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from vehicle_fee_stat as a left join vehicle_fee as b on b.id = a.vehicle_fee_id where a.id is not null ";
+  if (form.account_period != "") { sql += " and a.account_period = " + "'" + form.account_period + "'" }
+  if (form.car_fees != "") { sql += " and b.car_fees = " + "'" + form.car_fees + "'" }
+  if (form.company != "") { sql += " and b.company like " + "'%" + form.company + "%'" }
+  if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
+  if (form.hang_board_no != "") { sql += " and b.hang_board_no like " + "'%" + form.hang_board_no + "%'" }
+  if (form.content != "") { sql += " and b.content like " + "'%" + form.content + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
 
 export {
   containerFeeList,
@@ -360,5 +409,6 @@ export {
   setRemark,
   importDoorPrice,
   dataCheckCollection,
-  dataCheckPay
+  dataCheckPay,
+  vehicleFeeStatList
 };
