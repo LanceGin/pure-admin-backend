@@ -12,10 +12,13 @@ class App {
     // 支持websocket
     expressWs(this.app);
     // 支持json编码的主体
-    this.app.use(bodyParser.json());
+    this.app.use(bodyParser.json({
+      limit: '50mb',
+    }));
     // 支持编码的主体
     this.app.use(
       bodyParser.urlencoded({
+        limit: '50mb',
         extended: true,
       })
     );
