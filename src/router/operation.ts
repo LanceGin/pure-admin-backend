@@ -715,6 +715,7 @@ const settingContainer = async (req: Request, res: Response) => {
   const {
     select_container_no,
     load_port,
+    crossing,
     remark
   } = req.body;
   let payload = null;
@@ -725,7 +726,7 @@ const settingContainer = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET load_port = '${load_port}', remark = '${remark}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container SET load_port = '${load_port}', crossing = '${crossing}', remark = '${remark}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
