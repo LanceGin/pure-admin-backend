@@ -201,7 +201,11 @@ import {
   importDoorPrice,
   dataCheckCollection,
   dataCheckPay,
-  vehicleFeeStatList
+  vehicleFeeStatList,
+  lighteringPriceList,
+  addLighteringPrice,
+  deleteLighteringPrice,
+  editLighteringPrice
 } from "./router/statics";
 
 // 新建存放临时文件的文件夹
@@ -509,6 +513,22 @@ app.post("/dataCheckPay", upload_tmp.any(), (req, res) => {
 // 统计管理 - 车辆费用统计接口
 app.post("/vehicleFeeStatList", (req, res) => {
   vehicleFeeStatList(req, res);
+})
+// 统计管理 - 车辆费用统计接口
+app.post("/lighteringPriceList", (req, res) => {
+  lighteringPriceList(req, res);
+})
+// 统计管理 - 车辆费用统计接口
+app.post("/addLighteringPrice", (req, res) => {
+  addLighteringPrice(req, res);
+})
+// 统计管理 - 车辆费用统计接口
+app.post("/deleteLighteringPrice", (req, res) => {
+  deleteLighteringPrice(req, res);
+})
+// 统计管理 - 车辆费用统计接口
+app.post("/editLighteringPrice", (req, res) => {
+  editLighteringPrice(req, res);
 })
 
 

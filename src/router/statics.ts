@@ -400,6 +400,138 @@ const vehicleFeeStatList = async (req: Request, res: Response) => {
   });
 };
 
+// 获取驳运价格列表
+const lighteringPriceList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from lightering_price where id is not null ";
+  if (form.settlement != "") { sql += " and settlement like " + "'%" + form.settlement + "%'" }
+  if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from lightering_price where id is not null ";
+  if (form.settlement != "") { sql += " and settlement like " + "'%" + form.settlement + "%'" }
+  if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增驳运价格
+const addLighteringPrice = async (req: Request, res: Response) => {
+  const {
+    settlement,
+    cargo_name,
+    order_fee,
+    p40,
+    p20,
+    c40,
+    c20
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into lightering_price (settlement,cargo_name,order_fee,p40,p20,c40,c20) values ('${settlement}','${cargo_name}','${order_fee}','${p40}','${p20}','${c40}','${c20}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 删除驳运价格
+const deleteLighteringPrice = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from lightering_price where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+
+// 编辑驳运价格
+const editLighteringPrice = async (req: Request, res: Response) => {
+  const {
+    id,
+    settlement,
+    cargo_name,
+    order_fee,
+    p40,
+    p20,
+    c40,
+    c20
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE lightering_price SET settlement = ?,cargo_name = ?,order_fee = ?,p40 = ?,p20 = ?,c40 = ?,c20 = ? WHERE id = ?";
+  let modifyParams: string[] = [settlement,cargo_name,order_fee,p40,p20,c40,c20,id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 
 export {
   containerFeeList,
@@ -410,5 +542,9 @@ export {
   importDoorPrice,
   dataCheckCollection,
   dataCheckPay,
-  vehicleFeeStatList
-};
+  vehicleFeeStatList,
+  lighteringPriceList,
+  addLighteringPrice,
+  deleteLighteringPrice,
+  editLighteringPrice
+}
