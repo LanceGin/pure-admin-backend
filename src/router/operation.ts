@@ -261,6 +261,64 @@ const getContainerFeeList = async (req: Request, res: Response) => {
   });
 };
 
+// 获取派车单费用记录
+const getDispatchFeeList = async (req: Request, res: Response) => {
+  const dispatch_id  = req.body.form.dispatch_id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `select * from dispatch_fee where dispatch_id = '${dispatch_id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: data,
+        },
+      });
+    }
+  });
+};
+
+// 修正箱信息
+const fixContainerInfo = async (req: Request, res: Response) => {
+  const {
+    id,
+    track_no,
+    containner_no,
+    seal_no,
+    container_type,
+    door
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE container SET track_no = ?,containner_no = ?,seal_no = ?,container_type = ?,door = ?  WHERE id = ?";
+  let modifyParams: string[] = [track_no,containner_no,seal_no,container_type,door,id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 
 // 获取箱子记录
 const containerList = async (req: Request, res: Response) => {
@@ -423,12 +481,13 @@ const addContainer = async (req: Request, res: Response) => {
   });
 };
 
-// 新增箱子费用
+// 新增异常费用
 const addContainerFee = async (req: Request, res: Response) => {
   const {
     dispatch_id,
-    abnormal_fee,
-    dispatch_remark,
+    fee_name,
+    fee,
+    remark,
     add_by
   } = req.body;
   let payload = null;
@@ -439,7 +498,7 @@ const addContainerFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `update dispatch set abnormal_fee = '${abnormal_fee}', remark = '${dispatch_remark}' where id = '${dispatch_id}';`;
+  let sql: string = `insert into dispatch_fee (dispatch_id, fee_name, fee, remark) values ('${dispatch_id}', '${fee_name}', '${fee}', '${remark}');`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -855,6 +914,8 @@ export {
   containerWithFeeList,
   containerList,
   getContainerFeeList,
+  getDispatchFeeList,
+  fixContainerInfo,
   addContainer,
   addContainerFee,
   importDocumentCheck,

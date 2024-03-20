@@ -67,6 +67,8 @@ import {
   containerWithFeeList,
   containerList,
   getContainerFeeList,
+  getDispatchFeeList,
+  fixContainerInfo,
   addContainer,
   addContainerFee,
   importDocumentCheck,
@@ -370,6 +372,14 @@ app.post("/containerList", (req, res) => {
 // 运作管理 - 箱子费用列表接口
 app.post("/getContainerFeeList", (req, res) => {
   getContainerFeeList(req, res);
+})
+// 运作管理 - 派车单费用列表接口
+app.post("/getDispatchFeeList", (req, res) => {
+  getDispatchFeeList(req, res);
+})
+// 运作管理 - 修正箱信息接口
+app.post("/fixContainerInfo", (req, res) => {
+  fixContainerInfo(req, res);
 })
 // 运作管理 - 新增箱子接口
 app.post("/addContainer", (req, res) => {
