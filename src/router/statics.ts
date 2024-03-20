@@ -30,7 +30,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `SELECT a.id as fee_id, a.status, a.account_period, a.type, a.amount,a.invoice_no, a.fee_name, a.fee_type, a.custom_name, a.project_name, a.content, a.flow_direction,a.remark, b.* FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null and a.amount != '0' `;
+  let sql: string = `SELECT a.id as fee_id, a.status, a.account_period, a.type, a.amount,a.invoice_no, a.fee_name, a.fee_type, a.custom_name, a.project_name, a.content, a.flow_direction,a.remark, b.*, c.owner as car_owner FROM container_fee as a left join container as b on a.container_id = b.id left join vehicle_info as c on c.car_no = b.car_no where a.id is not null and a.amount != '0' `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.fee_name != "") { sql += " and a.fee_name = " + "'" + form.fee_name + "'" }
   if (form.status != "") { sql += " and a.status = " + "'" + form.status + "'" }
