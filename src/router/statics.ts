@@ -368,7 +368,7 @@ const vehicleFeeStatList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select a.allocation_amount, a.account_period, b.* from vehicle_fee_stat as a left join vehicle_fee as b on b.id = a.vehicle_fee_id where a.id is not null ";
-  if (form.account_period != "") { sql += " and a.account_period = " + "'" + form.account_period + "'" }
+  if (form.account_period && form.account_period != "") { sql += " and a.account_period = " + "'" + form.account_period + "'" }
   if (form.car_fees != "") { sql += " and b.car_fees = " + "'" + form.car_fees + "'" }
   if (form.company != "") { sql += " and b.company like " + "'%" + form.company + "%'" }
   if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
@@ -376,7 +376,7 @@ const vehicleFeeStatList = async (req: Request, res: Response) => {
   if (form.content != "") { sql += " and b.content like " + "'%" + form.content + "%'" }
   sql +=" order by a.account_period desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from vehicle_fee_stat as a left join vehicle_fee as b on b.id = a.vehicle_fee_id where a.id is not null ";
-  if (form.account_period != "") { sql += " and a.account_period = " + "'" + form.account_period + "'" }
+  if (form.account_period && form.account_period != "") { sql += " and a.account_period = " + "'" + form.account_period + "'" }
   if (form.car_fees != "") { sql += " and b.car_fees = " + "'" + form.car_fees + "'" }
   if (form.company != "") { sql += " and b.company like " + "'%" + form.company + "%'" }
   if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
