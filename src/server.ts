@@ -140,6 +140,10 @@ import {
   addAccCompany,
   editAccCompany,
   deleteAccCompany,
+  reportList,
+  addReport,
+  editReport,
+  deleteReport,
   contractList,
   addContract,
   editContract,
@@ -708,6 +712,22 @@ app.post("/deleteAccCompany", (req, res) => {
 // 通用 - 编辑往来单位接口
 app.post("/editAccCompany", (req, res) => {
   editAccCompany(req, res);
+})
+// 通用 - 工作报告列表接口
+app.post("/reportList", (req, res) => {
+  reportList(req, res);
+})
+// 通用 - 添加工作报告接口
+app.post("/addReport", (req, res) => {
+  addReport(req, res);
+})
+// 通用 - 删除工作报告接口
+app.post("/deleteReport", (req, res) => {
+  deleteReport(req, res);
+})
+// 通用 - 编辑工作报告接口
+app.post("/editReport", (req, res) => {
+  editReport(req, res);
 })
 // 通用 - 合同列表接口
 app.post("/contractList", (req, res) => {

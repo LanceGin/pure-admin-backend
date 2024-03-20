@@ -138,6 +138,131 @@ const deleteAccCompany = async (req: Request, res: Response) => {
   });
 };
 
+// 获取工作报告列表
+const reportList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from report where id is not null ";
+  if (form.add_by != "") { sql += " and add_by = " + "'" + form.add_by + "'" }
+  if (form.title != "") { sql += " and title like " + "'%" + form.title + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from report where id is not null ";
+  if (form.add_by != "") { sql += " and add_by = " + "'" + form.add_by + "'" }
+  if (form.title != "") { sql += " and title like " + "'%" + form.title + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增工作报告
+const addReport = async (req: Request, res: Response) => {
+  const {
+    type,
+    title,
+    content,
+    add_by
+  } = req.body;
+  const add_time = dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss");
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into report (type,title,content,add_by,add_time) values ('${type}','${title}','${content}','${add_by}','${add_time}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 修改工作报告
+const editReport = async (req: Request, res: Response) => {
+  const {
+    id,
+    type,
+    title,
+    content
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE report SET type = ?,title = ?,content = ? WHERE id = ?";
+  let modifyParams: string[] = [type,title,content,id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+// 删除工作报告
+const deleteReport = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from report where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
 // 获取合同列表
 const contractList = async (req: Request, res: Response) => {
   const { pagination, form } = req.body;
@@ -509,6 +634,10 @@ export {
   addAccCompany,
   editAccCompany,
   deleteAccCompany,
+  reportList,
+  addReport,
+  editReport,
+  deleteReport,
   contractList,
   addContract,
   editContract,
