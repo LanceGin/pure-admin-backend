@@ -242,6 +242,126 @@ const editUser = async (req: Request, res: Response) => {
   });
 };
 
+// 获取打卡点
+const clockPointList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from clock_point where id is not null";
+  if (form.name != "") { sql += " and name = " + "'" + form.name + "'" }
+  sql +=" limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from clock_point where id is not null"
+  if (form.name != "") { sql += " and name = " + "'" + form.name + "'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增打卡点
+const addClockPoint = async (req: Request, res: Response) => {
+  const {
+    name,
+    location
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into clock_point (name, location) values ('${name}', '${location}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 删除打卡点
+const deleteClockPoint = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from clock_point where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+
+// 编辑用户
+const editClockPoint = async (req: Request, res: Response) => {
+  const {
+    id,
+    name,
+    location
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE clock_point SET name = ?, location = ? WHERE id = ?";
+  let modifyParams: string[] = [name, location, id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 // 获取员工打卡信息
 const wxClockList = async (req: Request, res: Response) => {
   const { pagination, form } = req.body;
@@ -1666,6 +1786,10 @@ export {
   addUser,
   deleteUser,
   editUser,
+  clockPointList,
+  addClockPoint,
+  deleteClockPoint,
+  editClockPoint,
   wxClockList,
   motorcadeList,
   addMotorcade,

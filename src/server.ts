@@ -17,6 +17,10 @@ import {
   addUser,
   deleteUser,
   editUser,
+  clockPointList,
+  addClockPoint,
+  deleteClockPoint,
+  editClockPoint,
   wxClockList,
   motorcadeList,
   addMotorcade,
@@ -232,6 +236,25 @@ app.post("/deleteUser", (req, res) => {
 // 人事行政管理 - 编辑员工信息接口
 app.post("/editUser", (req, res) => {
   editUser(req, res);
+})
+// 人事行政管理 - 打卡点列表接口
+app.post("/clockPointList", (req, res) => {
+  clockPointList(req, res);
+})
+
+// 人事行政管理 - 添加打卡点接口
+app.post("/addClockPoint", (req, res) => {
+  addClockPoint(req, res);
+})
+
+// 人事行政管理 - 删除打卡点接口
+app.post("/deleteClockPoint", (req, res) => {
+  deleteClockPoint(req, res);
+})
+
+// 人事行政管理 - 编辑打卡点信息接口
+app.post("/editClockPoint", (req, res) => {
+  editClockPoint(req, res);
 })
 
 // 人事行政管理 - 微信打卡记录接口
