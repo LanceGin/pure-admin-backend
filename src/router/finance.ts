@@ -157,8 +157,10 @@ const generatePlanningFee = async (req: Request, res: Response) => {
     if (container.temp_status == "已暂落") {
       fee_name = "堆存费";
       select_sql += `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.temp_port}';`
-    } else {
+    } else if (container.order_type == "进口") {
       select_sql += `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.load_port}';`
+    } else {
+      select_sql += `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.unload_port}';`
     }
     connection.query(select_sql, function (err, data) {
       if (err) {
