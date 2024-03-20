@@ -244,16 +244,21 @@ const generateDispatchFee = async (req: Request, res: Response) => {
   }
   select_container.forEach((container) => {
     let a = "";
-    let fee_port = container.load_port;
+    let pay_fee_port = container.load_port;
+    let collect_fee_port = container.load_port;
     if (container.order_type === "进口") {
       a = "i";
     } else if (container.order_type === "出口") {
       a = "o";
-      fee_port = container.unload_port;
+      pay_fee_port = container.unload_port;
+      collect_fee_port = container.unload_port;
+    }
+    if (container.transfer_port !== null && container.transfer_port !== "") {
+      collect_fee_port = container.transfer_port;
     }
     const b = a + container.container_type.toLowerCase();
-    let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${container.door}' and port = '${container.fee_port}';`
-    select_sql += `select ${b} from door_price where is_pay = '0' and customer = '${container.customer}' and door = '${container.door}' and port = '${container.fee_port}';`
+    let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${container.door}' and port = '${container.pay_fee_port}';`
+    select_sql += `select ${b} from door_price where is_pay = '0' and customer = '${container.customer}' and door = '${container.door}' and port = '${container.collect_fee_port}';`
     connection.query(select_sql, function (err, data) {
       if (err) {
         console.log(err);
