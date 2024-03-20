@@ -157,10 +157,8 @@ const generatePlanningFee = async (req: Request, res: Response) => {
     if (container.temp_status == "已暂落") {
       fee_name = "堆存费";
       select_sql += `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.temp_port}';`
-    } else if (container.order_type == "进口") {
-      select_sql += `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.load_port}';`
     } else {
-      select_sql += `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.unload_port}';`
+      select_sql += `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.load_port}';`
     }
     connection.query(select_sql, function (err, data) {
       if (err) {
@@ -246,14 +244,16 @@ const generateDispatchFee = async (req: Request, res: Response) => {
   }
   select_container.forEach((container) => {
     let a = "";
+    let fee_port = container.load_port;
     if (container.order_type === "进口") {
       a = "i";
     } else if (container.order_type === "出口") {
       a = "o";
+      fee_port = container.unload_port;
     }
     const b = a + container.container_type.toLowerCase();
-    let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${container.door}' and port = '${container.load_port}';`
-    select_sql += `select ${b} from door_price where is_pay = '0' and customer = '${container.customer}' and door = '${container.door}' and port = '${container.load_port}';`
+    let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${container.door}' and port = '${container.fee_port}';`
+    select_sql += `select ${b} from door_price where is_pay = '0' and customer = '${container.customer}' and door = '${container.door}' and port = '${container.fee_port}';`
     connection.query(select_sql, function (err, data) {
       if (err) {
         console.log(err);
