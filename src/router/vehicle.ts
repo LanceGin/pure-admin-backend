@@ -528,7 +528,7 @@ const addOilConsumption = async (req: Request, res: Response) => {
   } = req.body;
   let payload = null;
   const volume = Math.round(Number(mileage) / 100 * Number(oil_standard) * ( 1 + Number(mileage_fix.replace("%","")) / 100));
-  const delta_volume = Math.round(Number(actual_volume) - Number(volume));
+  const delta_volume = (Number(actual_volume) - Number(volume)).toFixed(2);
   const reward_amount = Math.round(Number(delta_volume) * (-3));
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -565,7 +565,7 @@ const editOilConsumption = async (req: Request, res: Response) => {
   } = req.body;
   let payload = null;
   const volume = Math.round(Number(mileage) / 100 * Number(oil_standard) * ( 1 + Number(mileage_fix.replace("%","")) / 100));
-  const delta_volume = Math.round(Number(actual_volume) - Number(volume));
+  const delta_volume = (Number(actual_volume) - Number(volume)).toFixed(2);
   const reward_amount = Math.round(Number(delta_volume) * (-3));
   try {
     const authorizationHeader = req.get("Authorization") as string;
