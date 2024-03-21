@@ -663,9 +663,14 @@ const importInvoice = async (req: Request, res: Response) => {
     // cellDates: true,
     defval: ""
   });
+  let tax_rate = "";
   const values = sheets[0].data;
   values.shift();
-  let sql: string = "insert into invoice_info (tmp_excel_no,code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,amount,tax,total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark) values ?"
+  values.forEach((v) => {
+    tax_rate = (v[10] / v[9] * 100).toString() + "%";
+    v.push(tax_rate);
+  })
+  let sql: string = "insert into invoice_info (tmp_excel_no,code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,amount,tax,total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark,tax_rate) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
       Logger.error(err);
