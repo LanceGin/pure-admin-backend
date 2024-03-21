@@ -32,16 +32,20 @@ const importYtoj = async (req: Request, res: Response) => {
   values.forEach((v) => {
     v.unshift("0", add_time, voyage);
   })
+  const limit_length = values.length;
   let sql: string = "insert into lightering (type,add_time,voyage,container_no,bl_no,customs_container_type,iso,container_type,container_holder,is_import,extra_operation,trade_type,seal_no,cargo_name,load_port,target_port,unload_port,load_payer,total_weight,cargo_weight,volume,amount,cargo_owner,forwarder,remarks) values ?"
-  connection.query(sql, [values], async function (err, data) {
+  let select_sql: string = `select * from lightering order by id desc limit ${limit_length};`
+  connection.query(sql, [values], function (err, data) {
     if (err) {
       Logger.error(err);
     } else {
-      await res.json({
-        success: true,
-        data: { 
-          list: data[0],
-        },
+      connection.query(select_sql, async function (err, data) {
+        await res.json({
+          success: true,
+          data: { 
+            list: data,
+          },
+        });
       });
     }
   });
@@ -63,7 +67,6 @@ const importJtoy = async (req: Request, res: Response) => {
   values.forEach((v) => {
     v.unshift("1", add_time, voyage);
   })
-  console.log(11111, values);
   let sql: string = "insert into lightering (type,add_time,voyage,bl_no,load_port,unload_port,target_port,total_weight,container_no,container_holder,extra_operation,container_type,customs_container_type,iso,is_import,empty_weight,trade_type,seal_no,cargo_name,unload_payer,transfer_type) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
@@ -291,11 +294,13 @@ const getDispatchFeeList = async (req: Request, res: Response) => {
 const fixContainerInfo = async (req: Request, res: Response) => {
   const {
     id,
+    ship_name,
     track_no,
     containner_no,
     seal_no,
     container_type,
-    door
+    door,
+    make_time
   } = req.body;
   let payload = null;
   try {
@@ -305,8 +310,8 @@ const fixContainerInfo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE container SET track_no = ?,containner_no = ?,seal_no = ?,container_type = ?,door = ?  WHERE id = ?";
-  let modifyParams: string[] = [track_no,containner_no,seal_no,container_type,door,id];
+  let modifySql: string = "UPDATE container SET ship_name = ?, track_no = ?,containner_no = ?,seal_no = ?,container_type = ?,door = ?, make_time = ?  WHERE id = ?";
+  let modifyParams: string[] = [ship_name,track_no,containner_no,seal_no,container_type,door,make_time,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
