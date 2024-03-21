@@ -122,6 +122,7 @@ const generateOrderFee = async (req: Request, res: Response) => {
   }
   let sql: string = `insert into container_fee (container_id, type, fee_name, amount) select id as container_id,"${type_pay}" as type,"${fee_name}" as fee_name,"${amount}" as amount from container where track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`;
   sql += ` insert into container_fee (container_id, type, fee_name, amount) select id as container_id,"${type_collect}" as type,"${fee_name}" as fee_name,"${amount}" as amount from container where track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`;
+  console.log(11111, sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -257,8 +258,8 @@ const generateDispatchFee = async (req: Request, res: Response) => {
       collect_fee_port = container.transfer_port;
     }
     const b = a + container.container_type.toLowerCase();
-    let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${container.door}' and port = '${container.pay_fee_port}';`
-    select_sql += `select ${b} from door_price where is_pay = '0' and customer = '${container.customer}' and door = '${container.door}' and port = '${container.collect_fee_port}';`
+    let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${container.door}' and port = '${pay_fee_port}';`
+    select_sql += `select ${b} from door_price where is_pay = '0' and customer = '${container.customer}' and door = '${container.door}' and port = '${collect_fee_port}';`
     connection.query(select_sql, function (err, data) {
       if (err) {
         console.log(err);
