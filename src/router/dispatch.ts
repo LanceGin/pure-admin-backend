@@ -449,7 +449,7 @@ const whDispatchList = async (req: Request, res: Response) => {
     sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.car_no != "") { sql += " and a.car_no like " + "'%" + form.car_no + "%'" }
-  sql +=" order by b.door, a.crossing asc limit " + size + " offset " + size * (page - 1);
+  sql +=" order by b.door, b.make_time, a.crossing asc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from (select b.* from dispatch as a left join container as b on b.id = a.container_id where b.load_port in ('武汉阳逻','武汉金口') ";
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(b.make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
