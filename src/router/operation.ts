@@ -201,6 +201,7 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   if (form.order_type != "") { sql += " and a.type like " + "'%" + form.order_type + "%'" }
   if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
   if (form.seal_no != "") { sql += " and b.seal_no like " + "'%" + form.seal_no + "%'" }
+  if (form.dispatch_car_no != "") { sql += " and a.car_no like " + "'%" + form.dispatch_car_no + "%'" }
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and b.make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
@@ -214,6 +215,7 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   if (form.order_type != "") { sql += " and a.type like " + "'%" + form.order_type + "%'" }
   if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
   if (form.seal_no != "") { sql += " and b.seal_no like " + "'%" + form.seal_no + "%'" }
+  if (form.dispatch_car_no != "") { sql += " and a.car_no like " + "'%" + form.dispatch_car_no + "%'" }
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and b.make_time between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
