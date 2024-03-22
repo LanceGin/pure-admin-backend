@@ -484,21 +484,27 @@ const invoicetList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select * from invoice_info where id is not null ";
-  if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
+  if (form.invoice_time && form.invoice_time.length > 0) { sql += " and invoice_time between " + "'" + form.invoice_time[0] + "' and '" + form.invoice_time[1] + "'" }
+  if (form.receipt_time && form.receipt_time.length > 0) { sql += " and receipt_time between " + "'" + form.receipt_time[0] + "' and '" + form.receipt_time[1] + "'" }
   if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
   if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
   if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
   if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
+  if (form.seller_name != "") { sql += " and seller_name like " + "'%" + form.seller_name + "%'" }
   if (form.seller_identification_no != "") { sql += " and seller_identification_no like " + "'%" + form.seller_identification_no + "%'" }
+  if (form.buyer_name != "") { sql += " and buyer_name like " + "'%" + form.buyer_name + "%'" }
   if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from invoice_info where id is not null ";
-  if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
+  if (form.invoice_time && form.invoice_time.length > 0) { sql += " and invoice_time between " + "'" + form.invoice_time[0] + "' and '" + form.invoice_time[1] + "'" }
+  if (form.receipt_time && form.receipt_time.length > 0) { sql += " and receipt_time between " + "'" + form.receipt_time[0] + "' and '" + form.receipt_time[1] + "'" }
   if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
   if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
   if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
   if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
+  if (form.seller_name != "") { sql += " and seller_name like " + "'%" + form.seller_name + "%'" }
   if (form.seller_identification_no != "") { sql += " and seller_identification_no like " + "'%" + form.seller_identification_no + "%'" }
+  if (form.buyer_name != "") { sql += " and buyer_name like " + "'%" + form.buyer_name + "%'" }
   if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
   connection.query(sql, async function (err, data) {
     if (err) {
@@ -667,7 +673,7 @@ const importInvoice = async (req: Request, res: Response) => {
   const values = sheets[0].data;
   values.shift();
   values.forEach((v) => {
-    tax_rate = (v[10] / v[9] * 100).toString() + "%";
+    tax_rate = Math.round(v[10] / v[9] * 100).toString() + "%";
     v.push(tax_rate);
   })
   let sql: string = "insert into invoice_info (tmp_excel_no,code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,amount,tax,total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark,tax_rate) values ?"
