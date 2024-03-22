@@ -701,7 +701,7 @@ const payInvoicetList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,classification_code,specific_type,goods_or_taxable_service,specification,unit,quantity,unit_price,sum(amount) as amount,tax_rate,sum(tax) as tax, sum(total_amount) as total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark,is_invoice,paid_time,certification_period,tmp_excel_no from pay_invoice_info where id is not null ";
+  let sql: string = "select id,code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,classification_code,specific_type,goods_or_taxable_service,specification,unit,quantity,unit_price,sum(amount) as amount,tax_rate,sum(tax) as tax, sum(total_amount) as total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark,is_invoice,paid_time,certification_period,tmp_excel_no from pay_invoice_info where id is not null ";
   if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
   if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
   if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
@@ -710,6 +710,8 @@ const payInvoicetList = async (req: Request, res: Response) => {
   if (form.seller_name != "") { sql += " and seller_name like " + "'%" + form.seller_name + "%'" }
   if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
   if (form.buyer_name != "") { sql += " and buyer_name like " + "'%" + form.buyer_name + "%'" }
+  if (form.is_invoice && form.is_invoice != "") { sql += " and is_invoice = " + "'" + form.is_invoice + "'" }
+  if (form.certification_period && form.certification_period != "") { sql += " and certification_period = " + "'" + form.certification_period + "'" }
   sql +=" group by digital_ticket_no,no,code order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from ( select * from pay_invoice_info where id is not null ";
   if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
@@ -720,6 +722,8 @@ const payInvoicetList = async (req: Request, res: Response) => {
   if (form.seller_name != "") { sql += " and seller_name like " + "'%" + form.seller_name + "%'" }
   if (form.buyer_identification_no != "") { sql += " and buyer_identification_no like " + "'%" + form.buyer_identification_no + "%'" }
   if (form.buyer_name != "") { sql += " and buyer_name like " + "'%" + form.buyer_name + "%'" }
+  if (form.is_invoice && form.is_invoice != "") { sql += " and is_invoice = " + "'" + form.is_invoice + "'" }
+  if (form.certification_period && form.certification_period != "") { sql += " and certification_period = " + "'" + form.certification_period + "'" }
   sql +=" group by digital_ticket_no,no,code ) as t";
   connection.query(sql, async function (err, data) {
     if (err) {
