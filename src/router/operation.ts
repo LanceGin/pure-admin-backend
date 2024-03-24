@@ -491,6 +491,7 @@ const addContainer = async (req: Request, res: Response) => {
 // 新增异常费用
 const addContainerFee = async (req: Request, res: Response) => {
   const {
+    id,
     dispatch_id,
     fee_name,
     fee,
@@ -506,6 +507,7 @@ const addContainerFee = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `insert into dispatch_fee (dispatch_id, fee_name, fee, remark) values ('${dispatch_id}', '${fee_name}', '${fee}', '${remark}');`;
+  sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${id}', '应付', '${fee_name}', '${fee}');`
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
