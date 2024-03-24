@@ -988,7 +988,7 @@ const bulkCargoList = async (req: Request, res: Response) => {
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.voyage != "") { sql += " and voyage like " + "'%" + form.voyage + "%'" }
   if (form.ship_company != "") { sql += " and ship_company like " + "'%" + form.ship_company + "%'" }
-  if (form.add_time != "") { sql += " and add_time = " + "'" + form.add_time + "'" }
+  if (form.add_time && form.add_time != "") { sql += " and add_time = " + "'" + form.add_time + "'" }
   if (form.container_no != "") { sql += " and container_no = " + "'" + form.container_no + "'" }
   if (form.seal_no != "") { sql += " and seal_no = " + "'" + form.seal_no + "'" }
   if (form.flow_direction != "") { sql += " and flow_direction = " + "'" + form.flow_direction + "'" }
@@ -999,7 +999,7 @@ const bulkCargoList = async (req: Request, res: Response) => {
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.voyage != "") { sql += " and voyage like " + "'%" + form.voyage + "%'" }
   if (form.ship_company != "") { sql += " and ship_company like " + "'%" + form.ship_company + "%'" }
-  if (form.add_time != "") { sql += " and add_time = " + "'" + form.add_time + "'" }
+  if (form.add_time && form.add_time != "") { sql += " and add_time = " + "'" + form.add_time + "'" }
   if (form.container_no != "") { sql += " and container_no = " + "'" + form.container_no + "'" }
   if (form.seal_no != "") { sql += " and seal_no = " + "'" + form.seal_no + "'" }
   if (form.flow_direction != "") { sql += " and flow_direction = " + "'" + form.flow_direction + "'" }
