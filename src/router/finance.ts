@@ -676,7 +676,7 @@ const importInvoice = async (req: Request, res: Response) => {
     tax_rate = Math.round(v[10] / v[9] * 100).toString() + "%";
     v.push(tax_rate);
   })
-  let sql: string = "insert into invoice_info (tmp_excel_no,code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,amount,tax,total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark,tax_rate) values ?"
+  let sql: string = "insert ignore into invoice_info (tmp_excel_no,code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,amount,tax,total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark,tax_rate) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -997,7 +997,7 @@ const importPayInvoice = async (req: Request, res: Response) => {
   });
   const values = sheets[0].data;
   values.shift();
-  let sql: string = "insert into pay_invoice_info (tmp_excel_no,code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,classification_code,specific_type,goods_or_taxable_service,specification,unit,quantity,unit_price,amount,tax_rate,tax,total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark) values ?"
+  let sql: string = "insert ignore into pay_invoice_info (tmp_excel_no,code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,classification_code,specific_type,goods_or_taxable_service,specification,unit,quantity,unit_price,amount,tax_rate,tax,total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
       Logger.error(err);
