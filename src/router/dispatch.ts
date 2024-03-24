@@ -77,7 +77,7 @@ const dispatchCar = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}', car_no = '${car_no}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   sql += `UPDATE dispatch SET status = '${dispatch_status}', trans_status = '${trans_status}', car_no = '${car_no}' WHERE id in ('${select_dispatch_id.toString().replaceAll(",", "','")}')`
   connection.query(sql, async function (err, result) {
     if (err) {

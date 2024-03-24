@@ -793,7 +793,12 @@ const settingContainer = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET make_time = '${make_time}',load_port = '${load_port}', crossing = '${crossing}', remark = '${remark}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container SET tmp_excel_no = tmp_excel_no `;
+  if (make_time != '') { sql += `,make_time = '${make_time}'`}
+  if (load_port != '') { sql += `,load_port = '${load_port}'` }
+  if (crossing != '') { sql += `,crossing = '${crossing}'` }
+  if (remark != '') { sql += `,remark = '${remark}'` }
+  sql += ` WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);

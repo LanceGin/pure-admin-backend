@@ -62,7 +62,6 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
-  console.log(1111,sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
