@@ -111,7 +111,6 @@ const generateOrderFee = async (req: Request, res: Response) => {
   const type_pay = "应付";
   const type_collect = "应收"
   const fee_name = "打单费";
-  const amount = 100;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -120,9 +119,8 @@ const generateOrderFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into container_fee (container_id, type, fee_name, amount) select id as container_id,"${type_pay}" as type,"${fee_name}" as fee_name,"${amount}" as amount from container where track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`;
-  sql += ` insert into container_fee (container_id, type, fee_name, amount) select id as container_id,"${type_collect}" as type,"${fee_name}" as fee_name,"${amount}" as amount from container where track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`;
-  console.log(11111, sql);
+  let sql: string = `insert into container_fee (container_id, type, fee_name, amount) select a.id as container_id,"${type_pay}" as type,"${fee_name}" as fee_name, ifnull(b.order_fee, 0) as amount from container as a LEFT JOIN ship_company as b on b.name = a.ship_company and b.area = a.load_port where a.track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`;
+  sql += ` insert into container_fee (container_id, type, fee_name, amount) select a.id as container_id,"${type_collect}" as type,"${fee_name}" as fee_name, ifnull(b.order_fee, 0)as amount from container as a LEFT JOIN ship_company as b on b.name = a.ship_company and b.area = a.load_port where a.track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
