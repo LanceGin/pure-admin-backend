@@ -301,11 +301,11 @@ const dataCheckCollection = async (req: Request, res: Response) => {
   let sql: string = "";
   values.shift();
   values.forEach((v) => {
-    sql += `select * from container where seal_no = '${v[0]}' and containner_no = '${v[1]}' `;
+    sql += `SELECT a.id as fee_id, a.status, a.account_period, a.type, a.amount,a.invoice_no, a.fee_name, a.fee_type, a.custom_name, a.project_name, a.content, a.flow_direction,a.remark, b.*, c.owner as car_owner FROM container_fee as a left join container as b on a.container_id = b.id left join vehicle_info as c on c.car_no = b.car_no where b.seal_no = '${v[0]}' and b.containner_no = '${v[1]}' `;
     if (v[2] != "") {
-      sql += ` and track_no = '${v[2]}'`;
+      sql += ` and b.track_no = '${v[2]}'`;
     }
-    sql += ` and container_type = '${v[3]}' and door = '${v[4]}';`
+    sql += ` and b.container_type = '${v[3]}' and b.door = '${v[4]}';`
   })
   connection.query(sql, async function (err, data) {
     if (err) {
@@ -332,11 +332,11 @@ const dataCheckPay = async (req: Request, res: Response) => {
   let sql: string = "";
   values.shift();
   values.forEach((v) => {
-    sql += `select * from container where containner_no = '${v[0]}' `;
+    sql += `SELECT a.id as fee_id, a.status, a.account_period, a.type, a.amount,a.invoice_no, a.fee_name, a.fee_type, a.custom_name, a.project_name, a.content, a.flow_direction,a.remark, b.*, c.owner as car_owner FROM container_fee as a left join container as b on a.container_id = b.id left join vehicle_info as c on c.car_no = b.car_no where b.containner_no = '${v[0]}' `;
     if (v[1] != "") {
-      sql += ` and track_no = '${v[1]}'`;
+      sql += ` and b.track_no = '${v[1]}'`;
     }
-    sql += ` and container_type = '${v[2]}' and door = '${v[3]}';`
+    sql += ` and b.container_type = '${v[2]}' and b.door = '${v[3]}';`
   })
   connection.query(sql, async function (err, data) {
     if (err) {
