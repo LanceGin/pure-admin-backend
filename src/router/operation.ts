@@ -32,6 +32,7 @@ const importYtoj = async (req: Request, res: Response) => {
   values.forEach((v) => {
     v.unshift("0", add_time, voyage);
   })
+  console.log(1111, values);
   const limit_length = values.length;
   let sql: string = "insert ignore into lightering (type,add_time,voyage,container_no,bl_no,customs_container_type,iso,container_type,container_holder,is_import,extra_operation,trade_type,seal_no,cargo_name,load_port,target_port,unload_port,load_payer,total_weight,cargo_weight,volume,amount,cargo_owner,forwarder,remarks) values ?"
   let select_sql: string = `select * from lightering order by id desc limit ${limit_length};`
@@ -366,8 +367,9 @@ const importDocumentCheck = async (req: Request, res: Response) => {
   values.forEach((v) => {
     v[4] = formatDate(v[4], "/");
     v.push(add_by);
+    v.push(v[12]);
   })
-  let sql: string = "insert ignore into container (tmp_excel_no,ship_company,customer,subproject,arrive_time,start_port,target_port,containner_no,seal_no,container_type,ship_name,track_no,load_port,unload_port,door,add_by) values ?"
+  let sql: string = "insert ignore into container (tmp_excel_no,ship_company,customer,subproject,arrive_time,start_port,target_port,containner_no,seal_no,container_type,ship_name,track_no,load_port,unload_port,door,add_by,old_load_port) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -714,7 +716,7 @@ const tempDrop = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}', temp_status = '${temp_status}', temp_time = '${temp_time}', temp_port = '${temp_port.value}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}', temp_status = '${temp_status}', temp_time = '${temp_time}', temp_port = '${temp_port}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   select_container_id.forEach(id => {
     sql += `insert into dispatch (type, container_id,add_time) values ('暂落','${id}', '${temp_time}');`
   })
