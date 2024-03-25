@@ -688,7 +688,7 @@ const pickBox = async (req: Request, res: Response) => {
   }
   let sql: string = `UPDATE container SET container_status = '${container_status}', actual_amount_temp = '${actual_amount.value}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   select_container_id.forEach(id => {
-    sql += `insert into dispatch (type, container_id,add_time) values ('拆箱','${id}', '${add_time}');`
+    sql += `insert ignore into dispatch (type, container_id,add_time) values ('拆箱','${id}', '${add_time}');`
   })
   connection.query(sql, async function (err, result) {
     if (err) {
@@ -718,7 +718,7 @@ const tempDrop = async (req: Request, res: Response) => {
   }
   let sql: string = `UPDATE container SET container_status = '${container_status}', temp_status = '${temp_status}', temp_time = '${temp_time}', temp_port = '${temp_port}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   select_container_id.forEach(id => {
-    sql += `insert into dispatch (type, container_id,add_time) values ('暂落','${id}', '${temp_time}');`
+    sql += `insert ignore into dispatch (type, container_id,add_time) values ('暂落','${id}', '${temp_time}');`
   })
   connection.query(sql, async function (err, result) {
     if (err) {
