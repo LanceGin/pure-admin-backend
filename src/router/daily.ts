@@ -102,6 +102,7 @@ const editAccCompany = async (req: Request, res: Response) => {
   }
   let modifySql: string = "UPDATE acc_company SET company_code = ?,company_name = ?,bank = ?,account_no = ?,remark = ? WHERE id = ?";
   let modifyParams: string[] = [company_code,company_name,bank,account_no,remark,id];
+  console.log(11111, modifySql);
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -543,8 +544,8 @@ const editAppliedFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE applied_fee SET is_admin = ?,fee_name = ?,is_pay = ?,pay_type = ?,apply_amount = ?,reimburse_amount = ?,reimburse_by = ?,tax_amount = ?,acc_company_id=?,apply_by = ?,apply_department = ?,remark = ?,invoice_no = ? WHERE id = ?";
-  let modifyParams: string[] = [is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,reimburse_by,tax_amount,acc_company_id,apply_by,apply_department,remark,invoice_no,id];
+  let modifySql: string = `UPDATE applied_fee SET is_admin=?,fee_name=?,is_pay=?,pay_type=?,apply_amount=?,reimburse_amount=?,reimburse_by=?,tax_amount=?,acc_company_id=?,apply_by=?,apply_department=?,remark=?,invoice_no=? WHERE id = ?;`;
+  let modifyParams: string[] = [is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,reimburse_by,tax_amount,acc_company_id,apply_by,apply_department,remark,invoice_no.join(','),id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
