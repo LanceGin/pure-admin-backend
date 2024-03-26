@@ -588,7 +588,8 @@ const addShipCompany = async (req: Request, res: Response) => {
   const {
     name,
     area,
-    order_fee
+    o20,
+    o40
   } = req.body;
   const add_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
   let payload = null;
@@ -599,7 +600,7 @@ const addShipCompany = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into ship_company (name, area, order_fee, add_time) values ('${name}', '${area}', '${order_fee}', '${add_time}')`;
+  let sql: string = `insert into ship_company (name, area, o20, o40, add_time) values ('${name}', '${area}', '${o20}', '${o40}', '${add_time}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -643,7 +644,8 @@ const editShipCompany = async (req: Request, res: Response) => {
     id,
     name,
     area,
-    order_fee
+    o20,
+    o40
   } = req.body;
   let payload = null;
   try {
@@ -653,8 +655,8 @@ const editShipCompany = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE ship_company SET name = ?, area = ?, order_fee = ? WHERE id = ?";
-  let modifyParams: string[] = [name, area, order_fee, id];
+  let modifySql: string = "UPDATE ship_company SET name = ?, area = ?, o20 = ?, o40 = ? WHERE id = ?";
+  let modifyParams: string[] = [name, area, o20, o40, id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
