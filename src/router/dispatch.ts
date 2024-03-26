@@ -590,6 +590,7 @@ const oneStepRevoke = async (req: Request, res: Response) => {
   }
   let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   sql += `UPDATE dispatch SET status = '${status}', car_no = '${car_no}', trans_status = ${trans_status} WHERE container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  sql += `delete from container_fee where fee_name = '拖车费' and container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -618,6 +619,7 @@ const dispatchRevoke = async (req: Request, res: Response) => {
   }
   let sql: string = `UPDATE container SET container_status = '${container_status}', temp_status = '${temp_status}', temp_port = ${temp}, temp_time = ${temp} WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   sql += `delete from dispatch where container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  sql += `delete from container_fee where fee_name = '计划费' and container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
