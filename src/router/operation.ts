@@ -400,7 +400,7 @@ const importExportContainer = async (req: Request, res: Response) => {
     v.push(add_by);
   })
   const limit_length = values.length;
-  let sql: string = `insert into container (tmp_excel_no,ship_company,customer,subproject,make_time,load_port,ship_name,track_no,containner_no,container_type,seal_no,door,unload_port,car_no,start_port,target_port,transfer_port,package_count,gross_weight,volume,container_weight,order_status,order_type,container_status,add_by) values ?`;
+  let sql: string = `insert into container (tmp_excel_no,ship_company,customer,subproject,make_time,load_port,ship_name,track_no,containner_no,container_type,seal_no,door,unload_port,car_no,start_port,target_port,transfer_port,package_count,gross_weight,volume,container_weight,ba_fee,order_status,order_type,container_status,add_by) values ?`;
   let select_sql: string = `select * from container order by id desc limit ${limit_length};`
   connection.query(sql, [values], function (err, data) {
     if (err) {
@@ -438,6 +438,10 @@ const generateExportDispatch = async (req: Request, res: Response) => {
   select_container.forEach(container => {
     sql += `insert into dispatch (type,container_id,car_no,status,trans_status,add_time) values ('装箱','${container.id}','${container.car_no}','${status}','${trans_status}','${add_time}');`;
     sql += `update dispatch as a left join container as b on b.id = a.container_id set a.export_seal_no = '${container.seal_no}', a.export_port = '${container.load_port}' where b.containner_no = '${container.containner_no}' and date_format(b.make_time, '%Y-%m-%d') = date_format(CONVERT_TZ('${container.make_time}','+00:00','+8:00'), '%Y-%m-%d') and a.type = '拆箱';`
+    if (container.ba_fee !== "") {
+      sql += `insert into container_fee (container_id, type, fee_name, amount) select '${container.id}', '应付', '上下车费', '${container.ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${container.id}' and type = '应付' and fee_name = '上下车费');`;
+      sql += `insert into container_fee (container_id, type, fee_name, amount) select '${container.id}', '应收', '上下车费', '${container.ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${container.id}' and type = '应收' and fee_name = '上下车费');`;
+    }
 
   })
   console.log("导入出口运单同步更新进口运单数据：", sql);
