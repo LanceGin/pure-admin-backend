@@ -482,6 +482,7 @@ const whDispatchList = async (req: Request, res: Response) => {
 const editWhExport = async (req: Request, res: Response) => {
   const {
     dispatch_id,
+    unload_port,
     export_seal_no,
     export_port,
     dispatch_remark
@@ -494,7 +495,7 @@ const editWhExport = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `update dispatch set export_seal_no = '${export_seal_no}', export_port = '${export_port}', remark = '${dispatch_remark}' where id = '${dispatch_id}';`;
+  let sql: string = `update container as a left join dispatch as b on b.container_id = a.id set a.unload_port = '${unload_port}', b.export_seal_no = '${export_seal_no}', b.export_port = '${export_port}', b.remark = '${dispatch_remark}' where b.id = '${dispatch_id}';`
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
