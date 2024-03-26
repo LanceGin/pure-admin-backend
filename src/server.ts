@@ -40,6 +40,8 @@ import {
   editFeeCollection,
   bulkCargoList,
   addBulkCargo,
+  generateShippingFee,
+  deleteShippingFee,
   deleteBulkCargo,
   editBulkCargo,
   lighteringList,
@@ -345,6 +347,14 @@ app.post("/bulkCargoList", (req, res) => {
 // 运作管理 - 添加散货记录接口
 app.post("/addBulkCargo", (req, res) => {
   addBulkCargo(req, res);
+})
+// 运作管理 - 生成太仓水运费接口
+app.post("/generateShippingFee", (req, res) => {
+  generateShippingFee(req, res);
+})
+// 运作管理 - 删除太仓水运费接口
+app.post("/deleteShippingFee", (req, res) => {
+  deleteShippingFee(req, res);
 })
 // 运作管理 - 删除散货记录接口
 app.post("/deleteBulkCargo", (req, res) => {

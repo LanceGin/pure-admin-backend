@@ -62,7 +62,6 @@ const generateShipFee = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   select_item.forEach((item) => {
-    console.log(87848798, item);
     const c = "c" + item.container_type.substring(0,2).toLowerCase();
     const p = "p" + item.container_type.substring(0,2).toLowerCase();
     let select_sql:string = `select order_fee, ${c} as c_fee, ${p} as p_fee from lightering_price where settlement = '${item.load_port}' and cargo_name = '${item.cargo_name}';`
@@ -71,7 +70,6 @@ const generateShipFee = async (req: Request, res: Response) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(423153215, data);
         const order_fee = data[0][0].order_fee;
         const p_fee = data[0][0].p_fee;
         const c_fee = data[0][0].c_fee;
@@ -83,7 +81,6 @@ const generateShipFee = async (req: Request, res: Response) => {
         insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应付','换单费','${order_fee}');`;
         insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应收','水运费','${c_fee}');`;
         insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应付','水运费','${p_fee}');`;
-        console.log(222222, insert_sql);
         connection.query(insert_sql, async function (err, data) {
           if (err) {
             console.log(err);
