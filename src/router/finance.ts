@@ -107,7 +107,7 @@ const generateContainerFee = async (req: Request, res: Response) => {
 
 // 生成打单费
 const generateOrderFee = async (req: Request, res: Response) => {
-  const select_track_no = req.body;
+  const select_container= req.body;
   const type_pay = "应付";
   const type_collect = "应收"
   const fee_name = "打单费";
@@ -119,18 +119,31 @@ const generateOrderFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into container_fee (container_id, type, fee_name, amount) select a.id as container_id,"${type_pay}" as type,"${fee_name}" as fee_name, ifnull(b.order_fee, 0) as amount from container as a LEFT JOIN ship_company as b on b.name = a.ship_company and b.area = a.load_port where a.track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`;
-  sql += ` insert into container_fee (container_id, type, fee_name, amount) select a.id as container_id,"${type_collect}" as type,"${fee_name}" as fee_name, ifnull(b.order_fee, 0)as amount from container as a LEFT JOIN ship_company as b on b.name = a.ship_company and b.area = a.load_port where a.track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`;
-  connection.query(sql, async function (err, data) {
-    if (err) {
-      console.log(err);
+  select_container.forEach((container) => {
+    let select_sql = '';
+    const type = "o" + container.container_type.substring(0,2).toLowerCase();
+    if (container.order_type == "进口") {
+      select_sql += `select ${type} as order_fee from ship_company where name = '${container.ship_company}' and area = '${container.load_port}';`;
     } else {
-      await res.json({
-        success: true,
-        data: { message: Message[8] },
-      });
+      select_sql += `select ${type} as order_fee from ship_company where name = '${container.ship_company}' and area = '${container.unload_port}';`;
     }
-  });
+    connection.query(select_sql, function (err, data) {
+      if (err) {
+        console.log(err);
+      } else {
+        const amount = data[0].order_fee;
+        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_pay}','${fee_name}','${amount}');`;
+        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_collect}','${fee_name}','${amount}');`
+        connection.query(insert_sql, async function (err, data) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(data)
+          }
+        });
+      }
+    });
+  })
 };
 
 // 生成码头计划费
