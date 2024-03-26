@@ -32,14 +32,12 @@ const importYtoj = async (req: Request, res: Response) => {
   values.forEach((v) => {
     v.unshift("0", add_time, voyage);
   })
-  console.log(1111, values);
-  const limit_length = values.length;
-  let sql: string = "insert ignore into lightering (type,add_time,voyage,container_no,bl_no,customs_container_type,iso,container_type,container_holder,is_import,extra_operation,trade_type,seal_no,cargo_name,load_port,target_port,unload_port,load_payer,total_weight,cargo_weight,volume,amount,cargo_owner,forwarder,remarks) values ?"
-  let select_sql: string = `select * from lightering order by id desc limit ${limit_length};`
+  let sql: string = "insert ignore into lightering (type,add_time,voyage,container_no,bl_no,customs_container_type,iso,container_type,container_holder,is_import,extra_operation,trade_type,seal_no,cargo_name,load_port,target_port,unload_port,load_payer,total_weight,cargo_weight,volume,amount,cargo_owner,forwarder,remarks) values ?";
   connection.query(sql, [values], function (err, data) {
     if (err) {
       Logger.error(err);
     } else {
+      const select_sql: string = `select * from lightering order by id desc limit ${JSON.parse(JSON.stringify(data)).affectedRows};`
       connection.query(select_sql, async function (err, data) {
         await res.json({
           success: true,
@@ -49,6 +47,56 @@ const importYtoj = async (req: Request, res: Response) => {
         });
       });
     }
+  });
+};
+
+// 生成水运费
+const generateShipFee = async (req: Request, res: Response) => {
+  const { select_item } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  select_item.forEach((item) => {
+    console.log(87848798, item);
+    const c = "c" + item.container_type.substring(0,2).toLowerCase();
+    const p = "p" + item.container_type.substring(0,2).toLowerCase();
+    let select_sql:string = `select order_fee, ${c} as c_fee, ${p} as p_fee from lightering_price where settlement = '${item.load_port}' and cargo_name = '${item.cargo_name}';`
+    select_sql += `select id from container where containner_no = '${item.container_no}' and seal_no = '${item.seal_no}';`;
+    connection.query(select_sql, function (err, data) {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(423153215, data);
+        const order_fee = data[0][0].order_fee;
+        const p_fee = data[0][0].p_fee;
+        const c_fee = data[0][0].c_fee;
+        let container_id = null;
+        if (data[1].length > 0) {
+          container_id = data[1][0].id
+        }
+        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应收','换单费','${order_fee}');`;
+        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应付','换单费','${order_fee}');`;
+        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应收','水运费','${c_fee}');`;
+        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应付','水运费','${p_fee}');`;
+        console.log(222222, insert_sql);
+        connection.query(insert_sql, async function (err, data) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(data)
+          }
+        });
+      }
+    });
+  })
+  return res.json({
+    success: true,
+    data: { message: Message[8] },
   });
 };
 
@@ -930,6 +978,7 @@ const deleteYardPrice = async (req: Request, res: Response) => {
 
 export {
   importYtoj,
+  generateShipFee,
   importJtoy,
   lighteringStatList,
   documentCheckList,

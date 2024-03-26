@@ -61,6 +61,7 @@ import {
 
 import {
   importYtoj,
+  generateShipFee,
   importJtoy,
   lighteringStatList,
   documentCheckList,
@@ -449,6 +450,10 @@ app.post("/lighteringStatList", (req, res) => {
 // 运作管理 - 批量导入驳运记录ytoj
 app.post("/importYtoj", upload_tmp.any(), (req, res) => {
   importYtoj(req, res);
+})
+// 运作管理 - 生成水运费接口
+app.post("/generateShipFee", (req, res) => {
+  generateShipFee(req, res);
 })
 // 运作管理 - 批量导入驳运记录jtoy
 app.post("/importJtoy", upload_tmp.any(), (req, res) => {
