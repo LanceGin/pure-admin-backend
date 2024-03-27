@@ -729,6 +729,7 @@ const pickBox = async (req: Request, res: Response) => {
   const { select_container_id, actual_amount } = req.body;
   let payload = null;
   const container_status = "已挑箱";
+  const temp_status = "未暂落";
   const add_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -737,7 +738,7 @@ const pickBox = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}', actual_amount_temp = '${actual_amount.value}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}', actual_amount_temp = '${actual_amount.value}', temp_status = '${temp_status}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   select_container_id.forEach(id => {
     sql += `insert ignore into dispatch (type, container_id,add_time) values ('拆箱','${id}', '${add_time}');`
   })
