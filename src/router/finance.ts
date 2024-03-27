@@ -107,7 +107,6 @@ const generateContainerFee = async (req: Request, res: Response) => {
 
 // 生成打单费
 const generateOrderFee = async (req: Request, res: Response) => {
-  console.log(11111);
   const select_container= req.body;
   const type_pay = "应付";
   const type_collect = "应收"
@@ -120,6 +119,7 @@ const generateOrderFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
+  console.log(11111, select_container);
   select_container.forEach((container) => {
     let select_sql = '';
     const type = "o" + container.container_type.substring(0,2).toLowerCase();
@@ -294,6 +294,7 @@ const generateStorageFee = async (req: Request, res: Response) => {
 
 // 生成拖车费
 const generateDispatchFee = async (req: Request, res: Response) => {
+  console.log("生成拖车费");
   const {
     select_container
   } = req.body;
