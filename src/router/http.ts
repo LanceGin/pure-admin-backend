@@ -7,12 +7,13 @@ import Logger from "../loaders/logger";
 import { Message } from "../utils/enums";
 import getFormatDate from "../utils/date";
 import { connection } from "../utils/mysql";
-import { getRandomString } from "../utils/utils";
+import { getRandomString, formatDate } from "../utils/utils";
 import { Request, Response } from "express";
 import { createMathExpr } from "svg-captcha";
 import * as dayjs from "dayjs";
 
 const utils = require("@pureadmin/utils");
+const xlsx = require("node-xlsx");
 
 /** 保存验证码 */
 let generateVerify: number;
@@ -1079,6 +1080,38 @@ const addBulkCargo = async (req: Request, res: Response) => {
   });
 };
 
+// 批量导入船运记录
+const importShipping = async (req: Request, res: Response) => {
+  const file_path = req.files[0].path;
+  const add_by = req.body.add_by;
+  const sheets = xlsx.parse(file_path, {
+    // cellDates: true,
+    defval: ""
+  });
+  let values = sheets[0].data;
+  values = values.slice(1);
+  values.forEach((v) => {
+    v[0] = formatDate(v[0], "/");
+    v.push("0");
+  })
+  let sql: string = `insert ignore into bulk_cargo (add_time,customer,ship_company,bl_no,container_no,container_type,seal_no,flow_direction,voyage,address,car_no,remarks,type) values ?`;
+  connection.query(sql, [values], function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      const select_sql: string = `select * from bulk_cargo order by id desc limit ${JSON.parse(JSON.stringify(data)).affectedRows};`
+      connection.query(select_sql, async function (err, data) {
+        await res.json({
+          success: true,
+          data: { 
+            list: data,
+          },
+        });
+      });
+    }
+  });
+};
+
 // 生成太仓水运费
 const generateShippingFee = async (req: Request, res: Response) => {
   const { select_item } = req.body;
@@ -1895,6 +1928,7 @@ export {
   editFeeCollection,
   bulkCargoList,
   addBulkCargo,
+  importShipping,
   generateShippingFee,
   deleteShippingFee,
   deleteBulkCargo,

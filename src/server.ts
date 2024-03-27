@@ -40,6 +40,7 @@ import {
   editFeeCollection,
   bulkCargoList,
   addBulkCargo,
+  importShipping,
   generateShippingFee,
   deleteShippingFee,
   deleteBulkCargo,
@@ -347,6 +348,10 @@ app.post("/bulkCargoList", (req, res) => {
 // 运作管理 - 添加散货记录接口
 app.post("/addBulkCargo", (req, res) => {
   addBulkCargo(req, res);
+})
+// 运作管理 - 批量导入船运记录接口
+app.post("/importShipping", upload_tmp.any(), (req, res) => {
+  importShipping(req, res);
 })
 // 运作管理 - 生成太仓水运费接口
 app.post("/generateShippingFee", (req, res) => {
