@@ -107,7 +107,7 @@ const generateContainerFee = async (req: Request, res: Response) => {
 
 // 生成打单费
 const generateOrderFee = async (req: Request, res: Response) => {
-  const select_container= req.body;
+  const select_container = req.body;
   const type_pay = "应付";
   const type_collect = "应收"
   const fee_name = "打单费";
@@ -313,6 +313,7 @@ const generateDispatchFee = async (req: Request, res: Response) => {
     let a = "";
     let pay_fee_port = container.load_port;
     let collect_fee_port = container.load_port;
+    let op_door = container.door;
     if (container.order_type === "进口") {
       a = "i";
     } else if (container.order_type === "出口") {
@@ -323,9 +324,12 @@ const generateDispatchFee = async (req: Request, res: Response) => {
     if (container.transfer_port !== null && container.transfer_port !== "") {
       pay_fee_port = container.transfer_port;
     }
+    if (container.temp_status === "已暂落") {
+      op_door = container.temp_port;
+    }
     const b = a + container.container_type.toLowerCase();
-    let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${container.door}' and port = '${pay_fee_port}';`
-    select_sql += `select ${b} from door_price where is_pay = '0' and customer = '${container.customer}' and door = '${container.door}' and port = '${collect_fee_port}';`
+    let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${op_door}' and port = '${pay_fee_port}';`
+    select_sql += `select ${b} from door_price where is_pay = '0' and customer = '${container.customer}' and door = '${op_door}' and port = '${collect_fee_port}';`
     connection.query(select_sql, function (err, data) {
       if (err) {
         console.log(err);
