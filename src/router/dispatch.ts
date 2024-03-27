@@ -126,6 +126,7 @@ const importDispatch = async (req: Request, res: Response) => {
 
 // 根据箱子数据更新派车单
 const generateDispatchWithContainer = async (req: Request, res: Response) => {
+  console.log("更新派车单");
   const { select_container } = req.body;
   let payload = null;
   const status = '已派车';
@@ -504,8 +505,10 @@ const editWhExport = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `update container as a left join dispatch as b on b.container_id = a.id set a.unload_port = '${unload_port}', b.export_seal_no = '${export_seal_no}', b.export_port = '${export_port}', b.remark = '${dispatch_remark}' where b.id = '${dispatch_id}';`
-  sql += `insert into container_fee (container_id, type, fee_name, amount) select '${id}', '应付', '上下车费', '${ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${id}' and type = '应付' and fee_name = '上下车费');`;
-  sql += `insert into container_fee (container_id, type, fee_name, amount) select '${id}', '应收', '上下车费', '${ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${id}' and type = '应收' and fee_name = '上下车费');`;
+  if (export_port == "" && export_seal_no == "") {
+    sql += `insert into container_fee (container_id, type, fee_name, amount) select '${id}', '应付', '上下车费', '${ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${id}' and type = '应付' and fee_name = '上下车费');`;
+    sql += `insert into container_fee (container_id, type, fee_name, amount) select '${id}', '应收', '上下车费', '${ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${id}' and type = '应收' and fee_name = '上下车费');`;
+  }
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
