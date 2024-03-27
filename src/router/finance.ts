@@ -107,6 +107,7 @@ const generateContainerFee = async (req: Request, res: Response) => {
 
 // 生成打单费
 const generateOrderFee = async (req: Request, res: Response) => {
+  console.log(11111);
   const select_container= req.body;
   const type_pay = "应付";
   const type_collect = "应收"
@@ -131,7 +132,10 @@ const generateOrderFee = async (req: Request, res: Response) => {
       if (err) {
         console.log(err);
       } else {
-        const amount = data[0].order_fee;
+        let amount = 0;
+        if (data[0] != undefined) {
+          amount = data[0].order_fee;
+        }
         let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_pay}','${fee_name}','${amount}');`;
         insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_collect}','${fee_name}','${amount}');`
         connection.query(insert_sql, async function (err, data) {
@@ -248,6 +252,7 @@ const generatePlanningFee = async (req: Request, res: Response) => {
 
 // 生成堆存费
 const generateStorageFee = async (req: Request, res: Response) => {
+  console.log(22222);
   const {
     select_container
   } = req.body;
