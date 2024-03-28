@@ -76,18 +76,38 @@ const generateShipFee = async (req: Request, res: Response) => {
         let container_id = null;
         if (data[1].length > 0) {
           container_id = data[1][0].id
+          let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应收','换单费','${order_fee}');`;
+          insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应付','换单费','${order_fee}');`;
+          insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应收','水运费','${c_fee}');`;
+          insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应付','水运费','${p_fee}');`;
+          connection.query(insert_sql, async function (err, data) {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log(data)
+            }
+          });
+        } else {
+          let insert_sql:string = `insert ignore into container (order_status,order_type,container_status,make_time,ship_name,seal_no,containner_no,track_no,container_type,start_port,target_port) values ('已提交','船运','已完成','${item.add_time}','${item.voyage}','${item.seal_no}','${item.container_no}','${item.bl_no}','${item.container_type}','${item.load_port}','${item.unload_port}');`
+          connection.query(insert_sql, async function (err, data) {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log(data)
+              let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应收','换单费','${order_fee}');`;
+              insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应付','换单费','${order_fee}');`;
+              insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应收','水运费','${c_fee}');`;
+              insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应付','水运费','${p_fee}');`;
+              connection.query(insert_sql, async function (err, data) {
+                if (err) {
+                  console.log(err);
+                } else {
+                  console.log(data)
+                }
+              });
+            }
+          });
         }
-        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应收','换单费','${order_fee}');`;
-        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应付','换单费','${order_fee}');`;
-        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应收','水运费','${c_fee}');`;
-        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container_id}','应付','水运费','${p_fee}');`;
-        connection.query(insert_sql, async function (err, data) {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log(data)
-          }
-        });
       }
     });
   })
@@ -240,7 +260,7 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select a.id as dispatch_id, a.type, a.status, a.car_no as dispatch_car_no, a.trans_status, a.abnormal_fee, a.remark as dispatch_remark, b.*, c.amount from dispatch as a left join container as b on b.id = a.container_id left join container_fee as c on c.container_id = b.id where a.trans_status = '已完成' and c.fee_name = '拖车费' and c.type = '应付' ";
+  let sql: string = "select a.id as dispatch_id, a.type, a.status, a.car_no as dispatch_car_no, a.trans_status, a.abnormal_fee, a.remark as dispatch_remark, b.*, c.amount from dispatch as a left join container as b on b.id = a.container_id left join container_fee as c on c.container_id = b.id and c.dispatch_type = a.type where a.trans_status = '已完成' and c.fee_name = '拖车费' and c.type = '应付' ";
   if (form.container_status != "") { sql += " and b.container_status like " + "'%" + form.container_status + "%'" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
@@ -654,14 +674,15 @@ const submitDocumentCheck = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET order_status = '${order_status}',order_time = '${order_time}',order_fee = '${order_fee}' WHERE track_no in ('${select_track_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container SET order_status = '${order_status}',order_time = '${order_time}',order_fee = '${order_fee}' WHERE track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`;
+  sql += ` select * from container WHERE track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
     } else {
       await res.json({
         success: true,
-        data: { message: Message[7] },
+        data: result[1],
       });
     }
   });

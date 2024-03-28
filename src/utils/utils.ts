@@ -46,8 +46,8 @@ export function calPlanningFee(data, container) {
     } else {
         a_time = dayjs(container.arrive_time).format("YYYY-MM-DD");
     }
-    const now_time = dayjs().format("YYYY-MM-DD");
-    const delta_days = (dayjs(now_time).diff(a_time, "day") + 1).toString();
+    const make_time = dayjs(container.make_time).format("YYYY-MM-DD");
+    const delta_days = (dayjs(make_time).diff(a_time, "day") + 1).toString();
 
     const c_type = container.container_type.substring(0,2);
     if (c_type == "40") {

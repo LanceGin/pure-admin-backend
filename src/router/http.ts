@@ -1026,7 +1026,7 @@ const bulkCargoList = async (req: Request, res: Response) => {
 
 // 新增散货记录
 const addBulkCargo = async (req: Request, res: Response) => {
-  const {
+  let {
     id,
     type,
     customer,
@@ -1054,6 +1054,10 @@ const addBulkCargo = async (req: Request, res: Response) => {
     remarks,
     add_time
   } = req.body;
+  if (type == "2") {
+    container_no = "SH" + dayjs(new Date()).format("YYYYMMDD") + Math.floor(Math.random()*10000);
+    seal_no = "SH" + dayjs(new Date()).format("YYYYMMDD") + Math.floor(Math.random()*10000);
+  }
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -1175,6 +1179,136 @@ const deleteShippingFee = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `DELETE a from container_fee as a left join container as b on b.id = a.container_id where b.containner_no = '${container_no}' and b.track_no = '${bl_no}' and b.seal_no = '${seal_no}' and a.fee_name in ('换单费','水运费');`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+// 生成陆运运费
+const generateLandingFee = async (req: Request, res: Response) => {
+  const { select_item } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  select_item.forEach((item) => {
+    let error_fee = 0;
+    if (item.error_fee != "") {
+      error_fee = item.error_fee;
+    }
+    let container_sql:string = `insert ignore into container (order_status,order_type,container_status,make_time,seal_no,containner_no,container_type,customer,ship_company,start_port,target_port,car_no,remark) values ('已提交','陆运','已完成','${item.add_time}','${item.seal_no}','${item.container_no}','${item.container_type}','${item.customer}','${item.ship_company}','${item.load_address}','${item.unload_address}','${item.car_no}','${item.remarks}');`;
+    connection.query(container_sql, function (err, data) {
+      if (err) {
+        console.log(err);
+      } else {
+        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应收','陆运费','${item.freight}');`;
+        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应付','陆运费','${item.freight}');`;
+        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应收','陆运异常费','${error_fee}');`;
+        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应付','陆运异常费','${error_fee}');`;
+        connection.query(insert_sql, async function (err, data) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(data)
+          }
+        });
+      }
+    });
+  })
+  return res.json({
+    success: true,
+    data: { message: Message[8] },
+  });
+};
+
+// 删除陆运运费
+const deleteLandingFee = async (req: Request, res: Response) => {
+  const {
+    container_no,
+    seal_no
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE a,b from container_fee as a left join container as b on b.id = a.container_id where b.containner_no = '${container_no}' and b.seal_no = '${seal_no}' and a.fee_name in ('陆运费','陆运异常费');`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+// 生成散货运费
+const generateBulkFee = async (req: Request, res: Response) => {
+  const { select_item } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  select_item.forEach((item) => {
+    let container_sql:string = `insert ignore into container (order_status,order_type,container_status,make_time,seal_no,containner_no,container_type,customer,start_port,target_port,car_no,remark) values ('已提交','散货','已完成','${item.add_time}','${item.seal_no}','${item.container_no}','${item.car_type}','${item.customer}','${item.load_address}','${item.unload_address}','${item.fleet}','${item.remarks}');`;
+    connection.query(container_sql, function (err, data) {
+      if (err) {
+        console.log(err);
+      } else {
+        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应收','散货运费','${item.freight}');`;
+        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应付','散货运费','${item.freight}');`;
+        connection.query(insert_sql, async function (err, data) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(data)
+          }
+        });
+      }
+    });
+  })
+  return res.json({
+    success: true,
+    data: { message: Message[8] },
+  });
+};
+
+// 删除散货运费
+const deleteBulkFee = async (req: Request, res: Response) => {
+  const {
+    container_no,
+    seal_no
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE a,b from container_fee as a left join container as b on b.id = a.container_id where b.containner_no = '${container_no}' and b.seal_no = '${seal_no}' and a.fee_name in ('散货运费');`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -1931,6 +2065,10 @@ export {
   importShipping,
   generateShippingFee,
   deleteShippingFee,
+  generateLandingFee,
+  deleteLandingFee,
+  generateBulkFee,
+  deleteBulkFee,
   deleteBulkCargo,
   editBulkCargo,
   lighteringList,

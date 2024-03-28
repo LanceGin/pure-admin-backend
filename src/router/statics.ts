@@ -34,7 +34,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.order_type != "") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
   if (form.fee_name != "") { sql += " and a.fee_name = " + "'" + form.fee_name + "'" }
-  if (form.status != "") { sql += " and a.status = " + "'" + form.status + "'" }
+  if (form.status != "") { sql += " and a.status like " + "'%" + form.status + "%'" }
   // if (form.make_time != "") { sql += " and b.make_time = " + "'" + form.make_time + "'" }
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and date_format(make_time, '%Y-%m-%d') between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
   if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
@@ -43,6 +43,7 @@ const containerFeeList = async (req: Request, res: Response) => {
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
+  if (form.temp_port != "") { sql += " and b.temp_port like " + "'%" + form.temp_port + "%'" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
   if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
@@ -53,7 +54,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.order_type != "") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
   if (form.fee_name != "") { sql += " and a.fee_name = " + "'" + form.fee_name + "'" }
-  if (form.status != "") { sql += " and a.status = " + "'" + form.status + "'" }
+  if (form.status != "") { sql += " and a.status like " + "'%" + form.status + "%'" }
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and date_format(make_time, '%Y-%m-%d') between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
   if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
   if (form.containner_no != "") {
@@ -61,6 +62,7 @@ const containerFeeList = async (req: Request, res: Response) => {
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
+  if (form.temp_port != "") { sql += " and b.temp_port like " + "'%" + form.temp_port + "%'" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
   if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
@@ -172,7 +174,7 @@ const setRemark = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container_fee SET remark = '${remark.value}' WHERE id in ('${select_id  .toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container_fee as a left join container as b on b.id = a.container_id SET b.remark = '${remark.value}' WHERE a.id in ('${select_id  .toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);

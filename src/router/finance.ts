@@ -119,7 +119,6 @@ const generateOrderFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  console.log(11111, select_container);
   select_container.forEach((container) => {
     let select_sql = '';
     const type = "o" + container.container_type.substring(0,2).toLowerCase();
@@ -311,6 +310,7 @@ const generateDispatchFee = async (req: Request, res: Response) => {
   }
   select_container.forEach((container) => {
     let a = "";
+    let dispatch_type = "拆箱";
     let pay_fee_port = container.load_port;
     let collect_fee_port = container.load_port;
     let op_door = container.door;
@@ -320,12 +320,14 @@ const generateDispatchFee = async (req: Request, res: Response) => {
       a = "o";
       pay_fee_port = container.unload_port;
       collect_fee_port = container.unload_port;
+      dispatch_type = "装箱";
     }
     if (container.transfer_port !== null && container.transfer_port !== "") {
       pay_fee_port = container.transfer_port;
     }
     if (container.temp_status === "已暂落") {
       op_door = container.temp_port;
+      dispatch_type = "暂落";
     }
     const b = a + container.container_type.toLowerCase();
     let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${op_door}' and port = '${pay_fee_port}';`
@@ -342,8 +344,8 @@ const generateDispatchFee = async (req: Request, res: Response) => {
         if (data[1].length > 0) {
           amount_collect = data[1][0][b];
         }
-        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_pay}','${fee_name}','${amount_pay}');`;
-        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_collect}','${fee_name}','${amount_collect}');`
+        let insert_sql: string = `insert into container_fee (container_id, type, dispatch_type, fee_name, amount) values ('${container.id}','${type_pay}','${dispatch_type}','${fee_name}','${amount_pay}');`;
+        insert_sql += `insert into container_fee (container_id, type, dispatch_type, fee_name, amount) values ('${container.id}','${type_collect}','${dispatch_type}','${fee_name}','${amount_collect}');`
         connection.query(insert_sql, async function (err, data) {
           if (err) {
             console.log(err);
@@ -1115,7 +1117,7 @@ const rejectCollection = async (req: Request, res: Response) => {
     content
   }  = req.body;
   let payload = null;
-  const status = '未提交';
+  const status = '已驳回';
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -1153,6 +1155,7 @@ const approvePay = async (req: Request, res: Response) => {
     acc_company,
     content,
     actual_amount,
+    remark,
     add_by
   }  = req.body;
   let payload = null;
@@ -1177,7 +1180,7 @@ const approvePay = async (req: Request, res: Response) => {
       const is_pay = "付";
       const add_time = dayjs(new Date()).format("YYYY-MM-DD");
       const fee_no = "FAO" + dayjs(new Date()).format("YYYYMMDD") + Math.floor(Math.random()*10000);
-      let apply_fee_sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,apply_amount,acc_company_id,apply_by,create_time,fee_no) values ('${is_admin}','${content}','${is_pay}','${actual_amount}','${acc_company}','${add_by}','${add_time}','${fee_no}');`;
+      let apply_fee_sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,apply_amount,acc_company_id,apply_by,create_time,fee_no,remark) values ('${is_admin}','${content}','${is_pay}','${actual_amount}','${acc_company}','${add_by}','${add_time}','${fee_no}','${remark}');`;
       connection.query(apply_fee_sql, async function (err, data) {
         if (err) {
           console.log(err);
@@ -1203,7 +1206,7 @@ const rejectPay = async (req: Request, res: Response) => {
     content
   }  = req.body;
   let payload = null;
-  const status = '未提交';
+  const status = '已驳回';
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);

@@ -43,6 +43,10 @@ import {
   importShipping,
   generateShippingFee,
   deleteShippingFee,
+  generateLandingFee,
+  deleteLandingFee,
+  generateBulkFee,
+  deleteBulkFee,
   deleteBulkCargo,
   editBulkCargo,
   lighteringList,
@@ -360,6 +364,22 @@ app.post("/generateShippingFee", (req, res) => {
 // 运作管理 - 删除太仓水运费接口
 app.post("/deleteShippingFee", (req, res) => {
   deleteShippingFee(req, res);
+})
+// 运作管理 - 生成陆运运费接口
+app.post("/generateLandingFee", (req, res) => {
+  generateLandingFee(req, res);
+})
+// 运作管理 - 删除陆运运费接口
+app.post("/deleteLandingFee", (req, res) => {
+  deleteLandingFee(req, res);
+})
+// 运作管理 - 生成散货运费接口
+app.post("/generateBulkFee", (req, res) => {
+  generateBulkFee(req, res);
+})
+// 运作管理 - 删除散货运费接口
+app.post("/deleteBulkFee", (req, res) => {
+  deleteBulkFee(req, res);
 })
 // 运作管理 - 删除散货记录接口
 app.post("/deleteBulkCargo", (req, res) => {
