@@ -1176,7 +1176,8 @@ const approvePay = async (req: Request, res: Response) => {
       const is_admin = "业务";
       const is_pay = "付";
       const add_time = dayjs(new Date()).format("YYYY-MM-DD");
-      let apply_fee_sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,apply_amount,acc_company_id,apply_by,create_time) values ('${is_admin}','${content}','${is_pay}','${actual_amount}','${acc_company}','${add_by}','${add_time}')`;
+      const fee_no = "FAO" + dayjs(new Date()).format("YYYYMMDD") + Math.floor(Math.random()*10000);
+      let apply_fee_sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,apply_amount,acc_company_id,apply_by,create_time,fee_no) values ('${is_admin}','${content}','${is_pay}','${actual_amount}','${acc_company}','${add_by}','${add_time}','${fee_no}');`;
       connection.query(apply_fee_sql, async function (err, data) {
         if (err) {
           console.log(err);
