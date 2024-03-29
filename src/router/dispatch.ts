@@ -446,19 +446,21 @@ const whDispatchList = async (req: Request, res: Response) => {
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.unload_port != "") { sql += " and b.unload_port like " + "'%" + form.unload_port + "%'" }
-  if (form.type != "") { sql += " and a.type like " + "'%" + form.type + "%'" }
+  if (form.type == "装箱") { sql += " and a.export_seal_no != '' and a.export_seal_no is not NULL and a.export_port != '' and a.export_port is not NULL" }
+  if (form.type == "拆箱") { sql += " and (a.export_seal_no = '' or a.export_seal_no is NULL) and (a.export_port = '' or a.export_port is NULL)" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
     sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.car_no != "") { sql += " and a.car_no like " + "'%" + form.car_no + "%'" }
-  sql +=" order by b.door, b.make_time asc, FIELD(b.crossing, '汇昇','汇众','GA','BS','PT','CSS4','RESS','NGC','SGE','SGE-LCM','CSS','CSS-LCM','CVG','CVG-LCM','NGADK01','NPGA','NPBS') limit " + size + " offset " + size * (page - 1);
+  sql +=" order by b.door, b.make_time asc, FIELD(b.crossing,'GA','BS','PT','CSS4','RESS','NGC','SGE','SGE-LCM','CSS','CSS-LCM','CVG','CVG-LCM','NGADK01','NPGA','NPBS') limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from (select b.* from dispatch as a left join container as b on b.id = a.container_id where b.load_port in ('武汉阳逻','武汉金口') ";
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(b.make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.unload_port != "") { sql += " and b.unload_port like " + "'%" + form.unload_port + "%'" }
-  if (form.type != "") { sql += " and a.type like " + "'%" + form.type + "%'" }
+  if (form.type == "装箱") { sql += " and a.export_seal_no != '' and a.export_seal_no is not NULL and a.export_port != '' and a.export_port is not NULL" }
+  if (form.type == "拆箱") { sql += " and (a.export_seal_no = '' or a.export_seal_no is NULL) and (a.export_port = '' or a.export_port is NULL)" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
     sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
@@ -510,9 +512,11 @@ const editWhExport = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `update container as a left join dispatch as b on b.container_id = a.id set a.unload_port = '${unload_port}', b.export_seal_no = '${export_seal_no}', b.export_port = '${export_port}', b.remark = '${dispatch_remark}' where b.id = '${dispatch_id}';`
+  sql += `insert into container_fee (container_id, type, fee_name, amount) select '${id}', '应收', '上下车费', '${ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${id}' and type = '应收' and fee_name = '上下车费');`;
   if (export_port == "" && export_seal_no == "" && unload_port == "武汉阳逻" && load_port == "武汉阳逻") {
     sql += `insert into container_fee (container_id, type, fee_name, amount) select '${id}', '应付', '上下车费', '${ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${id}' and type = '应付' and fee_name = '上下车费');`;
-    sql += `insert into container_fee (container_id, type, fee_name, amount) select '${id}', '应收', '上下车费', '${ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${id}' and type = '应收' and fee_name = '上下车费');`;
+  } else {
+    sql += `insert into container_fee (container_id, type, fee_name, amount) select '${id}', '应付', '上下车费', '0' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${id}' and type = '应付' and fee_name = '上下车费');`;
   }
   connection.query(sql, async function (err, data) {
     if (err) {
