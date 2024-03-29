@@ -260,7 +260,7 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select a.id as dispatch_id, a.type, a.status, a.car_no as dispatch_car_no, a.trans_status, a.abnormal_fee, a.remark as dispatch_remark, b.*, c.amount from dispatch as a left join container as b on b.id = a.container_id left join container_fee as c on c.container_id = b.id and c.dispatch_type = a.type where a.trans_status = '已完成' and c.fee_name = '拖车费' and c.type = '应付' ";
+  let sql: string = "select a.id as dispatch_id, a.type, a.status, a.car_no as dispatch_car_no, a.trans_status, a.abnormal_fee, a.remark as dispatch_remark, a.add_time as op_time, b.*, c.amount from dispatch as a left join container as b on b.id = a.container_id left join container_fee as c on c.container_id = b.id and c.dispatch_type = a.type where a.trans_status = '已完成' and c.fee_name = '拖车费' and c.type = '应付' ";
   if (form.container_status != "") { sql += " and b.container_status like " + "'%" + form.container_status + "%'" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
@@ -751,7 +751,6 @@ const pickBox = async (req: Request, res: Response) => {
   let payload = null;
   const container_status = "已挑箱";
   const temp_status = "未暂落";
-  const add_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -761,7 +760,7 @@ const pickBox = async (req: Request, res: Response) => {
   }
   let sql: string = `UPDATE container SET container_status = '${container_status}', actual_amount_temp = '${actual_amount.value}', temp_status = '${temp_status}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   select_container_id.forEach(id => {
-    sql += `insert ignore into dispatch (type, container_id,add_time) values ('拆箱','${id}', '${add_time}');`
+    sql += `insert ignore into dispatch (type, container_id,add_time) select '拆箱','${id}', make_time from container where id = '${id}';`;
   })
   connection.query(sql, async function (err, result) {
     if (err) {
@@ -781,7 +780,6 @@ const tempDrop = async (req: Request, res: Response) => {
   let payload = null;
   const container_status = "已挑箱";
   const temp_status = "已暂落"
-  const temp_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -789,9 +787,9 @@ const tempDrop = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}', temp_status = '${temp_status}', temp_time = '${temp_time}', temp_port = '${temp_port}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}', temp_status = '${temp_status}', temp_time = make_time, temp_port = '${temp_port}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   select_container_id.forEach(id => {
-    sql += `insert ignore into dispatch (type, container_id,add_time) values ('暂落','${id}', '${temp_time}');`
+    sql += `insert ignore into dispatch (type, container_id,add_time) select '暂落','${id}', make_time from container where id = '${id}';`;
   })
   connection.query(sql, async function (err, result) {
     if (err) {

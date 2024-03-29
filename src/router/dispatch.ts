@@ -171,7 +171,7 @@ const importDispatchList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select a.id as dispatch_id, a.type, a.status, a.car_no as dispatch_car_no, a.trans_status, b.* from dispatch as a left join container as b on b.id = a.container_id where a.type = '拆箱' and a.status = '已派车' ";
+  let sql: string = "select a.id as dispatch_id, a.type, a.status, a.car_no as dispatch_car_no, a.trans_status, a.add_time as op_time, b.* from dispatch as a left join container as b on b.id = a.container_id where a.type = '拆箱' and a.status = '已派车' ";
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(b.make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
   if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
@@ -384,7 +384,7 @@ const tempDropDispatchList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select a.id as dispatch_id, a.type, a.status, a.car_no as dispatch_car_no, a.trans_status, b.* from dispatch as a left join container as b on b.id = a.container_id where a.type = '暂落' and a.status = '已派车' ";
+  let sql: string = "select a.id as dispatch_id, a.type, a.status, a.car_no as dispatch_car_no, a.trans_status, a.add_time as op_time, b.* from dispatch as a left join container as b on b.id = a.container_id where a.type = '暂落' and a.status = '已派车' ";
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(b.make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
   if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
