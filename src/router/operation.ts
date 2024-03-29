@@ -857,6 +857,7 @@ const settingContainer = async (req: Request, res: Response) => {
     select_container_no,
     make_time,
     load_port,
+    door,
     crossing,
     remark
   } = req.body;
@@ -871,9 +872,10 @@ const settingContainer = async (req: Request, res: Response) => {
   let sql: string = `UPDATE container SET tmp_excel_no = tmp_excel_no `;
   if (make_time != '') { sql += `,make_time = '${make_time}'`}
   if (load_port != '') { sql += `,load_port = '${load_port}'` }
+  if (door != '') { sql += `,door = '${door}'` }
   if (crossing != '') { sql += `,crossing = '${crossing}'` }
   if (remark != '') { sql += `,remark = '${remark}'` }
-  sql += ` WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  sql += ` WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}') and container_status = '待挑箱' and order_type = '进口';`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
