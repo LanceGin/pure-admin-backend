@@ -88,7 +88,7 @@ const generateShipFee = async (req: Request, res: Response) => {
             }
           });
         } else {
-          let insert_sql:string = `insert ignore into container (order_status,order_type,container_status,make_time,ship_name,seal_no,containner_no,track_no,container_type,start_port,target_port) values ('已提交','船运','已完成','${item.add_time}','${item.voyage}','${item.seal_no}','${item.container_no}','${item.bl_no}','${item.container_type}','${item.load_port}','${item.unload_port}');`
+          let insert_sql:string = `insert ignore into container (order_status,order_type,container_status,make_time,ship_name,seal_no,containner_no,track_no,container_type,start_port,target_port,door) values ('已提交','船运','已完成','${item.add_time}','${item.voyage}','${item.seal_no}','${item.container_no}','${item.bl_no}','${item.container_type}','${item.load_port}','${item.unload_port}','${item.cargo_name}');`
           connection.query(insert_sql, async function (err, data) {
             if (err) {
               console.log(err);
