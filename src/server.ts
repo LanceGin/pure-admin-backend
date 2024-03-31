@@ -153,6 +153,7 @@ import {
   reportList,
   addReport,
   editReport,
+  submitReport,
   deleteReport,
   contractList,
   addContract,
@@ -798,6 +799,10 @@ app.post("/deleteReport", (req, res) => {
 // 通用 - 编辑工作报告接口
 app.post("/editReport", (req, res) => {
   editReport(req, res);
+})
+// 通用 - 提交工作报告接口
+app.post("/submitReport", (req, res) => {
+  submitReport(req, res);
 })
 // 通用 - 合同列表接口
 app.post("/contractList", (req, res) => {

@@ -240,6 +240,34 @@ const editReport = async (req: Request, res: Response) => {
   });
 };
 
+// 提交工作报告
+const submitReport = async (req: Request, res: Response) => {
+  const {
+    id
+  } = req.body;
+  const status = "已提交"
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE report SET status = ? WHERE id = ?";
+  let modifyParams: string[] = [status,id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 // 删除工作报告
 const deleteReport = async (req: Request, res: Response) => {
   const id = req.body.id;
@@ -642,6 +670,7 @@ export {
   reportList,
   addReport,
   editReport,
+  submitReport,
   deleteReport,
   contractList,
   addContract,
