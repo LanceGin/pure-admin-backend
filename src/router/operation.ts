@@ -288,7 +288,6 @@ const containerWithFeeList = async (req: Request, res: Response) => {
     sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   sql +=" ) as t";
-  console.log(11111, sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
