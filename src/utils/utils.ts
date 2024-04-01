@@ -50,7 +50,7 @@ export function calPlanningFee(data, container) {
     const delta_days = (dayjs(make_time).diff(a_time, "day") + 1).toString();
 
     const c_type = container.container_type.substring(0,2);
-    console.log(1111111,"导入错误排查", data);
+    console.log(222222,"导入错误排查", data);
     if (c_type == "40") {
         let amount = Number(data[0].base_price_40);
         if (data[0].price_rule == "单价异步") {
