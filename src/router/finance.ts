@@ -158,7 +158,6 @@ const generatePlanningFee = async (req: Request, res: Response) => {
   const type_pay = "应付";
   const type_collect = "应收"
   let fee_name = "计划费";
-  let amount;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -179,7 +178,8 @@ const generatePlanningFee = async (req: Request, res: Response) => {
       if (err) {
         console.log(err);
       } else {
-        if (actual_amount.value === null) {
+        let amount = actual_amount.value;
+        if ( amount === null) {
           amount = calPlanningFee(data,container)
         }
         let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_pay}','${fee_name}','${amount}');`;
