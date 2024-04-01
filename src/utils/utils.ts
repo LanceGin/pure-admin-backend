@@ -57,6 +57,7 @@ export function calPlanningFee(data, container) {
             for (let i = 0; i < data.length; ++i) {
                 if (Number(delta_days) <= Number(data[i].day_max)) {
                     amount += (Number(delta_days) - Number(data[i].day_min) + 1) * Number(data[i].price_40);
+                    console.log(3333, amount);
                     return amount
                 } else {
                     amount += (Number(data[i].day_max) - Number(data[i].day_min) + 1) * Number(data[i].price_40)
@@ -66,6 +67,7 @@ export function calPlanningFee(data, container) {
             for (let i = 0; i < data.length; ++i) {
                 if (Number(delta_days) <= Number(data[i].day_max)) {
                     amount += Number(delta_days) * Number(data[i].price_40);
+                    console.log(4444, amount);
                     return amount
                 }
             }
@@ -76,6 +78,7 @@ export function calPlanningFee(data, container) {
             for (let i = 0; i < data.length; ++i) {
                 if (Number(delta_days) <= Number(data[i].day_max)) {
                     amount += (Number(delta_days) - Number(data[i].day_min) + 1) * Number(data[i].price_20);
+                    console.log(5555, amount);
                     return amount
                 } else {
                     amount += (Number(data[i].day_max) - Number(data[i].day_min) + 1) * Number(data[i].price_20)
@@ -85,6 +88,7 @@ export function calPlanningFee(data, container) {
             for (let i = 0; i < data.length; ++i) {
                 if (Number(delta_days) <= Number(data[i].day_max)) {
                     amount += Number(delta_days) * Number(data[i].price_20);
+                    console.log(6666, amount);
                     return amount
                 }
             }
