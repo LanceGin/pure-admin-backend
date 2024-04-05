@@ -66,7 +66,7 @@ export function calPlanningFee(data, container) {
         } else {
             for (let i = 0; i < data.length; ++i) {
                 if (Number(delta_days) <= Number(data[i].day_max)) {
-                    amount += Number(delta_days) * Number(data[i].price_40);
+                    amount += (Number(delta_days) - 3) * Number(data[i].price_40);
                     console.log(4444, amount);
                     return amount
                 }
@@ -87,7 +87,7 @@ export function calPlanningFee(data, container) {
         } else {
             for (let i = 0; i < data.length; ++i) {
                 if (Number(delta_days) <= Number(data[i].day_max)) {
-                    amount += Number(delta_days) * Number(data[i].price_20);
+                    amount += (Number(delta_days) - 3) * Number(data[i].price_20);
                     console.log(6666, amount);
                     return amount
                 }
