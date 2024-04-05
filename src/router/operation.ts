@@ -826,9 +826,9 @@ const loadPort = async (req: Request, res: Response) => {
   });
 };
 
-// 批量设置做箱时间
-const makeTime = async (req: Request, res: Response) => {
-  const { select_container_no, make_time } = req.body;
+// 修改船期
+const arriveTime = async (req: Request, res: Response) => {
+  const { select_track_no, arrive_time } = req.body;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -837,7 +837,8 @@ const makeTime = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET make_time = '${make_time.value}' WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container SET arrive_time = '${arrive_time.value}' WHERE order_type = '进口' and track_no in ('${select_track_no.toString().replaceAll(",", "','")}')`;
+  console.log(1111, sql);
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -1018,7 +1019,7 @@ export {
   pickBox,
   tempDrop,
   loadPort,
-  makeTime,
+  arriveTime,
   settingContainer,
   yardPriceList,
   addYardPrice,

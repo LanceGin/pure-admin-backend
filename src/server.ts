@@ -88,7 +88,7 @@ import {
   pickBox,
   tempDrop,
   loadPort,
-  makeTime,
+  arriveTime,
   settingContainer,
   yardPriceList,
   addYardPrice,
@@ -451,8 +451,8 @@ app.post("/loadPort", (req, res) => {
   loadPort(req, res);
 })
 // 运作管理 - 批量设置提箱时间接口
-app.post("/makeTime", (req, res) => {
-  makeTime(req, res);
+app.post("/arriveTime", (req, res) => {
+  arriveTime(req, res);
 })
 // 运作管理 - 批量设置箱信息接口
 app.post("/settingContainer", (req, res) => {
