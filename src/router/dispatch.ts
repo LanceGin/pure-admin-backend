@@ -442,7 +442,7 @@ const whDispatchList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select a.id as dispatch_id,a.type,a.status,a.car_no as dispatch_car_no, a.trans_status,a.export_seal_no,a.export_port,a.remark as dispatch_remark, b.* from dispatch as a left join container as b on b.id = a.container_id where b.load_port in ('武汉阳逻','武汉金口') ";
-  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(b.make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and b.make_time between " + "DATE_FORMAT(CONVERT_TZ('" + form.make_time_range[0] + "','+00:00','+8:00'),'%Y-%m-%d %H:%i:%s') and DATE_FORMAT(CONVERT_TZ('" + form.make_time_range[1] + "','+00:00','+8:00'),'%Y-%m-%d %H:%i:%s')" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.unload_port != "") { sql += " and b.unload_port like " + "'%" + form.unload_port + "%'" }
@@ -455,7 +455,7 @@ const whDispatchList = async (req: Request, res: Response) => {
   if (form.car_no != "") { sql += " and a.car_no like " + "'%" + form.car_no + "%'" }
   sql +=" order by b.door, b.make_time asc, FIELD(b.crossing,'GA','BS','PT','CSS4','RESS','NGC','SGE','SGE-LCM','CSS','CSS-LCM','CVG','CVG-LCM','NGADK01','NPGA','NPBS') limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from (select b.* from dispatch as a left join container as b on b.id = a.container_id where b.load_port in ('武汉阳逻','武汉金口') ";
-  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and DATE_FORMAT(b.make_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.make_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.make_time_range[1] + "','%Y%m%d')" }
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and b.make_time between " + "DATE_FORMAT(CONVERT_TZ('" + form.make_time_range[0] + "','+00:00','+8:00'),'%Y-%m-%d %H:%i:%s') and DATE_FORMAT(CONVERT_TZ('" + form.make_time_range[1] + "','+00:00','+8:00'),'%Y-%m-%d %H:%i:%s')" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.unload_port != "") { sql += " and b.unload_port like " + "'%" + form.unload_port + "%'" }
