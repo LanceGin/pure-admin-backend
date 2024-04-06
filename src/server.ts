@@ -1,6 +1,7 @@
 import app from "./app";
 // import * as open from "open";
 import config from "./config";
+const jsSHA = require('jssha');
 import * as dayjs from "dayjs";
 import * as multer from "multer";
 import { user } from "./models/mysql";
@@ -230,6 +231,42 @@ const upload_tmp = multer({
     callback(null, true);
   },
 });
+
+const wx_config ={ 
+   
+    token:'token', //token需要自己定义 例如：HTML0907
+    appID:'wxa3bd242efa9ea799', //填写开发公众号的AppID
+    appsecret:'354323eef870f3a9a732dfdc0be9c914', //填写开发公众号的appsecret
+    EncodingAESKey:'EncodingAESKey' //填写开发公众号的EncodingAESKey
+}
+
+// 微信配置
+app.get('/wechat',function(req,res,next){ 
+   
+    const { token } = wx_config;
+      //1.处理微信请求所带参数 signature（微信加密签名）、timestamp（时间戳）、 nonce（随机数）、echostr （随机字符串）；
+    var signature = req.query.signature,//微信加密签名
+      timestamp = req.query.timestamp,//时间戳
+      nonce = req.query.nonce,//随机数
+      echostr = req.query.echostr;//随机字符串
+      //2.将token、timestamp、nonce三个参数进行字典序排序
+      var array = [token,timestamp,nonce];
+      array.sort();
+      //3.将三个参数字符串拼接成一个字符串进行sha1加密
+      var tempStr = array.join('');
+      var shaObj = new jsSHA('SHA-1', 'TEXT');
+      shaObj.update(tempStr);
+      var scyptoString=shaObj.getHash('HEX');
+       //4.开发者获得加密后的字符串可与signature对比，标识该请求来源于微信
+      console.log(11111, signature, scyptoString);
+      if(signature === scyptoString){ 
+   
+          res.send(echostr);
+      }else{ 
+   
+          res.send('error');
+      }
+})
 // 登录管理
 // 登录管理 - 登录接口
 app.post("/login", (req, res) => {
