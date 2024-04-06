@@ -80,13 +80,14 @@ const login = async (req: Request, res: Response) => {
           secret.jwtSecret,
           { expiresIn }
         );
+      console.log(11111, data[0]);
         await res.json({
           success: true,
           data: {
             message: Message[2],
             username: data[0].name,
             // 这里模拟角色，根据自己需求修改
-            roles: ["common"],
+            roles: data[0].roles.split(','),
             accessToken: accessToken,
             // 这里模拟刷新token，根据自己需求修改
             refreshToken: "eyJhbGciOiJIUzUxMiJ9.adminRefresh",
