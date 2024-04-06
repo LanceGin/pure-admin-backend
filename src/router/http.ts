@@ -187,7 +187,7 @@ const addUser = async (req: Request, res: Response) => {
 
 // 删除用户
 const deleteUser = async (req: Request, res: Response) => {
-  const realname = req.body.realname;
+  const id = req.body.id;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -196,7 +196,7 @@ const deleteUser = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `DELETE from base_company_user where realname = '${realname}'`;
+  let sql: string = `DELETE from base_company_user where id = '${id}'`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -213,6 +213,7 @@ const deleteUser = async (req: Request, res: Response) => {
 // 编辑用户
 const editUser = async (req: Request, res: Response) => {
   const {
+    id,
     name,
     realname,
     mobile,
@@ -234,8 +235,36 @@ const editUser = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE base_company_user SET name = ?, realname = ?, mobile = ?, email = ?, department = ?, mima = ?, shenfenzheng = ?, zhuzhi = ?, ruzhishijian = ?, zhuangtai = ?, check_point = ?, work_hours = ? WHERE name = ?";
-  let modifyParams: string[] = [name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, check_point, work_hours, name];
+  let modifySql: string = "UPDATE base_company_user SET name = ?, realname = ?, mobile = ?, email = ?, department = ?, mima = ?, shenfenzheng = ?, zhuzhi = ?, ruzhishijian = ?, zhuangtai = ?, check_point = ?, work_hours = ? WHERE id = ?";
+  let modifyParams: string[] = [name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, check_point, work_hours, id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+// 设置权限
+const authUser = async (req: Request, res: Response) => {
+  const {
+    id,
+    roles
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE base_company_user SET roles = ? WHERE id = ?";
+  let modifyParams: string[] = [roles, id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -2046,6 +2075,7 @@ export {
   addUser,
   deleteUser,
   editUser,
+  authUser,
   clockPointList,
   addClockPoint,
   deleteClockPoint,

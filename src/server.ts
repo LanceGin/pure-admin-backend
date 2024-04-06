@@ -18,6 +18,7 @@ import {
   addUser,
   deleteUser,
   editUser,
+  authUser,
   clockPointList,
   addClockPoint,
   deleteClockPoint,
@@ -272,52 +273,47 @@ app.get('/wechat',function(req,res,next){
 app.post("/login", (req, res) => {
   login(req, res);
 });
-
 // 人事行政管理
 // 人事行政管理 - 员工列表接口
 app.post("/userList", (req, res) => {
   userList(req, res);
 })
-
 // 人事行政管理 - 添加员工接口
 app.post("/addUser", (req, res) => {
   addUser(req, res);
 })
-
 // 人事行政管理 - 删除员工接口
 app.post("/deleteUser", (req, res) => {
   deleteUser(req, res);
 })
-
 // 人事行政管理 - 编辑员工信息接口
 app.post("/editUser", (req, res) => {
   editUser(req, res);
+})
+// 人事行政管理 - 设置权限接口
+app.post("/authUser", (req, res) => {
+  authUser(req, res);
 })
 // 人事行政管理 - 打卡点列表接口
 app.post("/clockPointList", (req, res) => {
   clockPointList(req, res);
 })
-
 // 人事行政管理 - 添加打卡点接口
 app.post("/addClockPoint", (req, res) => {
   addClockPoint(req, res);
 })
-
 // 人事行政管理 - 删除打卡点接口
 app.post("/deleteClockPoint", (req, res) => {
   deleteClockPoint(req, res);
 })
-
 // 人事行政管理 - 编辑打卡点信息接口
 app.post("/editClockPoint", (req, res) => {
   editClockPoint(req, res);
 })
-
 // 人事行政管理 - 微信打卡记录接口
 app.post("/wxClockList", (req, res) => {
   wxClockList(req, res);
 })
-
 // 运作管理
 // 运作管理 - 客户列表接口
 app.post("/motorcadeList", (req, res) => {
