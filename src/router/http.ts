@@ -287,6 +287,7 @@ const clockPointList = async (req: Request, res: Response) => {
 const addClockPoint = async (req: Request, res: Response) => {
   const {
     name,
+    address,
     location
   } = req.body;
   let payload = null;
@@ -297,7 +298,7 @@ const addClockPoint = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into clock_point (name, location) values ('${name}', '${location}')`;
+  let sql: string = `insert into clock_point (name,address,location) values ('${name}','${address}','${location}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -340,6 +341,7 @@ const editClockPoint = async (req: Request, res: Response) => {
   const {
     id,
     name,
+    address,
     location
   } = req.body;
   let payload = null;
@@ -350,8 +352,8 @@ const editClockPoint = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE clock_point SET name = ?, location = ? WHERE id = ?";
-  let modifyParams: string[] = [name, location, id];
+  let modifySql: string = "UPDATE clock_point SET name = ?, address = ?, location = ? WHERE id = ?";
+  let modifyParams: string[] = [name, address, location, id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
