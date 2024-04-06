@@ -159,7 +159,9 @@ const addUser = async (req: Request, res: Response) => {
     shenfenzheng,
     zhuzhi,
     ruzhishijian,
-    zhuangtai
+    zhuangtai,
+    check_point,
+    work_hours
   } = req.body;
   const create_time = dayjs(new Date()).format("YYYY-MM-DD");
   let payload = null;
@@ -170,7 +172,7 @@ const addUser = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into base_company_user (name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, create_time) values ('${name}', '${realname}', '${mobile}', '${email}', '${department}', '${mima}', '${shenfenzheng}', '${zhuzhi}', '${ruzhishijian}', '${zhuangtai}', '${create_time}')`;
+  let sql: string = `insert into base_company_user (name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, check_point, work_hours, create_time) values ('${name}', '${realname}', '${mobile}', '${email}', '${department}', '${mima}', '${shenfenzheng}', '${zhuzhi}', '${ruzhishijian}', '${zhuangtai}', '${check_point}', '${work_hours}', '${create_time}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -220,7 +222,9 @@ const editUser = async (req: Request, res: Response) => {
     shenfenzheng,
     zhuzhi,
     ruzhishijian,
-    zhuangtai
+    zhuangtai,
+    check_point,
+    work_hours
   } = req.body;
   let payload = null;
   try {
@@ -230,8 +234,8 @@ const editUser = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE base_company_user SET name = ?, realname = ?, mobile = ?, email = ?, department = ?, mima = ?, shenfenzheng = ?, zhuzhi = ?, ruzhishijian = ?, zhuangtai = ? WHERE name = ?";
-  let modifyParams: string[] = [name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, name];
+  let modifySql: string = "UPDATE base_company_user SET name = ?, realname = ?, mobile = ?, email = ?, department = ?, mima = ?, shenfenzheng = ?, zhuzhi = ?, ruzhishijian = ?, zhuangtai = ?, check_point = ?, work_hours = ? WHERE name = ?";
+  let modifyParams: string[] = [name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, check_point, work_hours, name];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
