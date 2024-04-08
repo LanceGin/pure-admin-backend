@@ -107,7 +107,7 @@ const importDispatch = async (req: Request, res: Response) => {
     sql += ` update container set make_time = STR_TO_DATE(DATE_FORMAT(make_time,'%Y-%m-%d ${dayjs(v[0]).hour()}:${dayjs(v[0]).minute()}:%s'),'%Y-%m-%d %H:%i:%s'), car_no = '${v[2]}', container_status = '运输中', transport_status = '0' where containner_no = '${v[1]}' and container_status = '已挑箱';`
     select_sql += `'${v[1]}',`;
   })
-  select_sql = select_sql.replace(/,$/, '') + ");";
+  select_sql = select_sql.replace(/,$/, '') + ") and order_type = '进口' and container_status = '已挑箱';";
   connection.query(sql, function (err, data) {
     if (err) {
       Logger.error(err);
