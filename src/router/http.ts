@@ -71,7 +71,7 @@ const login = async (req: Request, res: Response) => {
     } else {
       if (
         // createHash("md5").update(password).digest("hex") == data[0].Password
-        password == data[0].mima
+        password == data[0].mima && data[0].zhuangtai == 0
       ) {
         const accessToken = jwt.sign(
           {
@@ -97,7 +97,7 @@ const login = async (req: Request, res: Response) => {
       } else {
         await res.json({
           success: false,
-          data: data[0].name,
+          data: "账号验证失败",
         });
       }
     }
@@ -121,12 +121,12 @@ const userList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select * from base_company_user where realname is not null";
-  if (form.realname != "") { sql += " and realname = " + "'" + form.realname + "'" }
+  if (form.realname != "") { sql += " and realname like " + "'%" + form.realname + "%'" }
   if (form.mobile != "") { sql += " and mobile = " + "'" + form.mobile + "'" }
   if (form.zhuangtai != "") { sql += " and zhuangtai = " + "'" + form.zhuangtai + "'" }
-  sql +=" limit " + size + " offset " + size * (page - 1);
+  sql +=" order by zhuangtai limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from base_company_user where realname is not null"
-  if (form.realname != "") { sql += " and realname = " + "'" + form.realname + "'" }
+  if (form.realname != "") { sql += " and realname like " + "'%" + form.realname + "%'" }
   if (form.mobile != "") { sql += " and mobile = " + "'" + form.mobile + "'" }
   if (form.zhuangtai != "") { sql += " and zhuangtai = " + "'" + form.zhuangtai + "'" }
   connection.query(sql, async function (err, data) {
@@ -161,7 +161,8 @@ const addUser = async (req: Request, res: Response) => {
     ruzhishijian,
     zhuangtai,
     check_point,
-    work_hours
+    work_hours,
+    city
   } = req.body;
   const create_time = dayjs(new Date()).format("YYYY-MM-DD");
   let payload = null;
@@ -172,7 +173,7 @@ const addUser = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into base_company_user (name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, check_point, work_hours, create_time) values ('${name}', '${realname}', '${mobile}', '${email}', '${department}', '${mima}', '${shenfenzheng}', '${zhuzhi}', '${ruzhishijian}', '${zhuangtai}', '${check_point}', '${work_hours}', '${create_time}')`;
+  let sql: string = `insert into base_company_user (name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, check_point, work_hours, city, create_time) values ('${name}', '${realname}', '${mobile}', '${email}', '${department}', '${mima}', '${shenfenzheng}', '${zhuzhi}', '${ruzhishijian}', '${zhuangtai}', '${check_point}', '${work_hours}', '${city}', '${create_time}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -225,7 +226,8 @@ const editUser = async (req: Request, res: Response) => {
     ruzhishijian,
     zhuangtai,
     check_point,
-    work_hours
+    work_hours,
+    city
   } = req.body;
   let payload = null;
   try {
@@ -235,8 +237,8 @@ const editUser = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE base_company_user SET name = ?, realname = ?, mobile = ?, email = ?, department = ?, mima = ?, shenfenzheng = ?, zhuzhi = ?, ruzhishijian = ?, zhuangtai = ?, check_point = ?, work_hours = ? WHERE id = ?";
-  let modifyParams: string[] = [name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, check_point, work_hours, id];
+  let modifySql: string = "UPDATE base_company_user SET name = ?, realname = ?, mobile = ?, email = ?, department = ?, mima = ?, shenfenzheng = ?, zhuzhi = ?, ruzhishijian = ?, zhuangtai = ?, check_point = ?, work_hours = ?, city = ? WHERE id = ?";
+  let modifyParams: string[] = [name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, check_point, work_hours, city, id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
