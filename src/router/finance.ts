@@ -157,7 +157,6 @@ const generatePlanningFee = async (req: Request, res: Response) => {
   } = req.body;
   const type_pay = "应付";
   const type_collect = "应收"
-  let fee_name = "计划费";
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -167,6 +166,7 @@ const generatePlanningFee = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   select_container.forEach((container) => {
+    let fee_name = "计划费";
     let select_sql = '';
     if (container.temp_status == "已暂落") {
       fee_name = "堆存费";
@@ -178,11 +178,10 @@ const generatePlanningFee = async (req: Request, res: Response) => {
       if (err) {
         console.log(err);
       } else {
-        let amount = actual_amount.value;
+        let amount = actual_amount.value / select_container.length;
         if ( amount === null) {
           amount = calPlanningFee(data,container)
         }
-        console.log(333333, amount);
         let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_pay}','${fee_name}','${amount}');`;
         insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_collect}','${fee_name}','${amount}');`
         connection.query(insert_sql, async function (err, data) {
