@@ -126,11 +126,13 @@ const userList = async (req: Request, res: Response) => {
   if (form.realname != "") { sql += " and realname like " + "'%" + form.realname + "%'" }
   if (form.mobile != "") { sql += " and mobile = " + "'" + form.mobile + "'" }
   if (form.zhuangtai != "") { sql += " and zhuangtai = " + "'" + form.zhuangtai + "'" }
+  if (form.city != "") { sql += " and city = " + "'" + form.city + "'" }
   sql +=" order by zhuangtai limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from base_company_user where realname is not null"
   if (form.realname != "") { sql += " and realname like " + "'%" + form.realname + "%'" }
   if (form.mobile != "") { sql += " and mobile = " + "'" + form.mobile + "'" }
   if (form.zhuangtai != "") { sql += " and zhuangtai = " + "'" + form.zhuangtai + "'" }
+  if (form.city != "") { sql += " and city = " + "'" + form.city + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
