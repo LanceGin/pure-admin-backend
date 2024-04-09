@@ -362,12 +362,14 @@ const getDispatchFeeList = async (req: Request, res: Response) => {
 const fixContainerInfo = async (req: Request, res: Response) => {
   const {
     id,
+    dispatch_id,
     ship_name,
     track_no,
     containner_no,
     seal_no,
     container_type,
     door,
+    car_no,
     make_time
   } = req.body;
   let payload = null;
@@ -378,8 +380,8 @@ const fixContainerInfo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE container SET ship_name = ?, track_no = ?,containner_no = ?,seal_no = ?,container_type = ?,door = ?, make_time = ?  WHERE id = ?";
-  let modifyParams: string[] = [ship_name,track_no,containner_no,seal_no,container_type,door,make_time,id];
+  let modifySql: string = "UPDATE dispatch as a left join container as b on b.id = a.container_id SET b.ship_name = ?, b.track_no = ?, b.containner_no = ?, b.seal_no = ?, b.container_type = ?, b.door = ?, b.car_no = ?, b.make_time = ?, a.car_no = ?  WHERE a.id = ?";
+  let modifyParams: string[] = [ship_name,track_no,containner_no,seal_no,container_type,door,car_no,make_time,car_no,dispatch_id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
