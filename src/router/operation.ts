@@ -217,6 +217,7 @@ const documentCheckList = async (req: Request, res: Response) => {
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.order_status != "") { sql += " and order_status like " + "'%" + form.order_status + "%'" }
   if (form.order_time != "") { sql += " and order_time = " + "'" + form.order_time + "'" }
+  if (form.city != "" && form.city != "管理员") { sql += " and city = " + "'" + form.city + "'" }
   sql +=" group by track_no order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from ( select * from container where id is not null ";
   if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
@@ -225,6 +226,7 @@ const documentCheckList = async (req: Request, res: Response) => {
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.order_status != "") { sql += " and order_status like " + "'%" + form.order_status + "%'" }
   if (form.order_time != "") { sql += " and order_time = " + "'" + form.order_time + "'" }
+  if (form.city != "" && form.city != "管理员") { sql += " and city = " + "'" + form.city + "'" }
   sql +=" group by track_no) as t";
   connection.query(sql, async function (err, data) {
     if (err) {
@@ -273,6 +275,7 @@ const containerWithFeeList = async (req: Request, res: Response) => {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
     sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
+  if (form.city != "" && form.city != "管理员") { sql += " and b.city = " + "'" + form.city + "'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from ( select a.id from dispatch as a left join container as b on b.id = a.container_id where a.trans_status = '已完成' ";
   if (form.container_status != "") { sql += " and b.container_status like " + "'%" + form.container_status + "%'" }
@@ -287,6 +290,7 @@ const containerWithFeeList = async (req: Request, res: Response) => {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
     sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
+  if (form.city != "" && form.city != "管理员") { sql += " and b.city = " + "'" + form.city + "'" }
   sql +=" ) as t";
   connection.query(sql, async function (err, data) {
     if (err) {
@@ -722,6 +726,7 @@ const pickBoxList = async (req: Request, res: Response) => {
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
+  if (form.city != "" && form.city != "管理员") { sql += " and city = " + "'" + form.city + "'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from container where order_status = '已提交' ";
   if (form.arrive_time != "") { sql += " and arrive_time = " + "'" + form.arrive_time + "'" }
@@ -734,6 +739,7 @@ const pickBoxList = async (req: Request, res: Response) => {
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
+  if (form.city != "" && form.city != "管理员") { sql += " and city = " + "'" + form.city + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
