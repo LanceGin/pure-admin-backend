@@ -40,7 +40,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
-    sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+    sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.temp_port != "") { sql += " and b.temp_port like " + "'%" + form.temp_port + "%'" }
@@ -49,6 +49,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
   if (form.remark != "") { sql += " and b.remark like " + "'%" + form.remark + "%'" }
+  if (form.city != "" && form.city != "管理员") { sql += " and b.city = " + "'" + form.city + "'" }
   sql +=" order by a.id desc limit " + size + " offset " + size * (page - 1);
   sql +=`;select COUNT(*) FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null and a.amount != '0' `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
@@ -59,7 +60,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
-    sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+    sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.temp_port != "") { sql += " and b.temp_port like " + "'%" + form.temp_port + "%'" }
@@ -68,6 +69,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
   if (form.remark != "") { sql += " and b.remark like " + "'%" + form.remark + "%'" }
+  if (form.city != "" && form.city != "管理员") { sql += " and b.city = " + "'" + form.city + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
