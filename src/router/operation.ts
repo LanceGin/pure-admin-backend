@@ -425,6 +425,7 @@ const containerList = async (req: Request, res: Response) => {
 const importDocumentCheck = async (req: Request, res: Response) => {
   const file_path = req.files[0].path;
   const add_by = req.body.add_by;
+  const city = req.body.city;
   const sheets = xlsx.parse(file_path, {
     // cellDates: true,
     defval: ""
@@ -434,9 +435,10 @@ const importDocumentCheck = async (req: Request, res: Response) => {
   values.forEach((v) => {
     v[4] = formatDate(v[4], "/");
     v.push(add_by);
+    v.push(city);
     v.push(v[12]);
   })
-  let sql: string = "insert ignore into container (tmp_excel_no,ship_company,customer,subproject,arrive_time,start_port,target_port,containner_no,seal_no,container_type,ship_name,track_no,load_port,unload_port,door,add_by,old_load_port) values ?"
+  let sql: string = "insert ignore into container (tmp_excel_no,ship_company,customer,subproject,arrive_time,start_port,target_port,containner_no,seal_no,container_type,ship_name,track_no,load_port,unload_port,door,add_by,city,old_load_port) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -455,6 +457,7 @@ const importDocumentCheck = async (req: Request, res: Response) => {
 const importExportContainer = async (req: Request, res: Response) => {
   const file_path = req.files[0].path;
   const add_by = req.body.add_by;
+  const city = req.body.city;
   const sheets = xlsx.parse(file_path, {
     // cellDates: true,
     defval: ""
@@ -465,8 +468,9 @@ const importExportContainer = async (req: Request, res: Response) => {
     v.push("已提交", "出口", "已完成");
     v[4] = formatDate(v[4], "/");
     v.push(add_by);
+    v.push(city);
   })
-  let sql: string = `insert ignore into container (tmp_excel_no,ship_company,customer,subproject,make_time,load_port,ship_name,track_no,containner_no,container_type,seal_no,door,unload_port,car_no,start_port,target_port,transfer_port,package_count,gross_weight,volume,container_weight,ba_fee,order_status,order_type,container_status,add_by) values ?`;
+  let sql: string = `insert ignore into container (tmp_excel_no,ship_company,customer,subproject,make_time,load_port,ship_name,track_no,containner_no,container_type,seal_no,door,unload_port,car_no,start_port,target_port,transfer_port,package_count,gross_weight,volume,container_weight,ba_fee,order_status,order_type,container_status,add_by,city) values ?`;
   connection.query(sql, [values], function (err, data) {
     if (err) {
       Logger.error(err);
@@ -539,6 +543,8 @@ const addContainer = async (req: Request, res: Response) => {
     track_no,
     load_port,
     door,
+    add_by,
+    city
   } = req.body;
   let payload = null;
   try {
@@ -548,7 +554,7 @@ const addContainer = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert ignore into container (order_type, ship_company,customer,subproject,arrive_time,start_port,target_port,containner_no,seal_no,container_type,ship_name,track_no,load_port,door) values ('进口','${ship_company}','${customer}','${subproject}','${arrive_time}','${start_port}','${target_port}','${containner_no}','${seal_no}','${container_type}','${ship_name}','${track_no}','${load_port}','${door}')`;
+  let sql: string = `insert ignore into container (order_type, ship_company,customer,subproject,arrive_time,start_port,target_port,containner_no,seal_no,container_type,ship_name,track_no,load_port,door,add_by,city) values ('进口','${ship_company}','${customer}','${subproject}','${arrive_time}','${start_port}','${target_port}','${containner_no}','${seal_no}','${container_type}','${ship_name}','${track_no}','${load_port}','${door}','${add_by}','${city}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
