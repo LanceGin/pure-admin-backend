@@ -421,17 +421,19 @@ const wxClockList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select * from wx_user_clock where userName is not null";
-  if (form.clock_date && form.clock_date.length > 0) { sql += " and clock_date between " + "'" + form.clock_date[0] + "' and '" + form.clock_date[1] + "'" }
-  if (form.userName != "") { sql += " and userName = " + "'" + form.userName + "'" }
-  if (form.clockin_type != "") { sql += " and clockin_type = " + "'" + form.clockin_type + "'" }
-  if (form.clockout_type != "") { sql += " and clockout_type = " + "'" + form.clockout_type + "'" }
-  sql +=" order by clockin_time desc limit " + size + " offset " + size * (page - 1);
-  sql +=" ;select COUNT(*) from wx_user_clock where userName is not null"
-  if (form.clock_date && form.clock_date.length > 0) { sql += " and clock_date between " + "'" + form.clock_date[0] + "' and '" + form.clock_date[1] + "'" }
-  if (form.userName != "") { sql += " and userName = " + "'" + form.userName + "'" }
-  if (form.clockin_type != "") { sql += " and clockin_type = " + "'" + form.clockin_type + "'" }
-  if (form.clockout_type != "") { sql += " and clockout_type = " + "'" + form.clockout_type + "'" }
+  let sql: string = "select * from wx_user_clock as a left join base_company_user as b on b.name = a.userName where a.userName is not null";
+  if (form.clock_date && form.clock_date.length > 0) { sql += " and a.clock_date between " + "'" + form.clock_date[0] + "' and '" + form.clock_date[1] + "'" }
+  if (form.userName != "") { sql += " and a.userName = " + "'" + form.userName + "'" }
+  if (form.clockin_type != "") { sql += " and a.clockin_type = " + "'" + form.clockin_type + "'" }
+  if (form.clockout_type != "") { sql += " and a.clockout_type = " + "'" + form.clockout_type + "'" }
+  if (form.city != "" && form.city != "管理员") { sql += " and b.city = " + "'" + form.city + "'" }
+  sql +=" order by a.clockin_time desc limit " + size + " offset " + size * (page - 1);
+  sql +=" ;select COUNT(*) from wx_user_clock as a left join base_company_user as b on b.name = a.userName where a.userName is not null"
+  if (form.clock_date && form.clock_date.length > 0) { sql += " and a.clock_date between " + "'" + form.clock_date[0] + "' and '" + form.clock_date[1] + "'" }
+  if (form.userName != "") { sql += " and a.userName = " + "'" + form.userName + "'" }
+  if (form.clockin_type != "") { sql += " and a.clockin_type = " + "'" + form.clockin_type + "'" }
+  if (form.clockout_type != "") { sql += " and a.clockout_type = " + "'" + form.clockout_type + "'" }
+  if (form.city != "" && form.city != "管理员") { sql += " and b.city = " + "'" + form.city + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
