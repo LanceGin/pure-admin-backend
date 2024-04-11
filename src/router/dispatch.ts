@@ -497,6 +497,7 @@ const whDispatchList = async (req: Request, res: Response) => {
 const editWhExport = async (req: Request, res: Response) => {
   const {
     id,
+    customer,
     container_type,
     dispatch_id,
     load_port,
@@ -520,7 +521,11 @@ const editWhExport = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `update container as a left join dispatch as b on b.container_id = a.id set a.unload_port = '${unload_port}', b.export_seal_no = '${export_seal_no}', b.export_port = '${export_port}', b.remark = '${dispatch_remark}' where b.id = '${dispatch_id}';`
-  sql += `insert into container_fee (container_id, type, fee_name, amount) select '${id}', '应收', '上下车费', '${ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${id}' and type = '应收' and fee_name = '上下车费');`;
+  if (customer == "海通") {
+    sql += `insert into container_fee (container_id, type, fee_name, amount) select '${id}', '应收', '上下车费', '${ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${id}' and type = '应收' and fee_name = '上下车费');`;
+  } else {
+    sql += `insert into container_fee (container_id, type, fee_name, amount) select '${id}', '应收', '上下车费', '0' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${id}' and type = '应收' and fee_name = '上下车费');`;
+  }
   if (export_port == "" && export_seal_no == "" && unload_port == "武汉阳逻" && load_port == "武汉阳逻") {
     sql += `insert into container_fee (container_id, type, fee_name, amount) select '${id}', '应付', '上下车费', '${ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${id}' and type = '应付' and fee_name = '上下车费');`;
   } else {
