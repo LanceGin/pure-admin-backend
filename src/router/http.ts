@@ -1518,12 +1518,14 @@ const doorPriceList = async (req: Request, res: Response) => {
   if (form.project != "") { sql += " and project like " + "'%" + form.project + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.port != "") { sql += " and port like " + "'%" + form.port + "%'" }
+  if (form.city != "" && form.city != "管理员") { sql += " and city = " + "'" + form.city + "'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from door_price where is_pay = " + form.is_pay;
   if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
   if (form.project != "") { sql += " and project like " + "'%" + form.project + "%'" }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.port != "") { sql += " and port like " + "'%" + form.port + "%'" }
+  if (form.city != "" && form.city != "管理员") { sql += " and city = " + "'" + form.city + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -1560,6 +1562,7 @@ const addDoorPrice = async (req: Request, res: Response) => {
     o40gp,
     o20tk,
     o40hc,
+    city
   } = req.body;
   let payload = null;
   const add_time = dayjs(new Date()).format("YYYY-MM-DD");
@@ -1570,7 +1573,7 @@ const addDoorPrice = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into door_price (is_pay,status,customer,project,door,port,i20gp,i40gp,i20tk,i40hc,o20gp,o40gp,o20tk,o40hc,add_time) values ('${is_pay}','${status}','${customer}','${project}','${door}','${port}','${i20gp}','${i40gp}','${i20tk}','${i40hc}','${o20gp}','${o40gp}','${o20tk}','${o40hc}','${add_time}')`;
+  let sql: string = `insert into door_price (is_pay,status,customer,project,door,port,i20gp,i40gp,i20tk,i40hc,o20gp,o40gp,o20tk,o40hc,city,add_time) values ('${is_pay}','${status}','${customer}','${project}','${door}','${port}','${i20gp}','${i40gp}','${i20tk}','${i40hc}','${o20gp}','${o40gp}','${o20tk}','${o40hc}','${city}','${add_time}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
