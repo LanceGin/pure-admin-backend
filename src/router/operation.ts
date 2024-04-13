@@ -270,7 +270,7 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
   if (form.seal_no != "") { sql += " and b.seal_no like " + "'%" + form.seal_no + "%'" }
   if (form.dispatch_car_no != "") { sql += " and a.car_no like " + "'%" + form.dispatch_car_no + "%'" }
-  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and date_format(b.make_time, '%Y-%m-%d') between " + "'" + dayjs(form.make_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.make_time_range[1]).format('YYYY-MM-DD') + "'" }
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and date_format(a.add_time, '%Y-%m-%d') between " + "'" + dayjs(form.make_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.make_time_range[1]).format('YYYY-MM-DD') + "'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
     sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
@@ -285,7 +285,7 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
   if (form.seal_no != "") { sql += " and b.seal_no like " + "'%" + form.seal_no + "%'" }
   if (form.dispatch_car_no != "") { sql += " and a.car_no like " + "'%" + form.dispatch_car_no + "%'" }
-  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and date_format(b.make_time, '%Y-%m-%d') between " + "'" + dayjs(form.make_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.make_time_range[1]).format('YYYY-MM-DD') + "'" }
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and date_format(a.add_time, '%Y-%m-%d') between " + "'" + dayjs(form.make_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.make_time_range[1]).format('YYYY-MM-DD') + "'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
     sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
@@ -497,7 +497,7 @@ const generateExportDispatch = async (req: Request, res: Response) => {
   const {
     select_container
   } = req.body;
-  const add_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
+  // const add_time = dayjs(new Date()).format("YYYY-MM-DD HH:MM:SS");
   const status = "已派车";
   const trans_status = "已完成";
   let payload = null;
@@ -510,7 +510,7 @@ const generateExportDispatch = async (req: Request, res: Response) => {
   }
   let sql: string = ``;
   select_container.forEach(container => {
-    sql += `insert into dispatch (type,container_id,car_no,status,trans_status,add_time) values ('装箱','${container.id}','${container.car_no}','${status}','${trans_status}','${add_time}');`;
+    sql += `insert into dispatch (type,container_id,car_no,status,trans_status,add_time) values ('装箱','${container.id}','${container.car_no}','${status}','${trans_status}','${container.make_time}');`;
     sql += `update dispatch as a left join container as b on b.id = a.container_id set a.export_seal_no = '${container.seal_no}', a.export_port = '${container.door}' where b.containner_no = '${container.containner_no}' and date_format(b.make_time, '%Y-%m-%d') = date_format(CONVERT_TZ('${container.make_time}','+00:00','+8:00'), '%Y-%m-%d') and a.type = '拆箱';`
     if (container.ba_fee !== "") {
       sql += `insert into container_fee (container_id, type, fee_name, amount) select '${container.id}', '应付', '上下车费', '${container.ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${container.id}' and type = '应付' and fee_name = '上下车费');`;
@@ -685,8 +685,8 @@ const submitDocumentCheck = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET order_status = '${order_status}',order_time = '${order_time}',order_fee = '${order_fee}' WHERE track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`;
-  sql += ` select * from container WHERE track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`
+  let sql: string = `UPDATE container SET order_status = '${order_status}',order_time = '${order_time}',order_fee = '${order_fee}' WHERE order_type = "进口" and track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`;
+  sql += ` select * from container WHERE order_type = "进口" and track_no in ('${select_track_no.toString().replaceAll(",", "','")}');`
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
