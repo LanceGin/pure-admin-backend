@@ -606,7 +606,7 @@ const addContainerFee = async (req: Request, res: Response) => {
 
 // 删除单证记录
 const deleteDocumentCheck = async (req: Request, res: Response) => {
-  const select_track_no = req.body;
+  const { select_track_no, city } = req.body;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -615,7 +615,7 @@ const deleteDocumentCheck = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `DELETE from container where track_no in ('${select_track_no.toString().replaceAll(",", "','")}')`;
+  let sql: string = `DELETE from container where city = '${city}' and order_type = '进口' and track_no in ('${select_track_no.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
