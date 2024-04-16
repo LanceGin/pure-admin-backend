@@ -760,6 +760,30 @@ const pickBoxList = async (req: Request, res: Response) => {
   });
 };
 
+// 删除箱子
+const deleteContainer = async (req: Request, res: Response) => {
+  const { select_container_id } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `delete a,b from container as a left join container_fee as b on b.container_id = a.id WHERE a.id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 // 挑箱
 const pickBox = async (req: Request, res: Response) => {
   const { select_container_id, actual_amount } = req.body;
@@ -1032,6 +1056,7 @@ export {
   deleteDocumentCheck,
   submitDocumentCheck,
   pickBoxList,
+  deleteContainer,
   pickBox,
   tempDrop,
   loadPort,

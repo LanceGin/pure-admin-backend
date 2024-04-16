@@ -87,6 +87,7 @@ import {
   generateExportDispatch,
   submitDocumentCheck,
   pickBoxList,
+  deleteContainer,
   pickBox,
   tempDrop,
   loadPort,
@@ -470,6 +471,10 @@ app.post("/submitDocumentCheck", (req, res) => {
 // 运作管理 - 挑箱列表接口
 app.post("/pickBoxList", (req, res) => {
   pickBoxList(req, res);
+})
+// 运作管理 - 删除箱子接口
+app.post("/deleteContainer", (req, res) => {
+  deleteContainer(req, res);
 })
 // 运作管理 - 挑箱接口
 app.post("/pickBox", (req, res) => {
