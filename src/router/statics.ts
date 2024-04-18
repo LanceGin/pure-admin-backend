@@ -40,7 +40,11 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
-    sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+    if (select_container_no.length > 1) {
+      sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`
+    } else {
+      sql += " and b.containner_no like " + "'%" + form.containner_no + "%'"
+    }
   }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.temp_port != "") { sql += " and b.temp_port like " + "'%" + form.temp_port + "%'" }
@@ -60,7 +64,11 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
-    sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+    if (select_container_no.length > 1) {
+      sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`
+    } else {
+      sql += " and b.containner_no like " + "'%" + form.containner_no + "%'"
+    }
   }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.temp_port != "") { sql += " and b.temp_port like " + "'%" + form.temp_port + "%'" }
