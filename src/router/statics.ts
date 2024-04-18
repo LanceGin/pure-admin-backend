@@ -21,6 +21,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   const size = pagination.pageSize;
   let payload = null;
   let total = 0;
+  let total_amount = 0;
   let pageSize = 0;
   let currentPage = 0;
   try {
@@ -55,7 +56,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.remark != "") { sql += " and b.remark like " + "'%" + form.remark + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += " and b.city = " + "'" + form.city + "'" }
   sql +=" order by a.id desc limit " + size + " offset " + size * (page - 1);
-  sql +=`;select COUNT(*) FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null and a.amount != '0' `;
+  sql +=`;select COUNT(*), sum(a.amount) as total_amount FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null and a.amount != '0' `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.order_type != "") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
   if (form.fee_name != "") { sql += " and a.fee_name = " + "'" + form.fee_name + "'" }
@@ -83,10 +84,12 @@ const containerFeeList = async (req: Request, res: Response) => {
       Logger.error(err);
     } else {
       total = data[1][0]['COUNT(*)'];
+      total_amount = data[1][0]['total_amount'].toFixed(2);
       await res.json({
         success: true,
         data: { 
           list: data[0],
+          total_amount: total_amount,
           total: total,
           pageSize: size,
           currentPage: page,
