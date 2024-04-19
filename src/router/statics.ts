@@ -84,7 +84,7 @@ const containerFeeList = async (req: Request, res: Response) => {
       Logger.error(err);
     } else {
       total = data[1][0]['COUNT(*)'];
-      total_amount = data[1][0]['total_amount'].toFixed(2);
+      total_amount = data[1][0]['total_amount'];
       await res.json({
         success: true,
         data: { 
