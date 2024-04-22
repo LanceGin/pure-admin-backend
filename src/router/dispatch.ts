@@ -105,11 +105,11 @@ const importDispatch = async (req: Request, res: Response) => {
   let sql: string = "";
   let select_sql: string = "select * from container where containner_no in ( ";
   values.forEach((v) => {
-    // const dispatch_time = dayjs().hour(dayjs(v[0]).hour()).minute(dayjs(v[0]).minute()).format('YYYY-MM-DD HH:mm');
     sql += ` update container set make_time = STR_TO_DATE(DATE_FORMAT(make_time,'%Y-%m-%d ${dayjs(v[0]).hour()}:${dayjs(v[0]).minute()}:%s'),'%Y-%m-%d %H:%i:%s'), car_no = '${v[2]}', container_status = '运输中', transport_status = '0' where containner_no = '${v[1]}' and container_status = '已挑箱';`
     select_sql += `'${v[1]}',`;
   })
   select_sql = select_sql.replace(/,$/, '') + ") and order_type = '进口' and container_status = '运输中';";
+  console.log(11111, sql);
   connection.query(sql, function (err, data) {
     if (err) {
       Logger.error(err);
@@ -223,7 +223,9 @@ const editContainerInfo = async (req: Request, res: Response) => {
     car_no,
     door,
     temp_port,
-    make_time
+    make_time,
+    temp_time,
+    type
   } = req.body;
   let payload = null;
   try {
@@ -233,9 +235,13 @@ const editContainerInfo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE container SET car_no = ?,door = ?,temp_port = ?,make_time = ? WHERE id = ?";
-  let modifyParams: string[] = [car_no,door,temp_port,make_time,id];
-  connection.query(modifySql, modifyParams, async function (err, result) {
+  let sql: string = ``;
+  if (type == "拆箱") {
+    sql += `update dispatch as a left join container as b on b.id = a.container_id SET a.car_no = '${car_no}', a.add_time = '${make_time}', b.car_no = '${car_no}', b.door = '${door}', b.make_time = '${make_time}' WHERE b.id = '${id}' and a.type = '拆箱';`;
+  } else {
+    sql += `update dispatch as a left join container as b on b.id = a.container_id SET a.car_no = '${car_no}', a.add_time = '${temp_time}', b.car_no = '${car_no}', b.temp_port = '${temp_port}', b.temp_time = '${temp_time}' WHERE b.id = '${id}' and a.type = '暂落';`;
+  }
+  connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
     } else {
