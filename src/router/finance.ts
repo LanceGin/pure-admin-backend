@@ -336,8 +336,8 @@ const generateDispatchFee = async (req: Request, res: Response) => {
       if (err) {
         console.log(err);
       } else {
-        let amount_pay = 0;
-        let amount_collect = 0;
+        let amount_pay = 9999;
+        let amount_collect = 9999;
         if (data[0].length > 0) {
           amount_pay = data[0][0][b];
         }
