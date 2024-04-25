@@ -152,6 +152,7 @@ const generateOrderFee = async (req: Request, res: Response) => {
 // 生成码头计划费
 const generatePlanningFee = async (req: Request, res: Response) => {
   const {
+    type,
     actual_amount,
     select_container
   } = req.body;
@@ -179,11 +180,11 @@ const generatePlanningFee = async (req: Request, res: Response) => {
         console.log(err);
       } else {
         let amount = actual_amount.value / select_container.length;
-        if ( amount === null) {
+        if ( actual_amount.value === null) {
           amount = calPlanningFee(data,container)
         }
-        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_pay}','${fee_name}','${amount}');`;
-        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${container.id}','${type_collect}','${fee_name}','${amount}');`
+        let insert_sql: string = `insert into container_fee (container_id, type, dispatch_type, fee_name, amount) values ('${container.id}','${type_pay}','${type}','${fee_name}','${amount}');`;
+        insert_sql += `insert into container_fee (container_id, type, dispatch_type, fee_name, amount) values ('${container.id}','${type_collect}','${type}','${fee_name}','${amount}');`
         connection.query(insert_sql, async function (err, data) {
           if (err) {
             console.log(err);
