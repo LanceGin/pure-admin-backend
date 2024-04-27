@@ -1175,7 +1175,7 @@ const generateShippingFee = async (req: Request, res: Response) => {
     const c = "c" + item.container_type.substring(0,2).toLowerCase();
     const p = "p" + item.container_type.substring(0,2).toLowerCase();
     let select_sql:string = `select order_fee, ${c} as c_fee, ${p} as p_fee from lightering_price where settlement = '${item.ship_company}';`
-    select_sql += `select id from container where containner_no = '${item.container_no}' and seal_no = '${item.seal_no}';`;
+    select_sql += `select id from container where containner_no = '${item.container_no}' and seal_no = '${item.seal_no}' and city = "太仓";`;
     connection.query(select_sql, function (err, data) {
       if (err) {
         console.log(err);
