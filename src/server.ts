@@ -178,6 +178,7 @@ import {
   generatePlanningFee,
   generateStorageFee,
   generateDispatchFee,
+  updateDispatchFee,
   generateAbnormalFee,
   financeCheckList,
   financeStatList,
@@ -911,6 +912,10 @@ app.post("/generateStorageFee", (req, res) => {
 // 财务 - 生成拖车费
 app.post("/generateDispatchFee", (req, res) => {
   generateDispatchFee(req, res);
+})
+// 财务 - 更新拖车费
+app.post("/updateDispatchFee", (req, res) => {
+  updateDispatchFee(req, res);
 })
 // 财务 - 生成异常费
 app.post("/generateAbnormalFee", (req, res) => {

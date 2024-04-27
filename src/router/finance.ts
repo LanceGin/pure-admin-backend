@@ -363,6 +363,75 @@ const generateDispatchFee = async (req: Request, res: Response) => {
   });
 };
 
+// 更新拖车费
+const updateDispatchFee = async (req: Request, res: Response) => {
+  console.log("更新拖车费");
+  const select_container = req.body;
+  const type_pay = "应付";
+  const type_collect = "应收"
+  let fee_name = "拖车费";
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  select_container.forEach((container) => {
+    let a = "";
+    let dispatch_type = "拆箱";
+    let pay_fee_port = container.load_port;
+    let collect_fee_port = container.load_port;
+    let op_door = container.door;
+    if (container.order_type === "进口") {
+      a = "i";
+    } else if (container.order_type === "出口") {
+      a = "o";
+      pay_fee_port = container.unload_port;
+      collect_fee_port = container.unload_port;
+      dispatch_type = "装箱";
+    }
+    if (container.transfer_port !== null && container.transfer_port !== "") {
+      pay_fee_port = container.transfer_port;
+    }
+    if (container.temp_port !== null) {
+      op_door = container.temp_port;
+      dispatch_type = "暂落";
+    }
+    const b = a + container.container_type.toLowerCase();
+    let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${op_door}' and port = '${pay_fee_port}';`
+    select_sql += `select ${b} from door_price where is_pay = '0' and customer = '${container.customer}' and door = '${op_door}' and port = '${collect_fee_port}';`
+    connection.query(select_sql, function (err, data) {
+      if (err) {
+        console.log(err);
+      } else {
+        let amount_pay = 9999;
+        let amount_collect = 9999;
+        if (data[0].length > 0) {
+          amount_pay = data[0][0][b];
+        }
+        if (data[1].length > 0) {
+          amount_collect = data[1][0][b];
+        }
+        let update_sql: string = `update container_fee set amount = '${amount_pay}' where container_id = '${container.id}' and type = '${type_pay}' and dispatch_type = '${dispatch_type}' and fee_name = '${fee_name}';`;
+        update_sql += `update container_fee set amount = '${amount_collect}' where container_id = '${container.id}' and type = '${type_collect}' and dispatch_type = '${dispatch_type}' and fee_name = '${fee_name}';`
+        connection.query(update_sql, async function (err, data) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(data)
+          }
+        });
+      }
+    });
+  })
+  return res.json({
+    success: true,
+    data: { message: Message[8] },
+  });
+};
+
 // 生成异常费
 const generateAbnormalFee = async (req: Request, res: Response) => {
   const {
@@ -1364,6 +1433,7 @@ export {
   generatePlanningFee,
   generateStorageFee,
   generateDispatchFee,
+  updateDispatchFee,
   generateAbnormalFee,
   financeCheckList,
   financeStatList,
