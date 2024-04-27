@@ -33,7 +33,9 @@ const containerFeeList = async (req: Request, res: Response) => {
   }
   let sql: string = `SELECT a.id as fee_id, a.status, a.account_period, a.dispatch_type, a.type, a.amount,a.invoice_no, a.fee_name, a.fee_type, a.custom_name, a.project_name, a.content, a.flow_direction,a.remark as fee_remark, b.*, c.owner as car_owner, d.car_no as temp_car_no FROM container_fee as a left join container as b on a.container_id = b.id left join vehicle_info as c on c.car_no = b.car_no left join dispatch as d on d.container_id = a.container_id and d.type = '暂落' where a.id is not null and a.amount != '0' `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
-  if (form.order_type != "") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
+  if (form.order_type != "" && form.order_type != "暂落") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
+  if (form.order_type == "进口") { sql += " and a.dispatch_type != '暂落'" }
+  if (form.order_type == "暂落") { sql += " and a.dispatch_type like " + "'%" + form.order_type + "%'" }
   if (form.fee_name != "") { sql += " and a.fee_name = " + "'" + form.fee_name + "'" }
   if (form.status != "") { sql += " and a.status like " + "'%" + form.status + "%'" }
   // if (form.make_time != "") { sql += " and b.make_time = " + "'" + form.make_time + "'" }
@@ -58,7 +60,9 @@ const containerFeeList = async (req: Request, res: Response) => {
   sql +=" order by a.id desc limit " + size + " offset " + size * (page - 1);
   sql +=`;select COUNT(*), sum(a.amount) as total_amount FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null and a.amount != '0' `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
-  if (form.order_type != "") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
+  if (form.order_type != "" && form.order_type != "暂落") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
+  if (form.order_type == "进口") { sql += " and a.dispatch_type != '暂落'" }
+  if (form.order_type == "暂落") { sql += " and a.dispatch_type like " + "'%" + form.order_type + "%'" }
   if (form.fee_name != "") { sql += " and a.fee_name = " + "'" + form.fee_name + "'" }
   if (form.status != "") { sql += " and a.status like " + "'%" + form.status + "%'" }
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and date_format(make_time, '%Y-%m-%d') between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
