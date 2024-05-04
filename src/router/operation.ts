@@ -841,7 +841,7 @@ const pickBox = async (req: Request, res: Response) => {
 
 // 暂落
 const tempDrop = async (req: Request, res: Response) => {
-  const { select_container_id, temp_port } = req.body;
+  const { select_container_id, temp_port, actual_amount } = req.body;
   let payload = null;
   const container_status = "已挑箱";
   const temp_status = "已暂落"
@@ -852,7 +852,7 @@ const tempDrop = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container SET container_status = '${container_status}', temp_status = '${temp_status}', temp_time = make_time, temp_port = '${temp_port}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  let sql: string = `UPDATE container SET container_status = '${container_status}', actual_amount_temp = '${actual_amount.value}', temp_status = '${temp_status}', temp_time = make_time, temp_port = '${temp_port}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   select_container_id.forEach(id => {
     sql += `insert ignore into dispatch (type, container_id,add_time) select '暂落','${id}', make_time from container where id = '${id}';`;
   })

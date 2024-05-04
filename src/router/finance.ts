@@ -180,7 +180,7 @@ const generatePlanningFee = async (req: Request, res: Response) => {
         console.log(err);
       } else {
         let amount = actual_amount.value / select_container.length;
-        if ( actual_amount.value === null) {
+        if ( actual_amount.value === "") {
           amount = calPlanningFee(data,container)
         }
         let insert_sql: string = `insert into container_fee (container_id, type, dispatch_type, fee_name, amount) values ('${container.id}','${type_pay}','${type}','${fee_name}','${amount}');`;
