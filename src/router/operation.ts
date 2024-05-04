@@ -606,6 +606,32 @@ const addContainerFee = async (req: Request, res: Response) => {
   });
 };
 
+// 删除异常费用
+const deleteContainerFee = async (req: Request, res: Response) => {
+  const {
+    id
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE a,c FROM dispatch_fee as a LEFT JOIN dispatch as b on b.id = a.dispatch_id LEFT JOIN container_fee as c on c.container_id = b.container_id AND c.fee_name = a.fee_name WHERE a.id = ${id};`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
 // 删除单证记录
 const deleteDocumentCheck = async (req: Request, res: Response) => {
   const { select_track_no, city } = req.body;
@@ -1049,6 +1075,7 @@ export {
   fixContainerInfo,
   addContainer,
   addContainerFee,
+  deleteContainerFee,
   importDocumentCheck,
   importExportContainer,
   generateExportDispatch,

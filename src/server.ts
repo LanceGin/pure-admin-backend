@@ -81,6 +81,7 @@ import {
   fixContainerInfo,
   addContainer,
   addContainerFee,
+  deleteContainerFee,
   importDocumentCheck,
   deleteDocumentCheck,
   importExportContainer,
@@ -460,6 +461,10 @@ app.post("/addContainer", (req, res) => {
 // 运作管理 - 新增箱子费用接口
 app.post("/addContainerFee", (req, res) => {
   addContainerFee(req, res);
+})
+// 运作管理 - 删除箱子费用接口
+app.post("/deleteContainerFee", (req, res) => {
+  deleteContainerFee(req, res);
 })
 // 运作管理 - 批量导入单证列表接口
 app.post("/importDocumentCheck", upload_tmp.any(), (req, res) => {
