@@ -52,7 +52,11 @@ const importYtoj = async (req: Request, res: Response) => {
 
 // 生成水运费
 const generateShipFee = async (req: Request, res: Response) => {
-  const { select_item } = req.body;
+  const { 
+    city,
+    add_by,
+    select_item
+  } = req.body;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -88,7 +92,7 @@ const generateShipFee = async (req: Request, res: Response) => {
             }
           });
         } else {
-          let insert_sql:string = `insert ignore into container (order_status,order_type,container_status,make_time,ship_name,seal_no,containner_no,track_no,container_type,start_port,target_port,door) values ('已提交','船运','已完成','${item.add_time}','${item.voyage}','${item.seal_no}','${item.container_no}','${item.bl_no}','${item.container_type}','${item.load_port}','${item.unload_port}','${item.cargo_name}');`
+          let insert_sql:string = `insert ignore into container (order_status,order_type,container_status,make_time,ship_name,seal_no,containner_no,track_no,container_type,start_port,target_port,door,add_by,city) values ('已提交','船运','已完成','${item.add_time}','${item.voyage}','${item.seal_no}','${item.container_no}','${item.bl_no}','${item.container_type}','${item.load_port}','${item.unload_port}','${item.cargo_name}','${add_by}','${city}');`
           connection.query(insert_sql, async function (err, data) {
             if (err) {
               console.log(err);
