@@ -1039,6 +1039,7 @@ const bulkCargoList = async (req: Request, res: Response) => {
   if (form.container_no != "") { sql += " and container_no = " + "'" + form.container_no + "'" }
   if (form.seal_no != "") { sql += " and seal_no = " + "'" + form.seal_no + "'" }
   if (form.flow_direction != "") { sql += " and flow_direction = " + "'" + form.flow_direction + "'" }
+  if (form.city != "" && form.city != "管理员") { sql += " and city = " + "'" + form.city + "'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from bulk_cargo where type = " + form.type;
   if (form.load_address != "") { sql += " and load_address like " + "'%" + form.load_address + "%'" }
@@ -1050,6 +1051,7 @@ const bulkCargoList = async (req: Request, res: Response) => {
   if (form.container_no != "") { sql += " and container_no = " + "'" + form.container_no + "'" }
   if (form.seal_no != "") { sql += " and seal_no = " + "'" + form.seal_no + "'" }
   if (form.flow_direction != "") { sql += " and flow_direction = " + "'" + form.flow_direction + "'" }
+  if (form.city != "" && form.city != "管理员") { sql += " and city = " + "'" + form.city + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -1096,7 +1098,9 @@ const addBulkCargo = async (req: Request, res: Response) => {
     freight,
     error_fee,
     remarks,
-    add_time
+    add_time,
+    add_by,
+    city
   } = req.body;
   if (type == "2") {
     container_no = "SH" + dayjs(new Date()).format("YYYYMMDD") + Math.floor(Math.random()*10000);
@@ -1110,7 +1114,7 @@ const addBulkCargo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into bulk_cargo (type,customer,ship_company,fleet,load_area,unload_area,load_address,unload_address,bl_no,container_no,container_type,seal_no,start_point,flow_direction,voyage,address,car_type,car_no,driver_mobile,booking_fee,exchange_fee,freight,error_fee,remarks,add_time) values ('${type}','${customer}','${ship_company}','${fleet}','${load_area}','${unload_area}','${load_address}','${unload_address}','${bl_no}','${container_no}','${container_type}','${seal_no}','${start_point}','${flow_direction}','${voyage}','${address}','${car_type}','${car_no}','${driver_mobile}','${booking_fee}','${exchange_fee}','${freight}','${error_fee}','${remarks}','${add_time}')`;
+  let sql: string = `insert into bulk_cargo (type,customer,ship_company,fleet,load_area,unload_area,load_address,unload_address,bl_no,container_no,container_type,seal_no,start_point,flow_direction,voyage,address,car_type,car_no,driver_mobile,booking_fee,exchange_fee,freight,error_fee,remarks,add_time,add_by,city) values ('${type}','${customer}','${ship_company}','${fleet}','${load_area}','${unload_area}','${load_address}','${unload_address}','${bl_no}','${container_no}','${container_type}','${seal_no}','${start_point}','${flow_direction}','${voyage}','${address}','${car_type}','${car_no}','${driver_mobile}','${booking_fee}','${exchange_fee}','${freight}','${error_fee}','${remarks}','${add_time}','${add_by}','${city}');`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -1305,7 +1309,11 @@ const deleteLandingFee = async (req: Request, res: Response) => {
 
 // 生成散货运费
 const generateBulkFee = async (req: Request, res: Response) => {
-  const { select_item } = req.body;
+  const { 
+    city,
+    add_by,
+    select_item
+  } = req.body;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -1315,7 +1323,7 @@ const generateBulkFee = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   select_item.forEach((item) => {
-    let container_sql:string = `insert ignore into container (order_status,order_type,container_status,make_time,seal_no,containner_no,container_type,customer,start_port,target_port,car_no,remark) values ('已提交','散货','已完成','${item.add_time}','${item.seal_no}','${item.container_no}','${item.car_type}','${item.customer}','${item.load_address}','${item.unload_address}','${item.fleet}','${item.remarks}');`;
+    let container_sql:string = `insert ignore into container (order_status,order_type,container_status,make_time,seal_no,containner_no,container_type,customer,start_port,target_port,car_no,remark,add_by,city) values ('已提交','散货','已完成','${item.add_time}','${item.seal_no}','${item.container_no}','${item.car_type}','${item.customer}','${item.load_address}','${item.unload_address}','${item.fleet}','${item.remarks}','${add_by}','${city}');`;
     connection.query(container_sql, function (err, data) {
       if (err) {
         console.log(err);
