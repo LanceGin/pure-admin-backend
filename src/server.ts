@@ -177,6 +177,7 @@ import {
   generateContainerFee,
   generateOrderFee,
   generatePlanningFee,
+  updatePlanningFee,
   generateStorageFee,
   generateDispatchFee,
   updateDispatchFee,
@@ -909,6 +910,10 @@ app.post("/generateOrderFee", (req, res) => {
 // 财务 - 生成码头计划费
 app.post("/generatePlanningFee", (req, res) => {
   generatePlanningFee(req, res);
+})
+// 财务 - 更新码头计划费&堆存费
+app.post("/updatePlanningFee", (req, res) => {
+  updatePlanningFee(req, res);
 })
 // 财务 - 生成堆存费
 app.post("/generateStorageFee", (req, res) => {

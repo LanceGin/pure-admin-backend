@@ -201,6 +201,46 @@ const generatePlanningFee = async (req: Request, res: Response) => {
   });
 };
 
+// 更新堆存费&计划费，目前计划费未更新
+const updatePlanningFee = async (req: Request, res: Response) => {
+  const select_container = req.body;
+  const type_pay = "应付";
+  const type_collect = "应收"
+  const fee_name = "堆存费";
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  select_container.forEach((container) => {
+    let select_sql: string = `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.temp_port}';`
+    connection.query(select_sql, function (err, data) {
+      if (err) {
+        console.log(err);
+      } else {
+        const amount = calPlanningFee(data,container)
+        let insert_sql: string = `update container_fee set amount = '${amount}' where container_id = '${container.id}' and type = '${type_pay}' and fee_name = '${fee_name}';`;
+        insert_sql += `update container_fee set amount = '${amount}' where container_id = '${container.id}' and type = '${type_collect}' and fee_name = '${fee_name}';`
+        connection.query(insert_sql, async function (err, data) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(data)
+          }
+        });
+      }
+    });
+  })
+  return res.json({
+    success: true,
+    data: { message: Message[8] },
+  });
+};
+
+
 // 生成驳运费
 // const generateLighteringFee = async (req: Request, res: Response) => {
 //   const select_lightering = req.body;
@@ -1431,6 +1471,7 @@ export {
   generateContainerFee,
   generateOrderFee,
   generatePlanningFee,
+  updatePlanningFee,
   generateStorageFee,
   generateDispatchFee,
   updateDispatchFee,
