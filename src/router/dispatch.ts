@@ -564,7 +564,7 @@ const tempDropFinish = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE id in ('${select_container_no.toString().replaceAll(",", "','")}');`;
-  sql += `UPDATE dispatch SET trans_status = '${trans_status}' WHERE container_id in ('${select_container_no.toString().replaceAll(",", "','")}');`;
+  sql += `UPDATE dispatch SET trans_status = '${trans_status}' WHERE type = '暂落' and container_id in ('${select_container_no.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -591,7 +591,7 @@ const oneStepFinish = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
-  sql += `UPDATE dispatch SET trans_status = '${container_status}' WHERE container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  sql += `UPDATE dispatch SET trans_status = '${container_status}' WHERE type = '拆箱' and container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -606,7 +606,10 @@ const oneStepFinish = async (req: Request, res: Response) => {
 
 // 一键撤回
 const oneStepRevoke = async (req: Request, res: Response) => {
-  const select_container_id = req.body;
+  const {
+    type,
+    select_container_id
+  } = req.body;
   let payload = null;
   const container_status = "已挑箱";
   const status = "未派车";
@@ -620,7 +623,7 @@ const oneStepRevoke = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `UPDATE container SET container_status = '${container_status}' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
-  sql += `UPDATE dispatch SET status = '${status}', car_no = '${car_no}', trans_status = ${trans_status} WHERE container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  sql += `UPDATE dispatch SET status = '${status}', car_no = '${car_no}', trans_status = ${trans_status} WHERE type = '${type}' and container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   sql += `delete from container_fee where fee_name = '拖车费' and container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, result) {
     if (err) {
@@ -649,7 +652,7 @@ const dispatchRevoke = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `UPDATE container SET container_status = '${container_status}', temp_status = '${temp_status}', temp_port = ${temp}, temp_time = ${temp} WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
-  sql += `delete from dispatch where container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  sql += `delete from dispatch where trans_status != '已完成' and container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   sql += `delete from container_fee where fee_name in ('计划费', '堆存费') and container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, result) {
     if (err) {
