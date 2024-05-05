@@ -1093,6 +1093,8 @@ const addBulkCargo = async (req: Request, res: Response) => {
     car_type,
     car_no,
     driver_mobile,
+    weight,
+    volume,
     booking_fee,
     exchange_fee,
     freight,
@@ -1114,7 +1116,7 @@ const addBulkCargo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into bulk_cargo (type,customer,ship_company,fleet,load_area,unload_area,load_address,unload_address,bl_no,container_no,container_type,seal_no,start_point,flow_direction,voyage,address,car_type,car_no,driver_mobile,booking_fee,exchange_fee,freight,error_fee,remarks,add_time,add_by,city) values ('${type}','${customer}','${ship_company}','${fleet}','${load_area}','${unload_area}','${load_address}','${unload_address}','${bl_no}','${container_no}','${container_type}','${seal_no}','${start_point}','${flow_direction}','${voyage}','${address}','${car_type}','${car_no}','${driver_mobile}','${booking_fee}','${exchange_fee}','${freight}','${error_fee}','${remarks}','${add_time}','${add_by}','${city}');`;
+  let sql: string = `insert into bulk_cargo (type,customer,ship_company,fleet,load_area,unload_area,load_address,unload_address,bl_no,container_no,container_type,seal_no,start_point,flow_direction,voyage,address,car_type,car_no,driver_mobile,weight,volume,booking_fee,exchange_fee,freight,error_fee,remarks,add_time,add_by,city) values ('${type}','${customer}','${ship_company}','${fleet}','${load_area}','${unload_area}','${load_address}','${unload_address}','${bl_no}','${container_no}','${container_type}','${seal_no}','${start_point}','${flow_direction}','${voyage}','${address}','${car_type}','${car_no}','${driver_mobile}','${weight}','${volume}','${booking_fee}','${exchange_fee}','${freight}','${error_fee}','${remarks}','${add_time}','${add_by}','${city}');`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
