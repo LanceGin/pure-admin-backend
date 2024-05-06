@@ -516,7 +516,7 @@ const generateExportDispatch = async (req: Request, res: Response) => {
   }
   let sql: string = ``;
   select_container.forEach(container => {
-    sql += `insert into dispatch (type,container_id,car_no,status,trans_status,add_time) values ('装箱','${container.id}','${container.car_no}','${status}','${trans_status}','${container.make_time}');`;
+    sql += `insert into dispatch (type,container_id,car_no,status,trans_status,add_time) values ('装箱','${container.id}','${container.car_no}','${status}','${trans_status}',CONVERT_TZ('${container.make_time}','+00:00','+8:00'));`;
     sql += `update dispatch as a left join container as b on b.id = a.container_id set a.export_seal_no = '${container.seal_no}', a.export_port = '${container.door}' where b.customer = '${container.customer}' and b.containner_no = '${container.containner_no}' and date_format(b.make_time, '%Y-%m-%d') = date_format(CONVERT_TZ('${container.make_time}','+00:00','+8:00'), '%Y-%m-%d') and a.type = '拆箱';`
     if (container.ba_fee !== "") {
       sql += `insert into container_fee (container_id, type, fee_name, amount) select '${container.id}', '应付', '上下车费', '${container.ba_fee}' from dual WHERE NOT EXISTS (select * from container_fee where container_id = '${container.id}' and type = '应付' and fee_name = '上下车费');`;
