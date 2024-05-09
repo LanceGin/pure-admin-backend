@@ -369,6 +369,9 @@ const generateDispatchFee = async (req: Request, res: Response) => {
     if (container.temp_status === "已暂落") {
       op_door = container.temp_port;
       dispatch_type = "暂落";
+    } else if (container.temp_port !== null) {
+      pay_fee_port = container.temp_port;
+      collect_fee_port = container.temp_port;
     }
     const b = a + container.container_type.toLowerCase();
     let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${op_door}' and port = '${pay_fee_port}';`
@@ -435,9 +438,13 @@ const updateDispatchFee = async (req: Request, res: Response) => {
     if (container.transfer_port !== null && container.transfer_port !== "") {
       pay_fee_port = container.transfer_port;
     }
-    if (container.temp_port !== null) {
+    if (container.type == "暂落" ) {
       op_door = container.temp_port;
       dispatch_type = "暂落";
+    } 
+    if (container.type == "拆箱" || container.temp_port !== null) {
+      pay_fee_port = container.temp_port;
+      collect_fee_port = container.temp_port;
     }
     const b = a + container.container_type.toLowerCase();
     let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${op_door}' and port = '${pay_fee_port}';`

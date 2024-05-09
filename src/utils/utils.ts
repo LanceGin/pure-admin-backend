@@ -41,7 +41,7 @@ export function formatDate(numb, format) {
 // 计算计划费
 export function calPlanningFee(data, container) {
     let a_time;
-    if (container.temp_status == "已暂落") {
+    if (container.temp_port !== null) {
         a_time = dayjs(container.temp_time).format("YYYY-MM-DD");
     } else {
         a_time = dayjs(container.arrive_time).format("YYYY-MM-DD");
