@@ -670,7 +670,6 @@ const vehicleRefuelList = async (req: Request, res: Response) => {
 const addVehicleRefuel = async (req: Request, res: Response) => {
   const {
     car_no,
-    driver,
     addtime,
     volume,
     unit_price,
@@ -679,6 +678,8 @@ const addVehicleRefuel = async (req: Request, res: Response) => {
   } = req.body;
   let payload = null;
   const amount = volume * unit_price;
+  const car = car_no.split('-')[0];
+  const driver = car_no.split('-')[1];
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -686,7 +687,7 @@ const addVehicleRefuel = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into vehicle_refuel (car_no,driver,addtime,volume,unit_price,type,amount,remark) values ('${car_no}','${driver}','${addtime}','${volume}','${unit_price}','${type}','${amount}','${remark}')`;
+  let sql: string = `insert into vehicle_refuel (car_no,driver,addtime,volume,unit_price,type,amount,remark) values ('${car}','${driver}','${addtime}','${volume}','${unit_price}','${type}','${amount}','${remark}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -704,7 +705,6 @@ const editVehicleRefuel = async (req: Request, res: Response) => {
   const {
     id,
     car_no,
-    driver,
     addtime,
     volume,
     unit_price,
@@ -713,6 +713,8 @@ const editVehicleRefuel = async (req: Request, res: Response) => {
     remark
   } = req.body;
   let payload = null;
+  const car = car_no.split('-')[0];
+  const driver = car_no.split('-')[1];
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -721,7 +723,7 @@ const editVehicleRefuel = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let modifySql: string = "UPDATE vehicle_refuel SET car_no = ?,driver = ?,addtime = ?,volume = ?,unit_price = ?,type = ?,amount = ?,remark = ? WHERE id = ?";
-  let modifyParams: string[] = [car_no,driver,addtime,volume,unit_price,type,amount,remark,id];
+  let modifyParams: string[] = [car,driver,addtime,volume,unit_price,type,amount,remark,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
