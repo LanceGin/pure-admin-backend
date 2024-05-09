@@ -459,7 +459,8 @@ const whDispatchList = async (req: Request, res: Response) => {
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and b.make_time between " + "DATE_FORMAT(CONVERT_TZ('" + form.make_time_range[0] + "','+00:00','+8:00'),'%Y-%m-%d %H:%i:%s') and DATE_FORMAT(CONVERT_TZ('" + form.make_time_range[1] + "','+00:00','+8:00'),'%Y-%m-%d %H:%i:%s')" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
-  if (form.unload_port != "") { sql += " and b.unload_port like " + "'%" + form.unload_port + "%'" }
+  if (form.unload_port != "" && form.unload_port != "空白") { sql += " and b.unload_port like " + "'%" + form.unload_port + "%'" }
+  if (form.unload_port == "空白") { sql += " and IFNULL(b.unload_port, '') = ''" }
   if (form.type == "装箱") { sql += " and a.export_seal_no != '' and a.export_seal_no is not NULL and a.export_port != '' and a.export_port is not NULL" }
   if (form.type == "拆箱") { sql += " and (a.export_seal_no = '' or a.export_seal_no is NULL) and (a.export_port = '' or a.export_port is NULL)" }
   if (form.containner_no != "") {
@@ -472,7 +473,8 @@ const whDispatchList = async (req: Request, res: Response) => {
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and b.make_time between " + "DATE_FORMAT(CONVERT_TZ('" + form.make_time_range[0] + "','+00:00','+8:00'),'%Y-%m-%d %H:%i:%s') and DATE_FORMAT(CONVERT_TZ('" + form.make_time_range[1] + "','+00:00','+8:00'),'%Y-%m-%d %H:%i:%s')" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
-  if (form.unload_port != "") { sql += " and b.unload_port like " + "'%" + form.unload_port + "%'" }
+  if (form.unload_port != "" && form.unload_port != "空白") { sql += " and b.unload_port like " + "'%" + form.unload_port + "%'" }
+  if (form.unload_port == "空白") { sql += " and IFNULL(b.unload_port, '') = ''" }
   if (form.type == "装箱") { sql += " and a.export_seal_no != '' and a.export_seal_no is not NULL and a.export_port != '' and a.export_port is not NULL" }
   if (form.type == "拆箱") { sql += " and (a.export_seal_no = '' or a.export_seal_no is NULL) and (a.export_port = '' or a.export_port is NULL)" }
   if (form.containner_no != "") {
