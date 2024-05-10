@@ -443,10 +443,12 @@ const lighteringPriceList = async (req: Request, res: Response) => {
   let sql: string = "select * from lightering_price where id is not null ";
   if (form.settlement != "") { sql += " and settlement like " + "'%" + form.settlement + "%'" }
   if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
+  if (form.add_by != "" && form.city != "管理员") { sql += " and add_by = " + "'" + form.add_by + "'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from lightering_price where id is not null ";
   if (form.settlement != "") { sql += " and settlement like " + "'%" + form.settlement + "%'" }
   if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
+  if (form.add_by != "" && form.city != "管理员") { sql += " and add_by = " + "'" + form.add_by + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -474,7 +476,9 @@ const addLighteringPrice = async (req: Request, res: Response) => {
     p40,
     p20,
     c40,
-    c20
+    c20,
+    add_by,
+    city
   } = req.body;
   let payload = null;
   try {
@@ -484,7 +488,7 @@ const addLighteringPrice = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into lightering_price (settlement,cargo_name,order_fee,p40,p20,c40,c20) values ('${settlement}','${cargo_name}','${order_fee}','${p40}','${p20}','${c40}','${c20}')`;
+  let sql: string = `insert into lightering_price (settlement,cargo_name,order_fee,p40,p20,c40,c20,add_by,city) values ('${settlement}','${cargo_name}','${order_fee}','${p40}','${p20}','${c40}','${c20}','${add_by}','${city}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -532,7 +536,7 @@ const editLighteringPrice = async (req: Request, res: Response) => {
     p40,
     p20,
     c40,
-    c20
+    c20,
   } = req.body;
   let payload = null;
   try {
