@@ -222,7 +222,15 @@ import {
   lighteringPriceList,
   addLighteringPrice,
   deleteLighteringPrice,
-  editLighteringPrice
+  editLighteringPrice,
+  landPriceList,
+  addLandPrice,
+  deleteLandPrice,
+  editLandPrice,
+  bulkPriceList,
+  addBulkPrice,
+  deleteBulkPrice,
+  editBulkPrice
 } from "./router/statics";
 
 // 新建存放临时文件的文件夹
@@ -610,23 +618,54 @@ app.post("/dataCheckPay", upload_tmp.any(), (req, res) => {
 app.post("/vehicleFeeStatList", (req, res) => {
   vehicleFeeStatList(req, res);
 })
-// 统计管理 - 车辆费用统计接口
+// 统计管理 - 驳运价格列表接口
 app.post("/lighteringPriceList", (req, res) => {
   lighteringPriceList(req, res);
 })
-// 统计管理 - 车辆费用统计接口
+// 统计管理 - 增加驳运价格接口
 app.post("/addLighteringPrice", (req, res) => {
   addLighteringPrice(req, res);
 })
-// 统计管理 - 车辆费用统计接口
+// 统计管理 - 删除驳运价格接口
 app.post("/deleteLighteringPrice", (req, res) => {
   deleteLighteringPrice(req, res);
 })
-// 统计管理 - 车辆费用统计接口
+// 统计管理 - 编辑驳运价格接口
 app.post("/editLighteringPrice", (req, res) => {
   editLighteringPrice(req, res);
 })
-
+// 统计管理 - 陆运价格列表接口
+app.post("/landPriceList", (req, res) => {
+  landPriceList(req, res);
+})
+// 统计管理 - 增加陆运价格接口
+app.post("/addLandPrice", (req, res) => {
+  addLandPrice(req, res);
+})
+// 统计管理 - 删除陆运价格接口
+app.post("/deleteLandPrice", (req, res) => {
+  deleteLandPrice(req, res);
+})
+// 统计管理 - 编辑陆运价格接口
+app.post("/editLandPrice", (req, res) => {
+  editLandPrice(req, res);
+})
+// 统计管理 - 散货价格列表接口
+app.post("/bulkPriceList", (req, res) => {
+  bulkPriceList(req, res);
+})
+// 统计管理 - 增加散货价格接口
+app.post("/addBulkPrice", (req, res) => {
+  addBulkPrice(req, res);
+})
+// 统计管理 - 删除散货价格接口
+app.post("/deleteBulkPrice", (req, res) => {
+  deleteBulkPrice(req, res);
+})
+// 统计管理 - 编辑散货价格接口
+app.post("/editBulkPrice", (req, res) => {
+  editBulkPrice(req, res);
+})
 
 // 调度管理
 // 调度管理 - 拆箱列表

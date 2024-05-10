@@ -560,6 +560,275 @@ const editLighteringPrice = async (req: Request, res: Response) => {
   });
 };
 
+// 获取陆运价格列表
+const landPriceList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from land_price where id is not null ";
+  if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
+  if (form.fleet != "") { sql += " and fleet like " + "'%" + form.fleet + "%'" }
+  if (form.add_by != "" && form.city != "管理员") { sql += " and add_by = " + "'" + form.add_by + "'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from land_price where id is not null ";
+  if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
+  if (form.fleet != "") { sql += " and fleet like " + "'%" + form.fleet + "%'" }
+  if (form.add_by != "" && form.city != "管理员") { sql += " and add_by = " + "'" + form.add_by + "'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增陆运价格
+const addLandPrice = async (req: Request, res: Response) => {
+  const {
+    customer,
+    fleet,
+    load_address,
+    unload_address,
+    pay_price,
+    collect_price,
+    add_by,
+    city
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into land_price (customer,fleet,load_address,unload_address,pay_price,collect_price,add_by,city) values ('${customer}','${fleet}','${load_address}','${unload_address}','${pay_price}','${collect_price}','${add_by}','${city}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 删除陆运价格
+const deleteLandPrice = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from land_price where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+
+// 编辑陆运价格
+const editLandPrice = async (req: Request, res: Response) => {
+  const {
+    id,
+    customer,
+    fleet,
+    load_address,
+    unload_address,
+    pay_price,
+    collect_price
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE land_price SET customer = ?,fleet = ?,load_address = ?,unload_address = ?,pay_price = ?,collect_price = ? WHERE id = ?";
+  let modifyParams: string[] = [customer,fleet,load_address,unload_address,pay_price,collect_price,id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
+// 获取散货价格列表
+const bulkPriceList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from bulk_price where id is not null ";
+  if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
+  if (form.fleet != "") { sql += " and fleet like " + "'%" + form.fleet + "%'" }
+  if (form.add_by != "" && form.city != "管理员") { sql += " and add_by = " + "'" + form.add_by + "'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from bulk_price where id is not null ";
+  if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
+  if (form.fleet != "") { sql += " and fleet like " + "'%" + form.fleet + "%'" }
+  if (form.add_by != "" && form.city != "管理员") { sql += " and add_by = " + "'" + form.add_by + "'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
+// 新增散货价格
+const addBulkPrice = async (req: Request, res: Response) => {
+  const {
+    customer,
+    fleet,
+    car_type,
+    load_address,
+    unload_address,
+    pay_price,
+    collect_price,
+    add_by,
+    city
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert into bulk_price (customer,fleet,car_type,load_address,unload_address,pay_price,collect_price,add_by,city) values ('${customer}','${fleet}','${car_type}','${load_address}','${unload_address}','${pay_price}','${collect_price}','${add_by}','${city}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 删除散货价格
+const deleteBulkPrice = async (req: Request, res: Response) => {
+  const id = req.body.id;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `DELETE from bulk_price where id = '${id}'`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+
+// 编辑散货价格
+const editBulkPrice = async (req: Request, res: Response) => {
+  const {
+    id,
+    customer,
+    fleet,
+    car_type,
+    load_address,
+    unload_address,
+    pay_price,
+    collect_price
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let modifySql: string = "UPDATE bulk_price SET customer = ?,fleet = ?,car_type = ?,load_address = ?,unload_address = ?,pay_price = ?,collect_price = ? WHERE id = ?";
+  let modifyParams: string[] = [customer,fleet,load_address,unload_address,pay_price,collect_price,id];
+  connection.query(modifySql, modifyParams, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
 
 export {
   containerFeeList,
@@ -574,5 +843,13 @@ export {
   lighteringPriceList,
   addLighteringPrice,
   deleteLighteringPrice,
-  editLighteringPrice
+  editLighteringPrice,
+  landPriceList,
+  addLandPrice,
+  deleteLandPrice,
+  editLandPrice,
+  bulkPriceList,
+  addBulkPrice,
+  deleteBulkPrice,
+  editBulkPrice
 }
