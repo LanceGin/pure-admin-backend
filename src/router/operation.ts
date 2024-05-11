@@ -747,7 +747,7 @@ const pickBoxList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select * from container where order_status = '已提交' ";
+  let sql: string = "select * from container where order_status = '已提交' and order_type = '进口' ";
   if (form.arrive_time != "") { sql += " and arrive_time = " + "'" + form.arrive_time + "'" }
   if (form.ship_name != "") { sql += " and ship_name like " + "'%" + form.ship_name + "%'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
@@ -760,7 +760,7 @@ const pickBoxList = async (req: Request, res: Response) => {
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += " and city = " + "'" + form.city + "'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
-  sql +=";select COUNT(*) from container where order_status = '已提交' ";
+  sql +=";select COUNT(*) from container where order_status = '已提交' and order_type = '进口' ";
   if (form.arrive_time != "") { sql += " and arrive_time = " + "'" + form.arrive_time + "'" }
   if (form.ship_name != "") { sql += " and ship_name like " + "'%" + form.ship_name + "%'" }
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
