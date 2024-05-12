@@ -286,6 +286,7 @@ const cancelKeepAppliedFee = async (req: Request, res: Response) => {
 const importDoorPrice = async (req: Request, res: Response) => {
   const file_path = req.files[0].path;
   const is_pay = req.body.is_pay;
+  const add_by = req.body.add_by;
   const city = req.body.city;
   const status = "1";
   const add_time = dayjs(new Date()).format("YYYY-MM-DD");
@@ -296,9 +297,9 @@ const importDoorPrice = async (req: Request, res: Response) => {
   const values = sheets[0].data;
   values.shift();
   values.forEach((v) => {
-    v.push(is_pay, status, city, add_time);
+    v.push(is_pay, status, add_by, city, add_time);
   })
-  let sql: string = "insert into door_price (customer,project,door,port,i20gp,i40gp,i20tk,i40hc,o20gp,o40gp,o20tk,o40hc,is_pay,status,city,add_time) values ?"
+  let sql: string = "insert into door_price (customer,project,door,port,i20gp,i40gp,i20tk,i40hc,o20gp,o40gp,o20tk,o40hc,is_pay,status,add_by,city,add_time) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -365,6 +366,7 @@ const dataCheckPay = async (req: Request, res: Response) => {
     if (err) {
       Logger.error(err);
     } else {
+      console.log(111111, data);
       await res.json({
         success: true,
         data: { 
