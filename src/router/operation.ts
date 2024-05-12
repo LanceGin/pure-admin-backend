@@ -32,7 +32,7 @@ const importYtoj = async (req: Request, res: Response) => {
   values.forEach((v) => {
     v.unshift("0", add_time, voyage);
   })
-  let sql: string = "insert ignore into lightering (type,add_time,voyage,container_no,bl_no,customs_container_type,iso,container_type,container_holder,is_import,extra_operation,trade_type,seal_no,cargo_name,load_port,target_port,unload_port,load_payer,total_weight,cargo_weight,volume,amount,cargo_owner,forwarder,remarks) values ?";
+  let sql: string = "insert ignore into lightering (type,add_time,voyage,container_no,bl_no,customs_container_type,iso,container_type,container_holder,is_import,extra_operation,trade_type,customs_seal_no,seal_no,cargo_type,cargo_name,load_port,target_port,unload_port,load_payer,total_weight,cargo_weight,volume,amount,cargo_owner,forwarder,remarks) values ?";
   connection.query(sql, [values], function (err, data) {
     if (err) {
       Logger.error(err);
@@ -137,7 +137,7 @@ const importJtoy = async (req: Request, res: Response) => {
   values.forEach((v) => {
     v.unshift("1", add_time, voyage);
   })
-  let sql: string = "insert ignore into lightering (type,add_time,voyage,bl_no,load_port,unload_port,target_port,total_weight,container_no,container_holder,extra_operation,container_type,customs_container_type,iso,is_import,empty_weight,trade_type,seal_no,cargo_name,unload_payer,transfer_type) values ?"
+  let sql: string = "insert ignore into lightering (type,add_time,voyage,bl_no,load_port,unload_port,target_port,total_weight,container_no,container_holder,extra_operation,container_type,customs_container_type,iso,is_import,empty_weight,trade_type,customs_seal_no,seal_no,cargo_type,cargo_name,unload_payer,transfer_type) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
       Logger.error(err);
