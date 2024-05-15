@@ -13,6 +13,10 @@ expressSwagger(config.options);
 // queryTable(user);
 
 import {
+  getSino
+} from "./router/third";
+
+import {
   login,
   userList,
   addUser,
@@ -280,6 +284,11 @@ app.get('/wechat',function(req,res,next){
           res.send('error');
       }
 })
+// 三方接口
+// 获取中交地址
+app.post("/getSino", (req, res) => {
+  getSino(req, res);
+});
 // 登录管理
 // 登录管理 - 登录接口
 app.post("/login", (req, res) => {
