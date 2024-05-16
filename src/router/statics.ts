@@ -52,13 +52,14 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.temp_port != "") { sql += " and b.temp_port like " + "'%" + form.temp_port + "%'" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
-  if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
+  // if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
+  if (form.car_no != "") { sql += " and if(a.dispatch_type = '暂落', d.car_no like " + "'%" + form.car_no + "%', b.car_no like " + "'%" + form.car_no + "%')" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
   if (form.remark != "") { sql += " and b.remark like " + "'%" + form.remark + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += " and b.city = " + "'" + form.city + "'" }
   sql +=" order by a.id desc limit " + size + " offset " + size * (page - 1);
-  sql +=`;select COUNT(*), sum(a.amount) as total_amount FROM container_fee as a left join container as b on a.container_id = b.id where a.id is not null and a.amount != '0' `;
+  sql +=`;select COUNT(*), sum(a.amount) as total_amount FROM container_fee as a left join container as b on a.container_id = b.id left join (select * from vehicle_info WHERE id in  (SELECT max(id) as id FROM vehicle_info GROUP BY car_no)) as c on c.car_no = b.car_no left join dispatch as d on d.container_id = a.container_id and d.type = '暂落' where a.id is not null and a.amount != '0' `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.order_type != "" && form.order_type != "暂落") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
   if (form.order_type == "进口") { sql += " and a.dispatch_type != '暂落'" }
@@ -78,7 +79,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.temp_port != "") { sql += " and b.temp_port like " + "'%" + form.temp_port + "%'" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
-  if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
+  if (form.car_no != "") { sql += " and if(a.dispatch_type = '暂落', d.car_no like " + "'%" + form.car_no + "%', b.car_no like " + "'%" + form.car_no + "%')" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
   if (form.remark != "") { sql += " and b.remark like " + "'%" + form.remark + "%'" }
