@@ -43,7 +43,6 @@ const setInvoiceNo = async (req: Request, res: Response) => {
 // 获取中交url
 const getSino = async (req: Request, res: Response) => {
   const { type } = req.body;
-  console.log(111111, type);
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -79,7 +78,98 @@ const getSino = async (req: Request, res: Response) => {
     });
 };
 
+// 提交eir
+const submitEir = async (req: Request, res: Response) => {
+  const { track_no, containner_no } = req.body;
+  console.log(42315321532, req.body);
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  const login_data = "grant_type=password&username=fuan&password=8exXH%25K2%3DL";
+  
+  // At request level
+  const agent = new https.Agent({
+      rejectUnauthorized: false
+  });
+  const login_config = {
+     method: 'post',
+     url: 'https://esb.sipg.com.cn/ParaEsb/Token',
+     headers: { 
+        'sourceSystem': 'FUAN', 
+        'targetSystem': 'AUTH', 
+        'requestId': 'trusted-fuan', 
+        'serviceName': 'S0140001A', 
+        'Authorization': 'Basic dHJ1c3RlZC1mdWFuOj8pUkAyZDlfXnFDdQ==', 
+        'Host': 'esb.sipg.com.cn', 
+        'Connection': 'keep-alive', 
+        'Content-Type': 'application/x-www-form-urlencoded'
+     },
+     data : login_data
+  };
+
+  axios(login_config)
+    .then(response => {
+      console.log(11111, response.data);
+      const access_token = response.data.access_token;
+      const get_eir_data = JSON.stringify({
+         "despatcherCode": "000287",
+         "despatcherTime": dayjs().format('YYYY-MM-DD HH:mm:ss'),
+         "billNbr": track_no,
+         "trustCode": "COSCO",
+         "opStatus": "32"
+      });
+      const get_eir_config = {
+         method: 'post',
+         url: 'https://esb.sipg.com.cn/ParaEsb/Json/Http',
+         headers: { 
+            'Token': access_token, 
+            'sourceSystem': 'FUAN', 
+            'targetSystem': 'EIR', 
+            'requestId': 'trusted-fuan', 
+            'serviceName': 'S0010041A', 
+            'Md5Code': '56BC7S38955R15267120A', 
+            'Content-Type': 'application/json', 
+            'Host': 'esb.sipg.com.cn'
+         },
+         data : get_eir_data
+      };
+      axios(get_eir_config)
+        .then(response => {
+          console.log(222222, response.data);
+          const item_container = response.data.find(item => item.cntrNo === containner_no);
+          console.log(33333, item_container);
+          if (item_container == undefined) {
+            res.json({
+              success: false,
+              data: {
+                message: "未找到待派车箱号"
+              },
+            });
+          } else {
+            res.json({
+              success: true,
+              data: item_container,
+            });
+          }
+        })
+        .catch(error => {
+          console.log(22222, error.response.data);
+          res.json({
+            success: false,
+            data: error.response.data
+          });
+        });
+    });
+};
+
+
 export {
   setInvoiceNo,
-  getSino
+  getSino,
+  submitEir
 }
