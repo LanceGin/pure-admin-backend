@@ -80,7 +80,7 @@ const getSino = async (req: Request, res: Response) => {
 
 // 提交eir
 const submitEir = async (req: Request, res: Response) => {
-  const { track_no, containner_no } = req.body;
+  const { track_no, containner_no, dispatch_car_no, driver, mobile, id_no } = req.body;
   console.log(42315321532, req.body);
   let payload = null;
   try {
@@ -114,7 +114,6 @@ const submitEir = async (req: Request, res: Response) => {
 
   axios(login_config)
     .then(response => {
-      console.log(11111, response.data);
       const access_token = response.data.access_token;
       const get_eir_data = JSON.stringify({
          "despatcherCode": "000287",
@@ -140,21 +139,62 @@ const submitEir = async (req: Request, res: Response) => {
       };
       axios(get_eir_config)
         .then(response => {
-          console.log(222222, response.data);
           const item_container = response.data.find(item => item.cntrNo === containner_no);
-          console.log(33333, item_container);
+          console.log(8888, item_container);
           if (item_container == undefined) {
             res.json({
               success: false,
               data: {
-                message: "未找到待派车箱号"
+                result: `未找到EIR信息`
               },
             });
           } else {
-            res.json({
-              success: true,
-              data: item_container,
+            const receipt_no = item_container.receiptNo
+            console.log(999999999, receipt_no);
+            const push_eir_data = JSON.stringify({
+               "despatcherCode": "000287",
+               "despatcherTime": dayjs().format('YYYY-MM-DD HH:mm:ss'),
+               "receiptNo": receipt_no,
+               "truckNo": dispatch_car_no,
+               "empName": driver,
+               "empPersonId": id_no,
+               "empTel": mobile,
+               "confDesc": "E物流",
+               "confUserName": "富安",
+               "delivToStr": "Shanghai",
+               "regionCode": "310115",
+               "opType": "1"
             });
+            const push_eir_config = {
+              method: 'post',
+              url: 'https://esb.sipg.com.cn/ParaEsb/Json/Http',
+              headers: { 
+                 'Token': access_token, 
+                 'sourceSystem': 'FUAN', 
+                 'targetSystem': 'EIR', 
+                 'requestId': 'trusted-fuan', 
+                 'serviceName': 'S0010013A', 
+                 'Md5Code': '56BC7S38955R15267120A', 
+                 'Content-Type': 'application/json', 
+                 'Host': 'esb.sipg.com.cn', 
+                 'Connection': 'keep-alive', 
+              },
+              data : push_eir_data
+            };
+            axios(push_eir_config)
+              .then(response => {
+                res.json({
+                  success: true,
+                  data: response.data,
+                });
+              })
+              .catch(error => {
+                console.log(3333, error.response.data);
+                res.json({
+                  success: false,
+                  data: error.response.data
+                });
+              })
           }
         })
         .catch(error => {
