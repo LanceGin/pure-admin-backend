@@ -524,7 +524,7 @@ const generateExportDispatch = async (req: Request, res: Response) => {
     }
 
   })
-  console.log("导入出口运单同步更新进口运单数据：", sql);
+  // console.log("导入出口运单同步更新进口运单数据：", sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -537,7 +537,7 @@ const generateExportDispatch = async (req: Request, res: Response) => {
   });
 };
 
-// 新增箱子记录
+// 新增进口箱子记录
 const addContainer = async (req: Request, res: Response) => {
   const {
     ship_company,
@@ -572,6 +572,57 @@ const addContainer = async (req: Request, res: Response) => {
       await res.json({
         success: true,
         data: { message: Message[6] },
+      });
+    }
+  });
+};
+
+// 新增出口箱子记录
+const addExportContainer = async (req: Request, res: Response) => {
+  const {
+    order_type,
+    order_status,
+    container_status,
+    ship_company,
+    customer,
+    subproject,
+    arrive_time,
+    start_port,
+    target_port,
+    containner_no,
+    seal_no,
+    container_type,
+    ship_name,
+    track_no,
+    load_port,
+    unload_port,
+    car_no,
+    make_time,
+    door,
+    add_by,
+    city
+  } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `insert ignore into container (order_type,order_status,container_status,ship_company,customer,subproject,arrive_time,start_port,target_port,containner_no,seal_no,container_type,ship_name,track_no,load_port,door,add_by,city,unload_port,car_no,make_time) values ('${order_type}','${order_status}','${container_status}','${ship_company}','${customer}','${subproject}','${arrive_time}','${start_port}','${target_port}','${containner_no}','${seal_no}','${container_type}','${ship_name}','${track_no}','${load_port}','${door}','${add_by}','${city}','${unload_port}','${car_no}','${make_time}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      const select_sql: string = `select * from container order by id desc limit ${JSON.parse(JSON.stringify(data)).affectedRows};`
+      connection.query(select_sql, async function (err, data) {
+        await res.json({
+          success: true,
+          data: { 
+            list: data,
+          },
+        });
       });
     }
   });
@@ -801,7 +852,7 @@ const deleteContainer = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `delete a,b from container as a left join container_fee as b on b.container_id = a.id WHERE a.id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  let sql: string = `delete a,b,c from container as a left join container_fee as b on b.container_id = a.id left join dispatch as c on c.container_id = a.id WHERE a.id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -1078,6 +1129,7 @@ export {
   getDispatchFeeList,
   fixContainerInfo,
   addContainer,
+  addExportContainer,
   addContainerFee,
   deleteContainerFee,
   importDocumentCheck,

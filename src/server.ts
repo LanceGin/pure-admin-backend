@@ -85,6 +85,7 @@ import {
   getDispatchFeeList,
   fixContainerInfo,
   addContainer,
+  addExportContainer,
   addContainerFee,
   deleteContainerFee,
   importDocumentCheck,
@@ -477,9 +478,13 @@ app.post("/getDispatchFeeList", (req, res) => {
 app.post("/fixContainerInfo", (req, res) => {
   fixContainerInfo(req, res);
 })
-// 运作管理 - 新增箱子接口
+// 运作管理 - 新增进口箱子接口
 app.post("/addContainer", (req, res) => {
   addContainer(req, res);
+})
+// 运作管理 - 新增出口箱子接口
+app.post("/addExportContainer", (req, res) => {
+  addExportContainer(req, res);
 })
 // 运作管理 - 新增箱子费用接口
 app.post("/addContainerFee", (req, res) => {
