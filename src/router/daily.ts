@@ -55,12 +55,12 @@ const accCompanyList = async (req: Request, res: Response) => {
 // 新增往来单位
 const addAccCompany = async (req: Request, res: Response) => {
   const {
-    company_code,
     company_name,
     bank,
     account_no,
     remark
   } = req.body;
+  const company_code = `ACMP${new Date().getTime()}`;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -86,7 +86,6 @@ const addAccCompany = async (req: Request, res: Response) => {
 const editAccCompany = async (req: Request, res: Response) => {
   const {
     id,
-    company_code,
     company_name,
     bank,
     account_no,
@@ -100,9 +99,8 @@ const editAccCompany = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE acc_company SET company_code = ?,company_name = ?,bank = ?,account_no = ?,remark = ? WHERE id = ?";
-  let modifyParams: string[] = [company_code,company_name,bank,account_no,remark,id];
-  console.log(11111, modifySql);
+  let modifySql: string = "UPDATE acc_company SET company_name = ?,bank = ?,account_no = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [company_name,bank,account_no,remark,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
