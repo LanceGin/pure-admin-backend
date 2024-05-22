@@ -379,6 +379,7 @@ const fixContainerInfo = async (req: Request, res: Response) => {
     door,
     load_port,
     unload_port,
+    temp_port,
     car_no,
     make_time
   } = req.body;
@@ -390,8 +391,8 @@ const fixContainerInfo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE dispatch as a left join container as b on b.id = a.container_id SET b.ship_name = ?, b.track_no = ?, b.containner_no = ?, b.seal_no = ?, b.container_type = ?, b.door = ?, b.load_port = ?, b.unload_port = ?, b.car_no = ?, b.make_time = ?, a.car_no = ?, a.add_time = ?  WHERE a.id = ?;select a.type, a.container_id, a.car_no as dispatch_car_no, a.add_time, b.* from dispatch as a left join container as b on b.id = a.container_id where a.id = ?;";
-  let modifyParams: string[] = [ship_name,track_no,containner_no,seal_no,container_type,door,load_port,unload_port,car_no,make_time,car_no,make_time,dispatch_id,dispatch_id];
+  let modifySql: string = "UPDATE dispatch as a left join container as b on b.id = a.container_id SET b.ship_name = ?, b.track_no = ?, b.containner_no = ?, b.seal_no = ?, b.container_type = ?, b.door = ?, b.load_port = ?, b.unload_port = ?, b.temp_port = ?, b.car_no = ?, b.make_time = ?, a.car_no = ?, a.add_time = ?  WHERE a.id = ?;select a.type, a.container_id, a.car_no as dispatch_car_no, a.add_time, b.* from dispatch as a left join container as b on b.id = a.container_id where a.id = ?;";
+  let modifyParams: string[] = [ship_name,track_no,containner_no,seal_no,container_type,door,load_port,unload_port,temp_port,car_no,make_time,car_no,make_time,dispatch_id,dispatch_id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
