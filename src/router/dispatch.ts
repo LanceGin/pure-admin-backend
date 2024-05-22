@@ -455,13 +455,13 @@ const whDispatchList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select a.id as dispatch_id,a.type,a.status,a.car_no as dispatch_car_no, a.trans_status,a.export_seal_no,a.export_port,a.remark as dispatch_remark, b.* from dispatch as a left join container as b on b.id = a.container_id where b.city = '武汉' and b.seal_no not in  (select export_seal_no from dispatch where export_seal_no is not null and export_seal_no != '') ";
+  let sql: string = "select a.id as dispatch_id,a.type,a.status,a.car_no as dispatch_car_no, a.trans_status,a.export_seal_no,a.export_port,a.remark as dispatch_remark, b.* from dispatch as a left join container as b on b.id = a.container_id where b.city = '武汉' ";
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and b.make_time between " + "DATE_FORMAT(CONVERT_TZ('" + form.make_time_range[0] + "','+00:00','+8:00'),'%Y-%m-%d %H:%i:%s') and DATE_FORMAT(CONVERT_TZ('" + form.make_time_range[1] + "','+00:00','+8:00'),'%Y-%m-%d %H:%i:%s')" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.unload_port != "" && form.unload_port != "空白") { sql += " and b.unload_port like " + "'%" + form.unload_port + "%'" }
   if (form.unload_port == "空白") { sql += " and IFNULL(b.unload_port, '') = ''" }
-  if (form.type == "装箱") { sql += " and a.export_seal_no != '' and a.export_seal_no is not NULL and a.export_port != '' and a.export_port is not NULL" }
+  if (form.type == "装箱") { sql += " and b.seal_no not in  (select export_seal_no from dispatch where export_seal_no is not null and export_seal_no != '') and a.export_seal_no != '' and a.export_seal_no is not NULL and a.export_port != '' and a.export_port is not NULL" }
   if (form.type == "拆箱") { sql += " and (a.export_seal_no = '' or a.export_seal_no is NULL) and (a.export_port = '' or a.export_port is NULL)" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
@@ -469,13 +469,13 @@ const whDispatchList = async (req: Request, res: Response) => {
   }
   if (form.car_no != "") { sql += " and a.car_no like " + "'%" + form.car_no + "%'" }
   sql +=" order by b.order_type desc, b.door, b.make_time asc, FIELD(b.crossing,'GA','BS','PT','CSS4','RESS','NGC','SGE','SGE-LCM','CSS','CSS-LCM','CVG','CVG-LCM','NGADK01','NPGA','NPBS') limit " + size + " offset " + size * (page - 1);
-  sql +=";select COUNT(*) from (select b.* from dispatch as a left join container as b on b.id = a.container_id where b.city = '武汉' and b.seal_no not in  (select export_seal_no from dispatch where export_seal_no is not null and export_seal_no != '') ";
+  sql +=";select COUNT(*) from (select b.* from dispatch as a left join container as b on b.id = a.container_id where b.city = '武汉' ";
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and b.make_time between " + "DATE_FORMAT(CONVERT_TZ('" + form.make_time_range[0] + "','+00:00','+8:00'),'%Y-%m-%d %H:%i:%s') and DATE_FORMAT(CONVERT_TZ('" + form.make_time_range[1] + "','+00:00','+8:00'),'%Y-%m-%d %H:%i:%s')" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.unload_port != "" && form.unload_port != "空白") { sql += " and b.unload_port like " + "'%" + form.unload_port + "%'" }
   if (form.unload_port == "空白") { sql += " and IFNULL(b.unload_port, '') = ''" }
-  if (form.type == "装箱") { sql += " and a.export_seal_no != '' and a.export_seal_no is not NULL and a.export_port != '' and a.export_port is not NULL" }
+  if (form.type == "装箱") { sql += " and b.seal_no not in  (select export_seal_no from dispatch where export_seal_no is not null and export_seal_no != '') and a.export_seal_no != '' and a.export_seal_no is not NULL and a.export_port != '' and a.export_port is not NULL" }
   if (form.type == "拆箱") { sql += " and (a.export_seal_no = '' or a.export_seal_no is NULL) and (a.export_port = '' or a.export_port is NULL)" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
