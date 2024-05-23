@@ -56,6 +56,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.car_no != "") { sql += " and if(a.dispatch_type = '暂落', d.car_no like " + "'%" + form.car_no + "%', b.car_no like " + "'%" + form.car_no + "%')" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
+  if (form.car_owner != "") { sql += " and c.owner like " + "'%" + form.car_owner + "%'" }
   if (form.remark != "") { sql += " and b.remark like " + "'%" + form.remark + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += " and b.city = " + "'" + form.city + "'" }
   sql +=" order by a.id desc limit " + size + " offset " + size * (page - 1);
@@ -82,6 +83,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.car_no != "") { sql += " and if(a.dispatch_type = '暂落', d.car_no like " + "'%" + form.car_no + "%', b.car_no like " + "'%" + form.car_no + "%')" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
+  if (form.car_owner != "") { sql += " and c.owner like " + "'%" + form.car_owner + "%'" }
   if (form.remark != "") { sql += " and b.remark like " + "'%" + form.remark + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += " and b.city = " + "'" + form.city + "'" }
   connection.query(sql, async function (err, data) {
