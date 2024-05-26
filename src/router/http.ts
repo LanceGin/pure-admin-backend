@@ -242,7 +242,7 @@ const editUser = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let modifySql: string = "UPDATE base_company_user SET name = ?, realname = ?, mobile = ?, email = ?, department = ?, mima = ?, shenfenzheng = ?, zhuzhi = ?, ruzhishijian = ?, zhuangtai = ?, check_point = ?, work_hours = ?, city = ? WHERE id = ?";
-  let modifyParams: string[] = [name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, check_point, work_hours, city, id];
+  let modifyParams: string[] = [name, realname, mobile, email, department, mima, shenfenzheng, zhuzhi, ruzhishijian, zhuangtai, check_point, work_hours, city.join(','), id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
