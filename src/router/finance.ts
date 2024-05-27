@@ -522,6 +522,7 @@ const financeCheckList = async (req: Request, res: Response) => {
   if (form.account_period != "") { sql += " and a.account_period = " + "'" + account_period + "'" }
   if (form.flow_direction != "") { sql += " and a.flow_direction = " + "'" + form.flow_direction + "'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
+  if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
   sql +=" GROUP BY a.account_period, a.custom_name,a.project_name,a.flow_direction,a.content order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=`; select COUNT(*) from (select a.id FROM container_fee as a left join container as b on a.container_id = b.id left join acc_company as c on c.id = a.acc_company where a.id is not null `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
@@ -532,6 +533,7 @@ const financeCheckList = async (req: Request, res: Response) => {
   if (form.account_period != "") { sql += " and a.account_period = " + "'" + account_period + "'" }
   if (form.flow_direction != "") { sql += " and a.flow_direction = " + "'" + form.flow_direction + "'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
+  if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
   sql +=" GROUP BY a.account_period, a.custom_name,a.project_name,a.flow_direction,a.content) as t";
   connection.query(sql, async function (err, data) {
     if (err) {

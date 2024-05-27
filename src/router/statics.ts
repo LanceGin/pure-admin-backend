@@ -59,6 +59,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.car_owner != "") { sql += " and c.owner like " + "'%" + form.car_owner + "%'" }
   if (form.remark != "") { sql += " and b.remark like " + "'%" + form.remark + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
+  if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
   sql +=" order by a.id desc limit " + size + " offset " + size * (page - 1);
   sql +=`;select COUNT(*), sum(a.amount) as total_amount FROM container_fee as a left join container as b on a.container_id = b.id left join (select * from vehicle_info WHERE id in  (SELECT max(id) as id FROM vehicle_info GROUP BY car_no)) as c on c.car_no = b.car_no left join dispatch as d on d.container_id = a.container_id and d.type = '暂落' where a.id is not null and a.amount != '0' `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
@@ -86,6 +87,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.car_owner != "") { sql += " and c.owner like " + "'%" + form.car_owner + "%'" }
   if (form.remark != "") { sql += " and b.remark like " + "'%" + form.remark + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
+  if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
