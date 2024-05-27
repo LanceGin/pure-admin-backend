@@ -221,7 +221,7 @@ const documentCheckList = async (req: Request, res: Response) => {
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.order_status != "") { sql += " and order_status like " + "'%" + form.order_status + "%'" }
   if (form.order_time != "") { sql += " and order_time = " + "'" + form.order_time + "'" }
-  if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
+  if (form.city != "" && form.city != "管理员") { sql += ` and city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   sql +=" group by track_no order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from ( select * from container where id is not null ";
   if (form.customer != "") { sql += " and customer like " + "'%" + form.customer + "%'" }
@@ -230,7 +230,7 @@ const documentCheckList = async (req: Request, res: Response) => {
   if (form.track_no != "") { sql += " and track_no like " + "'%" + form.track_no + "%'" }
   if (form.order_status != "") { sql += " and order_status like " + "'%" + form.order_status + "%'" }
   if (form.order_time != "") { sql += " and order_time = " + "'" + form.order_time + "'" }
-  if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
+  if (form.city != "" && form.city != "管理员") { sql += ` and city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   sql +=" group by track_no) as t";
   connection.query(sql, async function (err, data) {
     if (err) {
