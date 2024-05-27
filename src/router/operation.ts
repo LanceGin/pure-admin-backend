@@ -810,7 +810,7 @@ const pickBoxList = async (req: Request, res: Response) => {
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
-  if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
+  if (form.city != "" && form.city != "管理员") { sql += ` and city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from container where order_status = '已提交' and order_type = '进口' ";
   if (form.arrive_time != "") { sql += " and arrive_time = " + "'" + form.arrive_time + "'" }
@@ -823,7 +823,7 @@ const pickBoxList = async (req: Request, res: Response) => {
     sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
   }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
-  if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
+  if (form.city != "" && form.city != "管理员") { sql += ` and city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
