@@ -1173,7 +1173,7 @@ const collectionContainerList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `select a.*, b.amount,b.less_amount,b.more_amount,(b.amount-b.less_amount+b.more_amount) as actual_amount from container as a left join container_fee as b on a.id = b.container_id where b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
+  let sql: string = `select a.*, FORMAT(b.amount,2) as amount, FORMAT(b.less_amount,2) as less_amount, FORMAT(b.more_amount,2) as more_amount, FORMAT((b.amount-b.less_amount+b.more_amount),2) as actual_amount from container as a left join container_fee as b on a.id = b.container_id where b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
   sql += ` and b.custom_name = '${custom_name}'`;
   sql += ` and b.project_name = '${project_name}'`;
   sql += ` and b.flow_direction = '${flow_direction}'`;
