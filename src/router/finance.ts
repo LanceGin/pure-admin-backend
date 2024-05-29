@@ -1291,6 +1291,7 @@ const approvePay = async (req: Request, res: Response) => {
   let sql: string = `update container_fee as b set b.status = '${status}' where b.type = "应付" and b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
   sql += ` and b.custom_name = '${custom_name}'`;
   sql += ` and b.project_name = '${project_name}'`;
+  sql += ` and b.acc_company = '${acc_company}'`;
   sql += ` and b.flow_direction = '${flow_direction}'`;
   sql += ` and b.content = '${content}'`;
   connection.query(sql, async function (err, data) {
@@ -1323,6 +1324,7 @@ const rejectPay = async (req: Request, res: Response) => {
     account_period,
     custom_name,
     project_name,
+    acc_company,
     flow_direction,
     content
   }  = req.body;
@@ -1338,6 +1340,7 @@ const rejectPay = async (req: Request, res: Response) => {
   let sql: string = `update container_fee as b set b.status = '${status}' where b.type = "应付" and b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
   sql += ` and b.custom_name = '${custom_name}'`;
   sql += ` and b.project_name = '${project_name}'`;
+  sql += ` and b.acc_company = '${acc_company}'`;
   sql += ` and b.flow_direction = '${flow_direction}'`;
   sql += ` and b.content = '${content}'`;
   connection.query(sql, async function (err, data) {
