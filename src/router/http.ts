@@ -1041,7 +1041,7 @@ const bulkCargoList = async (req: Request, res: Response) => {
   if (form.container_no != "") { sql += " and container_no = " + "'" + form.container_no + "'" }
   if (form.seal_no != "") { sql += " and seal_no = " + "'" + form.seal_no + "'" }
   if (form.flow_direction != "") { sql += " and flow_direction = " + "'" + form.flow_direction + "'" }
-  if (form.city != "" && form.city != "管理员") { sql += " and city = " + "'" + form.city + "'" }
+  if (form.city != "" && form.city != "管理员") { sql += ` and city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from bulk_cargo where type = " + form.type;
   if (form.load_address != "") { sql += " and load_address like " + "'%" + form.load_address + "%'" }
@@ -1053,7 +1053,7 @@ const bulkCargoList = async (req: Request, res: Response) => {
   if (form.container_no != "") { sql += " and container_no = " + "'" + form.container_no + "'" }
   if (form.seal_no != "") { sql += " and seal_no = " + "'" + form.seal_no + "'" }
   if (form.flow_direction != "") { sql += " and flow_direction = " + "'" + form.flow_direction + "'" }
-  if (form.city != "" && form.city != "管理员") { sql += " and city = " + "'" + form.city + "'" }
+  if (form.city != "" && form.city != "管理员") { sql += ` and city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
