@@ -277,7 +277,11 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and date_format(a.add_time, '%Y-%m-%d') between " + "'" + dayjs(form.make_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.make_time_range[1]).format('YYYY-MM-DD') + "'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
-    sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+    if (select_container_no.length > 1) {
+      sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`
+    } else {
+      sql += " and b.containner_no like " + "'%" + form.containner_no + "%'"
+    }
   }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
@@ -292,7 +296,11 @@ const containerWithFeeList = async (req: Request, res: Response) => {
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and date_format(a.add_time, '%Y-%m-%d') between " + "'" + dayjs(form.make_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.make_time_range[1]).format('YYYY-MM-DD') + "'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
-    sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+    if (select_container_no.length > 1) {
+      sql += ` and b.containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`
+    } else {
+      sql += " and b.containner_no like " + "'%" + form.containner_no + "%'"
+    }
   }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   sql +=" ) as t";
