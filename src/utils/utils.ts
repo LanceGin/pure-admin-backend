@@ -1,5 +1,16 @@
 import * as dayjs from "dayjs";
 
+// 修改文件名
+export function renameFileWithoutExtension(originalName, newName) {
+  // 分离文件名和扩展名
+  const dotIndex = originalName.lastIndexOf('.');
+  const extension = originalName.substring(dotIndex);
+  const nameWithoutExtension = originalName.substring(0, dotIndex);
+ 
+  // 拼接新的文件名和原始扩展名
+  return newName + extension;
+}
+
 // 生成随机字符串
 export function getRandomString(len){
     let _charStr = 'abacdefghjklmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ0123456789',

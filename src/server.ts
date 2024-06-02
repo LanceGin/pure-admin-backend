@@ -13,6 +13,8 @@ expressSwagger(config.options);
 // queryTable(user);
 
 import {
+  uploadReciept,
+  showReciept,
   getSino,
   submitEir
 } from "./router/third";
@@ -287,6 +289,14 @@ app.get('/wechat',function(req,res,next){
       }
 })
 // 三方接口
+// 上传水单
+app.post("/uploadReciept", upload_tmp.any(), (req, res) => {
+  uploadReciept(req, res);
+});
+// 查看水单
+app.post("/showReciept", (req, res) => {
+  showReciept(req, res);
+});
 // 获取中交地址
 app.post("/getSino", (req, res) => {
   getSino(req, res);
