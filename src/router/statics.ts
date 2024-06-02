@@ -57,7 +57,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
   if (form.car_owner != "") { sql += " and c.owner like " + "'%" + form.car_owner + "%'" }
-  if (form.remark != "") { sql += " and b.remark like " + "'%" + form.remark + "%'" }
+  if (form.remark != "") { sql += " and a.remark like " + "'%" + form.remark + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
   sql +=" order by a.id desc limit " + size + " offset " + size * (page - 1);
@@ -85,7 +85,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
   if (form.car_owner != "") { sql += " and c.owner like " + "'%" + form.car_owner + "%'" }
-  if (form.remark != "") { sql += " and b.remark like " + "'%" + form.remark + "%'" }
+  if (form.remark != "") { sql += " and a.remark like " + "'%" + form.remark + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
   connection.query(sql, async function (err, data) {
@@ -124,7 +124,7 @@ const submitContainerFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container_fee SET status = '${status}',account_period = '${account_period}',custom_name = '${data.custom_name}',project_name = '${data.project_name}',content = '${data.content}',flow_direction = '${data.flow_direction}',acc_company = '${data.acc_company}',less_amount = '${less_amount}',more_amount = '${more_amount}',remark = '${data.remark}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container_fee SET status = '${status}',account_period = '${account_period}',custom_name = '${data.custom_name}',project_name = '${data.project_name}',content = '${data.content}',flow_direction = '${data.flow_direction}',acc_company = '${data.acc_company}',less_amount = '${less_amount}',more_amount = '${more_amount}',remark = '${data.remark}',submit_by = '${data.submit_by}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -148,7 +148,7 @@ const setInvoiceNo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container_fee SET invoice_no = '${invoice_no.value}' WHERE id in ('${select_id  .toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container_fee SET invoice_no = '${invoice_no.value}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -172,7 +172,7 @@ const setAmount = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container_fee SET amount = '${amount.value}' WHERE id in ('${select_id  .toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container_fee SET amount = '${amount.value}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -196,7 +196,7 @@ const setRemark = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container_fee as a left join container as b on b.id = a.container_id SET b.remark = '${remark.value}' WHERE a.id in ('${select_id  .toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container_fee as a left join container as b on b.id = a.container_id SET a.remark = '${remark.value}' WHERE a.id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
