@@ -124,7 +124,7 @@ const submitContainerFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container_fee SET status = '${status}',account_period = '${account_period}',custom_name = '${data.custom_name}',project_name = '${data.project_name}',content = '${data.content}',flow_direction = '${data.flow_direction}',acc_company = '${data.acc_company}',less_amount = '${less_amount}',more_amount = '${more_amount}',remark = '${data.remark}',submit_by = '${data.submit_by}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container_fee SET status = '${status}',account_period = '${account_period}',custom_name = '${data.custom_name}',apply_department = '${data.apply_department}',project_name = '${data.project_name}',content = '${data.content}',flow_direction = '${data.flow_direction}',acc_company = '${data.acc_company}',less_amount = '${less_amount}',more_amount = '${more_amount}',remark = '${data.remark}',submit_by = '${data.submit_by}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);

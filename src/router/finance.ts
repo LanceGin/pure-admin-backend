@@ -513,7 +513,7 @@ const financeCheckList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `SELECT a.id,a.type,a.status,a.fee_name,a.account_period,a.custom_name,a.project_name,a.flow_direction,a.acc_company,a.content,a.is_invoice,a.remark,a.submit_by,c.company_name,c.bank,c.account_no,b.container_type,b.add_by,FORMAT(sum(a.amount),2) as amount,FORMAT(sum(a.less_amount),2) as less_amount,FORMAT(sum(a.more_amount),2) as more_amount,FORMAT(sum(a.amount-a.less_amount+a.more_amount),2) as actual_amount,count(b.id) as total, COUNT(IF(left(b.container_type, 2) = '40',true,null)) as f, COUNT(IF(left(b.container_type, 2) = '20',true,null)) as t FROM container_fee as a left join container as b on a.container_id = b.id left join acc_company as c on c.id = a.acc_company where a.id is not null`;
+  let sql: string = `SELECT a.id,a.type,a.status,a.fee_name,a.account_period,a.custom_name,a.apply_department,a.project_name,a.flow_direction,a.acc_company,a.content,a.is_invoice,a.remark,a.submit_by,c.company_name,c.bank,c.account_no,b.container_type,b.add_by,FORMAT(sum(a.amount),2) as amount,FORMAT(sum(a.less_amount),2) as less_amount,FORMAT(sum(a.more_amount),2) as more_amount,FORMAT(sum(a.amount-a.less_amount+a.more_amount),2) as actual_amount,count(b.id) as total, COUNT(IF(left(b.container_type, 2) = '40',true,null)) as f, COUNT(IF(left(b.container_type, 2) = '20',true,null)) as t FROM container_fee as a left join container as b on a.container_id = b.id left join acc_company as c on c.id = a.acc_company where a.id is not null`;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.status != "") { sql += " and a.status = " + "'" + form.status + "'" }
   if (form.custom_name != "") { sql += " and a.custom_name = " + "'" + form.custom_name + "'" }
@@ -523,7 +523,7 @@ const financeCheckList = async (req: Request, res: Response) => {
   if (form.flow_direction != "") { sql += " and a.flow_direction = " + "'" + form.flow_direction + "'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
-  sql +=" GROUP BY a.account_period, a.acc_company, a.custom_name,a.project_name,a.flow_direction,a.content order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=" GROUP BY a.account_period, a.acc_company, a.custom_name, a.apply_department, a.project_name,a.flow_direction,a.content order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=`; select COUNT(*) from (select a.id FROM container_fee as a left join container as b on a.container_id = b.id left join acc_company as c on c.id = a.acc_company where a.id is not null `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.status != "") { sql += " and a.status = " + "'" + form.status + "'" }
@@ -534,7 +534,7 @@ const financeCheckList = async (req: Request, res: Response) => {
   if (form.flow_direction != "") { sql += " and a.flow_direction = " + "'" + form.flow_direction + "'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
-  sql +=" GROUP BY a.account_period, a.acc_company, a.custom_name,a.project_name,a.flow_direction,a.content) as t";
+  sql +=" GROUP BY a.account_period, a.acc_company, a.custom_name, a.apply_department, a.project_name,a.flow_direction,a.content) as t";
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -1273,6 +1273,7 @@ const approvePay = async (req: Request, res: Response) => {
     account_period,
     fee_name,
     custom_name,
+    apply_department,
     project_name,
     flow_direction,
     acc_company,
@@ -1292,6 +1293,7 @@ const approvePay = async (req: Request, res: Response) => {
   }
   let sql: string = `update container_fee as b set b.status = '${status}' where b.type = "应付" and b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
   sql += ` and b.custom_name = '${custom_name}'`;
+  sql += ` and b.apply_department = '${apply_department}'`;
   sql += ` and b.project_name = '${project_name}'`;
   sql += ` and b.acc_company = '${acc_company}'`;
   sql += ` and b.flow_direction = '${flow_direction}'`;
@@ -1304,7 +1306,7 @@ const approvePay = async (req: Request, res: Response) => {
       const is_pay = "付";
       const add_time = dayjs(new Date()).format("YYYY-MM-DD");
       const fee_no = "FAO" + dayjs(new Date()).format("YYYYMMDD") + Math.floor(Math.random()*10000);
-      let apply_fee_sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,apply_amount,acc_company_id,apply_by,create_time,fee_no,remark) values ('${is_admin}','${content}','${is_pay}','${actual_amount}','${acc_company}','${submit_by}','${add_time}','${fee_no}','${remark}');`;
+      let apply_fee_sql: string = `insert into applied_fee (is_admin,fee_name,is_pay,apply_amount,acc_company_id,apply_by,apply_department,create_time,fee_no,remark) values ('${is_admin}','${content}','${is_pay}','${actual_amount}','${acc_company}','${submit_by}','${apply_department}','${add_time}','${fee_no}','${remark}');`;
       connection.query(apply_fee_sql, async function (err, data) {
         if (err) {
           console.log(err);
@@ -1325,6 +1327,7 @@ const rejectPay = async (req: Request, res: Response) => {
   const {
     account_period,
     custom_name,
+    apply_department,
     project_name,
     acc_company,
     flow_direction,
@@ -1341,6 +1344,7 @@ const rejectPay = async (req: Request, res: Response) => {
   }
   let sql: string = `update container_fee as b set b.status = '${status}' where b.type = "应付" and b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
   sql += ` and b.custom_name = '${custom_name}'`;
+  sql += ` and b.apply_department = '${apply_department}'`;
   sql += ` and b.project_name = '${project_name}'`;
   sql += ` and b.acc_company = '${acc_company}'`;
   sql += ` and b.flow_direction = '${flow_direction}'`;
