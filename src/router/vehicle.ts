@@ -861,6 +861,7 @@ const submitVehicleFee = async (req: Request, res: Response) => {
     actual_amount,
     tax_amount,
     add_by,
+    apply_department,
     fee_name,
     company,
     type
@@ -876,7 +877,7 @@ const submitVehicleFee = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `update vehicle_fee set is_submit = '已提交' where id in ('${id.toString().replaceAll(",", "','")}');`;
-  sql += ` insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,create_time,fee_no) values ('业务','${fee_name}','付','${type}','${amount}','${actual_amount}','${tax_amount}','${company}','${add_by}','${add_time}','${fee_no}');`;
+  sql += ` insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,apply_department,create_time,fee_no) values ('业务','${fee_name}','付','${type}','${amount}','${actual_amount}','${tax_amount}','${company}','${add_by}','${apply_department}','${add_time}','${fee_no}');`;
   sql += `select * from vehicle_fee where id in ('${id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, data) {
     if (err) {
