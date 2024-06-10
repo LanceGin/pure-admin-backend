@@ -16,7 +16,9 @@ import {
   uploadReciept,
   showReciept,
   getSino,
-  submitEir
+  syncEir,
+  submitEir,
+  transferEir
 } from "./router/third";
 
 import {
@@ -302,9 +304,17 @@ app.post("/showReciept", (req, res) => {
 app.post("/getSino", (req, res) => {
   getSino(req, res);
 });
+// 同步eir
+app.post("/syncEir", (req, res) => {
+  syncEir(req, res);
+});
 // 提交eir
 app.post("/submitEir", (req, res) => {
   submitEir(req, res);
+});
+// eir转单
+app.post("/transferEir", (req, res) => {
+  transferEir(req, res);
 });
 // 登录管理
 // 登录管理 - 登录接口

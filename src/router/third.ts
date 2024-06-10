@@ -148,8 +148,8 @@ const getSino = async (req: Request, res: Response) => {
     });
 };
 
-// 提交eir
-const submitEir = async (req: Request, res: Response) => {
+// 同步eir
+const syncEir = async (req: Request, res: Response) => {
   const { track_no, containner_no, dispatch_car_no, driver, mobile, id_no } = req.body;
   console.log(42315321532, req.body);
   let payload = null;
@@ -220,51 +220,21 @@ const submitEir = async (req: Request, res: Response) => {
             });
           } else {
             const receipt_no = item_container.receiptNo
+            const container_no = item_container.cntrNo
             console.log(999999999, receipt_no);
-            const push_eir_data = JSON.stringify({
-               "despatcherCode": "000287",
-               "despatcherTime": dayjs().format('YYYY-MM-DD HH:mm:ss'),
-               "receiptNo": receipt_no,
-               "truckNo": dispatch_car_no,
-               "empName": driver,
-               "empPersonId": id_no,
-               "empTel": mobile,
-               "confDesc": "E物流",
-               "confUserName": "富安",
-               "delivToStr": "Shanghai",
-               "regionCode": "310115",
-               "opType": "1"
-            });
-            const push_eir_config = {
-              method: 'post',
-              url: 'https://esb.sipg.com.cn/ParaEsb/Json/Http',
-              headers: { 
-                 'Token': access_token, 
-                 'sourceSystem': 'FUAN', 
-                 'targetSystem': 'EIR', 
-                 'requestId': 'trusted-fuan', 
-                 'serviceName': 'S0010013A', 
-                 'Md5Code': '56BC7S38955R15267120A', 
-                 'Content-Type': 'application/json', 
-                 'Host': 'esb.sipg.com.cn', 
-                 'Connection': 'keep-alive', 
-              },
-              data : push_eir_data
-            };
-            axios(push_eir_config)
-              .then(response => {
-                res.json({
+            let sql: string = `UPDATE dispatch as a left join container as b on b.id = a.container_id SET a.receipt_no = '${receipt_no}' where b.containner_no = '${container_no}' and b.track_no = '${track_no}' and b.city = '上海';`;
+            connection.query(sql, async function (err, data) {
+              if (err) {
+                Logger.error(err);
+              } else {
+                await res.json({
                   success: true,
-                  data: response.data,
+                  data: { 
+                    result: "同步成功"
+                  },
                 });
-              })
-              .catch(error => {
-                console.log(3333, error.response.data);
-                res.json({
-                  success: false,
-                  data: error.response.data
-                });
-              })
+              }
+            });
           }
         })
         .catch(error => {
@@ -277,10 +247,182 @@ const submitEir = async (req: Request, res: Response) => {
     });
 };
 
+// 提交eir
+const submitEir = async (req: Request, res: Response) => {
+  const { track_no, containner_no, dispatch_car_no, driver, mobile, id_no, receipt_no } = req.body;
+  console.log(42315321532, req.body);
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  const login_data = "grant_type=password&username=fuan&password=8exXH%25K2%3DL";
+  
+  // At request level
+  const agent = new https.Agent({
+      rejectUnauthorized: false
+  });
+  const login_config = {
+     method: 'post',
+     url: 'https://esb.sipg.com.cn/ParaEsb/Token',
+     headers: { 
+        'sourceSystem': 'FUAN', 
+        'targetSystem': 'AUTH', 
+        'requestId': 'trusted-fuan', 
+        'serviceName': 'S0140001A', 
+        'Authorization': 'Basic dHJ1c3RlZC1mdWFuOj8pUkAyZDlfXnFDdQ==', 
+        'Host': 'esb.sipg.com.cn', 
+        'Connection': 'keep-alive', 
+        'Content-Type': 'application/x-www-form-urlencoded'
+     },
+     data : login_data
+  };
+
+  axios(login_config)
+    .then(response => {
+      const access_token = response.data.access_token;
+      console.log(999999999, receipt_no);
+      const push_eir_data = JSON.stringify({
+         "despatcherCode": "000287",
+         "despatcherTime": dayjs().format('YYYY-MM-DD HH:mm:ss'),
+         "receiptNo": receipt_no,
+         "truckNo": dispatch_car_no,
+         "empName": driver,
+         "empPersonId": id_no,
+         "empTel": mobile,
+         "confDesc": "E物流",
+         "confUserName": "富安",
+         "delivToStr": "Shanghai",
+         "regionCode": "310115",
+         "opType": "1"
+      });
+      const push_eir_config = {
+        method: 'post',
+        url: 'https://esb.sipg.com.cn/ParaEsb/Json/Http',
+        headers: { 
+           'Token': access_token, 
+           'sourceSystem': 'FUAN', 
+           'targetSystem': 'EIR', 
+           'requestId': 'trusted-fuan', 
+           'serviceName': 'S0010013A', 
+           'Md5Code': '56BC7S38955R15267120A', 
+           'Content-Type': 'application/json', 
+           'Host': 'esb.sipg.com.cn', 
+           'Connection': 'keep-alive', 
+        },
+        data : push_eir_data
+      };
+      axios(push_eir_config)
+        .then(response => {
+          res.json({
+            success: true,
+            data: response.data,
+          });
+        })
+        .catch(error => {
+          console.log(3333, error.response.data);
+          res.json({
+            success: false,
+            data: error.response.data
+          });
+        })
+    });
+};
+
+// 转单eir
+const transferEir = async (req: Request, res: Response) => {
+  const { track_no, containner_no, dispatch_car_no, driver, mobile, id_no, receipt_no } = req.body;
+  console.log(42315321532, req.body);
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  const login_data = "grant_type=password&username=fuan&password=8exXH%25K2%3DL";
+  
+  // At request level
+  const agent = new https.Agent({
+      rejectUnauthorized: false
+  });
+  const login_config = {
+     method: 'post',
+     url: 'https://esb.sipg.com.cn/ParaEsb/Token',
+     headers: { 
+        'sourceSystem': 'FUAN', 
+        'targetSystem': 'AUTH', 
+        'requestId': 'trusted-fuan', 
+        'serviceName': 'S0140001A', 
+        'Authorization': 'Basic dHJ1c3RlZC1mdWFuOj8pUkAyZDlfXnFDdQ==', 
+        'Host': 'esb.sipg.com.cn', 
+        'Connection': 'keep-alive', 
+        'Content-Type': 'application/x-www-form-urlencoded'
+     },
+     data : login_data
+  };
+
+  axios(login_config)
+    .then(response => {
+      const access_token = response.data.access_token;
+      console.log(999999999, receipt_no);
+      const push_eir_data = JSON.stringify({
+         "despatcherCode": "000287",
+         "despatcherTime": dayjs().format('YYYY-MM-DD HH:mm:ss'),
+         "receiptNo": receipt_no,
+         "truckNo": dispatch_car_no,
+         "empName": driver,
+         "empPersonId": id_no,
+         "empTel": mobile,
+         "confDesc": "E物流",
+         "confUserName": "富安",
+         "delivToStr": "Shanghai",
+         "regionCode": "310115",
+         "opType": "3"
+      });
+      const push_eir_config = {
+        method: 'post',
+        url: 'https://esb.sipg.com.cn/ParaEsb/Json/Http',
+        headers: { 
+           'Token': access_token, 
+           'sourceSystem': 'FUAN', 
+           'targetSystem': 'EIR', 
+           'requestId': 'trusted-fuan', 
+           'serviceName': 'S0010013A', 
+           'Md5Code': '56BC7S38955R15267120A', 
+           'Content-Type': 'application/json', 
+           'Host': 'esb.sipg.com.cn', 
+           'Connection': 'keep-alive', 
+        },
+        data : push_eir_data
+      };
+      axios(push_eir_config)
+        .then(response => {
+          res.json({
+            success: true,
+            data: response.data,
+          });
+        })
+        .catch(error => {
+          console.log(3333, error.response.data);
+          res.json({
+            success: false,
+            data: error.response.data
+          });
+        })
+    });
+};
+
 
 export {
   uploadReciept,
   showReciept,
   getSino,
-  submitEir
+  syncEir,
+  submitEir,
+  transferEir
 }
