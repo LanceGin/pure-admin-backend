@@ -31,7 +31,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `SELECT a.id as fee_id, a.status, a.account_period, a.dispatch_type, a.type, CONVERT(a.amount, DECIMAL(10, 2)) as amount, CONVERT((a.amount-a.less_amount+a.more_amount), DECIMAL(10, 2)) as actual_amount, a.invoice_no, a.fee_name, a.fee_type, a.custom_name, a.project_name, a.content, a.flow_direction,a.remark as fee_remark, b.*, c.owner as car_owner, d.car_no as temp_car_no FROM container_fee as a left join container as b on a.container_id = b.id left join (select * from vehicle_info WHERE id in  (SELECT max(id) as id FROM vehicle_info GROUP BY car_no)) as c on c.car_no = b.car_no left join dispatch as d on d.container_id = a.container_id and d.type = '暂落' where a.id is not null and a.amount != '0' `;
+  let sql: string = `SELECT a.id as fee_id, a.status, a.account_period, a.dispatch_type, a.type, CONVERT(a.amount, DECIMAL(10, 2)) as amount, CONVERT((a.amount-a.less_amount+a.more_amount), DECIMAL(10, 2)) as actual_amount, a.invoice_no, a.fee_name, a.fee_type, a.custom_name, a.project_name, a.content, a.flow_direction,a.remark as fee_remark, b.*, c.owner as car_owner, d.car_no as temp_car_no FROM container_fee as a left join container as b on a.container_id = b.id left join (select * from vehicle_info WHERE id in  (SELECT max(id) as id FROM vehicle_info GROUP BY car_no)) as c on c.car_no = b.car_no left join dispatch as d on d.container_id = a.container_id and d.type = '暂落' where a.id is not null and a.amount not in  ('0','0.00') `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.order_type != "" && form.order_type != "暂落") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
   if (form.order_type == "进口") { sql += " and a.dispatch_type != '暂落'" }
@@ -61,7 +61,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
   sql +=" order by a.id desc limit " + size + " offset " + size * (page - 1);
-  sql +=`;select COUNT(*), sum(a.amount) as total_amount FROM container_fee as a left join container as b on a.container_id = b.id left join (select * from vehicle_info WHERE id in  (SELECT max(id) as id FROM vehicle_info GROUP BY car_no)) as c on c.car_no = b.car_no left join dispatch as d on d.container_id = a.container_id and d.type = '暂落' where a.id is not null and a.amount != '0' `;
+  sql +=`;select COUNT(*), sum(a.amount) as total_amount FROM container_fee as a left join container as b on a.container_id = b.id left join (select * from vehicle_info WHERE id in  (SELECT max(id) as id FROM vehicle_info GROUP BY car_no)) as c on c.car_no = b.car_no left join dispatch as d on d.container_id = a.container_id and d.type = '暂落' where a.id is not null and a.amount not in  ('0','0.00') `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.order_type != "" && form.order_type != "暂落") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
   if (form.order_type == "进口") { sql += " and a.dispatch_type != '暂落'" }

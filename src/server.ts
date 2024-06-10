@@ -100,6 +100,7 @@ import {
   pickBox,
   tempDrop,
   loadPort,
+  planTime,
   arriveTime,
   settingContainer,
   yardPriceList,
@@ -532,7 +533,11 @@ app.post("/tempDrop", (req, res) => {
 app.post("/loadPort", (req, res) => {
   loadPort(req, res);
 })
-// 运作管理 - 批量设置提箱时间接口
+// 运作管理 - 批量设置计划时间接口
+app.post("/planTime", (req, res) => {
+  planTime(req, res);
+})
+// 运作管理 - 批量设置到港接口
 app.post("/arriveTime", (req, res) => {
   arriveTime(req, res);
 })

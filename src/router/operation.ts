@@ -957,6 +957,31 @@ const loadPort = async (req: Request, res: Response) => {
   });
 };
 
+// 修改计划时间
+const planTime = async (req: Request, res: Response) => {
+  const { select_container_no, plan_time } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE container SET plan_time = '${plan_time.value}' `;
+  sql += ` WHERE containner_no in ('${select_container_no.toString().replaceAll(",", "','")}') and container_status = '待挑箱' and order_type = '进口';`;
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 // 修改船期
 const arriveTime = async (req: Request, res: Response) => {
   const { select_track_no, arrive_time } = req.body;
@@ -969,7 +994,6 @@ const arriveTime = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `UPDATE container SET arrive_time = '${arrive_time.value}' WHERE order_type = '进口' and track_no in ('${select_track_no.toString().replaceAll(",", "','")}')`;
-  console.log(1111, sql);
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -1153,6 +1177,7 @@ export {
   pickBox,
   tempDrop,
   loadPort,
+  planTime,
   arriveTime,
   settingContainer,
   yardPriceList,

@@ -52,12 +52,19 @@ export function formatDate(numb, format) {
 // 计算计划费
 export function calPlanningFee(data, container) {
     let a_time;
+    let make_time;
     if (container.temp_port !== null) {
         a_time = dayjs(container.temp_time).format("YYYY-MM-DD");
+        make_time = dayjs(container.make_time).format("YYYY-MM-DD");
     } else {
         a_time = dayjs(container.arrive_time).format("YYYY-MM-DD");
+        if (container.plan_time === null) {
+            make_time = dayjs(container.make_time).format("YYYY-MM-DD");
+        } else {
+            make_time = dayjs(container.plan_time).format("YYYY-MM-DD");
+        }
     }
-    const make_time = dayjs(container.make_time).format("YYYY-MM-DD");
+
     const delta_days = (dayjs(make_time).diff(a_time, "day") + 1).toString();
 
     const c_type = container.container_type.substring(0,2);
