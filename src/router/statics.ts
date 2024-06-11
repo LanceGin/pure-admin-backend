@@ -36,7 +36,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.order_type != "" && form.order_type != "暂落") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
   if (form.order_type == "进口") { sql += " and a.dispatch_type != '暂落'" }
   if (form.order_type == "暂落") { sql += " and a.dispatch_type like " + "'%" + form.order_type + "%'" }
-  if (form.fee_name != "") { sql += " and a.fee_name = " + "'" + form.fee_name + "'" }
+  if (form.fee_name != "") { sql += " and a.fee_name like " + "'%" + form.fee_name + "%'" }
   if (form.status != "") { sql += " and a.status like " + "'%" + form.status + "%'" }
   // if (form.make_time != "") { sql += " and b.make_time = " + "'" + form.make_time + "'" }
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and date_format(if(a.dispatch_type = '暂落', b.temp_time, b.make_time), '%Y-%m-%d') between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
@@ -66,7 +66,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.order_type != "" && form.order_type != "暂落") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
   if (form.order_type == "进口") { sql += " and a.dispatch_type != '暂落'" }
   if (form.order_type == "暂落") { sql += " and a.dispatch_type like " + "'%" + form.order_type + "%'" }
-  if (form.fee_name != "") { sql += " and a.fee_name = " + "'" + form.fee_name + "'" }
+  if (form.fee_name != "") { sql += " and a.fee_name like " + "'%" + form.fee_name + "%'" }
   if (form.status != "") { sql += " and a.status like " + "'%" + form.status + "%'" }
   if (form.make_time_range && form.make_time_range.length > 0) { sql += " and date_format(if(a.dispatch_type = '暂落', b.temp_time, b.make_time), '%Y-%m-%d') between " + "'" + form.make_time_range[0] + "' and '" + form.make_time_range[1] + "'" }
   if (form.track_no != "") { sql += " and b.track_no like " + "'%" + form.track_no + "%'" }
