@@ -31,11 +31,13 @@ const vehicleInfoList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select * from vehicle_info where id is not null ";
+  if (form.territory != "") { sql += " and territory like " + "'%" + form.territory + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.driver != "") { sql += " and driver like " + "'%" + form.driver + "%'" }
   if (form.mobile != "") { sql += " and mobile like " + "'%" + form.mobile + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from vehicle_info where id is not null ";
+  if (form.territory != "") { sql += " and territory like " + "'%" + form.territory + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.driver != "") { sql += " and driver like " + "'%" + form.driver + "%'" }
   if (form.mobile != "") { sql += " and mobile like " + "'%" + form.mobile + "%'" }
