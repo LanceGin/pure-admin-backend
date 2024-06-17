@@ -477,6 +477,7 @@ const appliedFeeList = async (req: Request, res: Response) => {
   if (form.apply_time_range && form.apply_time_range.length > 0) { sql += " and DATE_FORMAT(apply_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.apply_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.apply_time_range[1] + "','%Y%m%d')" }
   if (form.fee_no != "") { sql += " and fee_no like " + "'%" + form.fee_no + "%'" }
   if (form.fee_name != "") { sql += " and fee_name like " + "'%" + form.fee_name + "%'" }
+  if (form.apply_department != "") { sql += " and apply_department like " + "'%" + form.apply_department + "%'" }
   if (form.is_pay != "") { sql += " and is_pay like " + "'%" + form.is_pay + "%'" }
   if (form.pay_type != "") { sql += " and pay_type like " + "'%" + form.pay_type + "%'" }
   if (form.status != "") { sql += " and status like " + "'%" + form.status + "%'" }
@@ -487,6 +488,7 @@ const appliedFeeList = async (req: Request, res: Response) => {
   if (form.apply_time_range && form.apply_time_range.length > 0) { sql += " and DATE_FORMAT(apply_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.apply_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.apply_time_range[1] + "','%Y%m%d')" }
   if (form.fee_no != "") { sql += " and fee_no like " + "'%" + form.fee_no + "%'" }
   if (form.fee_name != "") { sql += " and fee_name like " + "'%" + form.fee_name + "%'" }
+  if (form.apply_department != "") { sql += " and apply_department like " + "'%" + form.apply_department + "%'" }
   if (form.is_pay != "") { sql += " and is_pay like " + "'%" + form.is_pay + "%'" }
   if (form.pay_type != "") { sql += " and pay_type like " + "'%" + form.pay_type + "%'" }
   if (form.status != "") { sql += " and status like " + "'%" + form.status + "%'" }

@@ -18,8 +18,9 @@ const xlsx = require("node-xlsx");
 /** 保存验证码 */
 let generateVerify: number;
 
-/** 过期时间 单位：毫秒 默认 1分钟过期，方便演示 */
-let expiresIn = 60000000000;
+/** 过期时间 单位：毫秒 默认 1小时过期，方便演示 */
+// let expiresIn = 60000000000;
+let expiresIn = 3600000;
 
 /**
  * @typedef Error
