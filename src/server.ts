@@ -161,6 +161,7 @@ import {
 } from "./router/vehicle";
 
 import {
+  operationLogList,
   accCompanyList,
   addAccCompany,
   editAccCompany,
@@ -896,6 +897,10 @@ app.post("/editVehicleFee", (req, res) => {
 })
 
 // 通用
+// 通用 - 操作记录接口
+app.post("/operationLogList", (req, res) => {
+  operationLogList(req, res);
+})
 // 通用 - 往来单位列表接口
 app.post("/accCompanyList", (req, res) => {
   accCompanyList(req, res);

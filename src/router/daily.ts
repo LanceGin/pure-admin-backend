@@ -13,6 +13,45 @@ import * as dayjs from "dayjs";
 
 const utils = require("@pureadmin/utils");
 
+// 获取操作记录列表
+const operationLogList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "select * from operation_log where id is not null ";
+  if (form.name != "") { sql += " and name like " + "'%" + form.name + "%'" }
+  sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) from operation_log where id is not null ";
+  if (form.name != "") { sql += " and name like " + "'%" + form.name + "%'" }
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
 // 获取往来单位列表
 const accCompanyList = async (req: Request, res: Response) => {
   const { pagination, form } = req.body;
@@ -667,6 +706,7 @@ const revokeAppliedFee = async (req: Request, res: Response) => {
 
 
 export {
+  operationLogList,
   accCompanyList,
   addAccCompany,
   editAccCompany,

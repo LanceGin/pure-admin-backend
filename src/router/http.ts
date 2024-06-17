@@ -74,6 +74,7 @@ const login = async (req: Request, res: Response) => {
         // createHash("md5").update(password).digest("hex") == data[0].Password
         password == data[0].mima && data[0].zhuangtai == 0
       ) {
+        const addtime = dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss");
         const accessToken = jwt.sign(
           {
             accountId: data[0].id,
@@ -81,20 +82,28 @@ const login = async (req: Request, res: Response) => {
           secret.jwtSecret,
           { expiresIn }
         );
-        await res.json({
-          success: true,
-          data: {
-            message: Message[2],
-            username: data[0].name,
-            city: data[0].city,
-            // 这里模拟角色，根据自己需求修改
-            roles: data[0].roles.split(','),
-            accessToken: accessToken,
-            // 这里模拟刷新token，根据自己需求修改
-            refreshToken: "eyJhbGciOiJIUzUxMiJ9.adminRefresh",
-            expires: new Date(new Date()).getTime() + expiresIn,
-          },
-        });
+        const insert_sql = `insert into operation_log (name, operation, addtime) values ('${username}','登录','${addtime}');`;
+        connection.query(insert_sql, async function (err, result) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(result)
+            await res.json({
+              success: true,
+              data: {
+                message: Message[2],
+                username: data[0].name,
+                city: data[0].city,
+                // 这里模拟角色，根据自己需求修改
+                roles: data[0].roles.split(','),
+                accessToken: accessToken,
+                // 这里模拟刷新token，根据自己需求修改
+                refreshToken: "eyJhbGciOiJIUzUxMiJ9.adminRefresh",
+                expires: new Date(new Date()).getTime() + expiresIn,
+              },
+            });
+          }
+        })
       } else {
         await res.json({
           success: false,
