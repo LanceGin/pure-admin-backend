@@ -31,9 +31,11 @@ const operationLogList = async (req: Request, res: Response) => {
   }
   let sql: string = "select * from operation_log where id is not null ";
   if (form.name != "") { sql += " and name like " + "'%" + form.name + "%'" }
+  if (form.operation != "") { sql += " and operation like " + "'%" + form.operation + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from operation_log where id is not null ";
   if (form.name != "") { sql += " and name like " + "'%" + form.name + "%'" }
+  if (form.operation != "") { sql += " and operation like " + "'%" + form.operation + "%'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);

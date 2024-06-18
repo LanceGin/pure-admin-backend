@@ -20,7 +20,7 @@ let generateVerify: number;
 
 /** 过期时间 单位：毫秒 默认 1小时过期，方便演示 */
 // let expiresIn = 60000000000;
-let expiresIn = 3600000;
+let expiresIn = "1h";
 
 /**
  * @typedef Error
@@ -125,6 +125,7 @@ const userList = async (req: Request, res: Response) => {
   let total = 0;
   let pageSize = 0;
   let currentPage = 0;
+  const addtime = dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss");
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -145,6 +146,7 @@ const userList = async (req: Request, res: Response) => {
   if (form.zhuangtai != "") { sql += " and zhuangtai = " + "'" + form.zhuangtai + "'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and city in ('${form.city.toString().replaceAll(",", "','")}')` }
   if (form.city_type != "") { sql += " and city like " + "'%" + form.city_type + "%'" }
+  sql +=`;insert into operation_log (name, operation, addtime) values ('${form.add_by}','查看员工信息','${addtime}');`
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -474,6 +476,7 @@ const motorcadeList = async (req: Request, res: Response) => {
   let total = 0;
   let pageSize = 0;
   let currentPage = 0;
+  const addtime = dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss");
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -490,6 +493,7 @@ const motorcadeList = async (req: Request, res: Response) => {
   if (form.companyShortName != "") { sql += " and companyShortName like " + "'%" + form.companyShortName + "%'" }
   if (form.companyAddress != "") { sql += " and companyAddress like " + "'%" + form.companyAddress + "%'" }
   if (form.state != "") { sql += " and state = " + "'" + form.state + "'" }
+  sql +=`;insert into operation_log (name, operation, addtime) values ('${form.add_by}','查看客户信息','${addtime}');`
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);

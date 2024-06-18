@@ -23,6 +23,7 @@ const vehicleInfoList = async (req: Request, res: Response) => {
   let total = 0;
   let pageSize = 0;
   let currentPage = 0;
+  const addtime = dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss");
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -41,6 +42,7 @@ const vehicleInfoList = async (req: Request, res: Response) => {
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.driver != "") { sql += " and driver like " + "'%" + form.driver + "%'" }
   if (form.mobile != "") { sql += " and mobile like " + "'%" + form.mobile + "%'" }
+  sql +=`;insert into operation_log (name, operation, addtime) values ('${form.add_by}','查看车辆信息','${addtime}');`
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -197,6 +199,7 @@ const driverInfoList = async (req: Request, res: Response) => {
   let total = 0;
   let pageSize = 0;
   let currentPage = 0;
+  const addtime = dayjs(new Date()).format("YYYY-MM-DD HH:mm:ss");
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -211,6 +214,7 @@ const driverInfoList = async (req: Request, res: Response) => {
   sql +=";select COUNT(*) from driver_info where id is not null ";
   if (form.name != "") { sql += " and name like " + "'%" + form.name + "%'" }
   if (form.mobile != "") { sql += " and mobile like " + "'%" + form.mobile + "%'" }
+  sql +=`;insert into operation_log (name, operation, addtime) values ('${form.add_by}','查看驾驶员信息','${addtime}');`
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
