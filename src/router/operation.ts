@@ -490,7 +490,7 @@ const importExportContainer = async (req: Request, res: Response) => {
     v.push(add_by);
     v.push(city);
   })
-  let sql: string = `insert ignore into container (tmp_excel_no,ship_company,customer,subproject,make_time,load_port,ship_name,track_no,containner_no,container_type,seal_no,door,unload_port,car_no,start_port,target_port,transfer_port,package_count,gross_weight,volume,container_weight,ba_fee,order_status,order_type,container_status,add_by,city) values ?`;
+  let sql: string = `insert ignore into container (tmp_excel_no,ship_company,customer,subproject,make_time,load_port,ship_name,track_no,containner_no,container_type,seal_no,door,unload_port,car_no,start_port,target_port,transfer_port,package_count,gross_weight,volume,container_weight,ba_fee,pay_door,order_status,order_type,container_status,add_by,city) values ?`;
   connection.query(sql, [values], function (err, data) {
     if (err) {
       Logger.error(err);
