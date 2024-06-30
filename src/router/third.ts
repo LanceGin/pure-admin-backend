@@ -22,7 +22,8 @@ const xlsx = require("node-xlsx");
 const uploadReciept = async (req: Request, res: Response) => {
   const { reciept_name, select_id } = req.body;
   const file = req.files[0];
-  const upload_name = renameFileWithoutExtension(file.originalname, reciept_name);
+  let upload_name = renameFileWithoutExtension(file.originalname, reciept_name);
+  upload_name = upload_name + `?${dayjs().unix()}`
 
   // 初始化OSS客户端。请将以下参数替换为您自己的配置信息。
   const client = new OSS({
@@ -62,8 +63,8 @@ const uploadReciept = async (req: Request, res: Response) => {
     // 自定义headers
     ,{headers}
     );
-    let modifySql: string = `UPDATE applied_fee SET reciept_url=? WHERE id = ?;`;
-    let modifyParams: string[] = [upload_name,select_id];
+    let modifySql: string = `UPDATE applied_fee SET reciept_url=? WHERE id = ?; INSERT INTO fee_reciept (fee_id, reciept_url, add_time) values ('${select_id}', '${upload_name}', '${dayjs().format("YYYY-MM-DD HH:mm:ss")}')`;
+    let modifyParams: string[] = ["已上传",select_id];
     connection.query(modifySql, modifyParams, async function (err, result) {
       if (err) {
         Logger.error(err);
@@ -83,7 +84,7 @@ const uploadReciept = async (req: Request, res: Response) => {
 
 // 查看水单
 const showReciept = async (req: Request, res: Response) => {
-  const { reciept_url } = req.body;
+  const { id } = req.body;
 
   // 初始化OSS客户端。请将以下参数替换为您自己的配置信息。
   const client = new OSS({
@@ -102,12 +103,24 @@ const showReciept = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
 
-  res.json({
-    success: true,
-    data: {
-      result: client.signatureUrl(reciept_url)
+  const sql = `select * from fee_reciept where fee_id = '${id}';`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      let a:any = data;
+      const result = a.map(item => {
+        item.reciept_url = client.signatureUrl(item.reciept_url);
+        return item;
+      })
+      await res.json({
+        success: true,
+        data: { 
+          result: result
+        }
+      });
     }
-  })
+  });
 }
 
 // 获取中交url
