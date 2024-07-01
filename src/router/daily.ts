@@ -498,7 +498,7 @@ const deleteContract = async (req: Request, res: Response) => {
 const appliedFeeList = async (req: Request, res: Response) => {
   const { pagination, form } = req.body;
   const admin_list = ["陈雯", "富安"];
-  const city_list = ["李珍","李巧英","唐羽","刘洋","钱波","周佳","胡雪梅","太仓胡雪梅"];
+  const city_list = ["李珍","李巧英","唐羽","刘洋","钱波","周佳","胡雪梅","太仓胡雪梅","田雨鑫","杜艳玲","陆小菁"];
   const page = pagination.currentPage;
   const size = pagination.pageSize;
   let payload = null;
