@@ -123,6 +123,34 @@ const showReciept = async (req: Request, res: Response) => {
   });
 }
 
+// 删除水单
+const deleteReciept = async (req: Request, res: Response) => {
+  const { id } = req.body;
+
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+
+  const sql = `delete from fee_reciept where id = '${id}';`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          result: data
+        }
+      });
+    }
+  });
+}
+
 // 获取中交url
 const getSino = async (req: Request, res: Response) => {
   const { type } = req.body;
@@ -434,6 +462,7 @@ const transferEir = async (req: Request, res: Response) => {
 export {
   uploadReciept,
   showReciept,
+  deleteReciept,
   getSino,
   syncEir,
   submitEir,

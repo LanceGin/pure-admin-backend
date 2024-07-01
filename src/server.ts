@@ -15,6 +15,7 @@ expressSwagger(config.options);
 import {
   uploadReciept,
   showReciept,
+  deleteReciept,
   getSino,
   syncEir,
   submitEir,
@@ -300,6 +301,10 @@ app.post("/uploadReciept", upload_tmp.any(), (req, res) => {
 // 查看水单
 app.post("/showReciept", (req, res) => {
   showReciept(req, res);
+});
+// 删除水单
+app.post("/deleteReciept", (req, res) => {
+  deleteReciept(req, res);
 });
 // 获取中交地址
 app.post("/getSino", (req, res) => {
