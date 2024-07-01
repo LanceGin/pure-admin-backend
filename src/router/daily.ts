@@ -514,7 +514,7 @@ const appliedFeeList = async (req: Request, res: Response) => {
   }
   let sql: string = `select a.*,b.company_name,b.bank,b.account_no from applied_fee as a left join acc_company as b on a.acc_company_id = b.id left join base_company_user as c on c.name = a.apply_by where a.id is not null`;
   if (form.apply_by != "" && !admin_list.includes(form.apply_by) && !city_list.includes(form.apply_by)) { sql += " and apply_by = " + "'" + form.apply_by + "'" }
-  if (form.apply_by != "" && city_list.includes(form.apply_by)) { sql += ` and c.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
+  if (form.apply_by != "" && city_list.includes(form.apply_by)) { sql += ` and left(c.city, 2) in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   if (form.apply_time_range && form.apply_time_range.length > 0) { sql += " and DATE_FORMAT(apply_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.apply_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.apply_time_range[1] + "','%Y%m%d')" }
   if (form.fee_no != "") { sql += " and fee_no like " + "'%" + form.fee_no + "%'" }
   if (form.fee_name != "") { sql += " and fee_name like " + "'%" + form.fee_name + "%'" }
@@ -525,7 +525,7 @@ const appliedFeeList = async (req: Request, res: Response) => {
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=`;select COUNT(*) from applied_fee as a left join acc_company as b on a.acc_company_id = b.id left join base_company_user as c on c.name = a.apply_by where a.id is not null`;
   if (form.apply_by != "" && !admin_list.includes(form.apply_by) && !city_list.includes(form.apply_by)) { sql += " and apply_by = " + "'" + form.apply_by + "'" }
-  if (form.apply_by != "" && city_list.includes(form.apply_by)) { sql += ` and c.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
+  if (form.apply_by != "" && city_list.includes(form.apply_by)) { sql += ` and left(c.city, 2) in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   if (form.apply_time_range && form.apply_time_range.length > 0) { sql += " and DATE_FORMAT(apply_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.apply_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.apply_time_range[1] + "','%Y%m%d')" }
   if (form.fee_no != "") { sql += " and fee_no like " + "'%" + form.fee_no + "%'" }
   if (form.fee_name != "") { sql += " and fee_name like " + "'%" + form.fee_name + "%'" }
