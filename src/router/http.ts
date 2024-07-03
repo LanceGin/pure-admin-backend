@@ -1490,6 +1490,7 @@ const lighteringList = async (req: Request, res: Response) => {
   }
   let sql: string = "select id,type,container_no,seal_no,is_import,cargo_name,voyage,voyage_index,customs_container_type,container_type,container_holder,iso,extra_operation,trade_type,bl_no,load_port,target_port,unload_port,load_payer,unload_payer,total_weight,cargo_weight,volume,amount,cargo_owner,forwarder,remarks,date_format(add_time, '%Y-%m-%d') as add_time,empty_weight,transfer_type from lightering where type = " + form.type;
   if (form.add_time && form.add_time.length > 0) { sql += " and DATE_FORMAT(add_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.add_time[0] + "','%Y%m%d') and DATE_FORMAT('" + form.add_time[1] + "','%Y%m%d')" }
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and date_format(add_time, '%Y-%m-%d') between " + "'" + dayjs(form.make_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.make_time_range[1]).format('YYYY-MM-DD') + "'" }
   if (form.voyage != "") { sql += " and voyage like " + "'%" + form.voyage + "%'" }
   if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
   if (form.container_no != "") {
@@ -1499,6 +1500,7 @@ const lighteringList = async (req: Request, res: Response) => {
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from lightering where type = " + form.type;
   if (form.add_time && form.add_time.length > 0) { sql += " and DATE_FORMAT(add_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.add_time[0] + "','%Y%m%d') and DATE_FORMAT('" + form.add_time[1] + "','%Y%m%d')" }
+  if (form.make_time_range && form.make_time_range.length > 0) { sql += " and date_format(add_time, '%Y-%m-%d') between " + "'" + dayjs(form.make_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.make_time_range[1]).format('YYYY-MM-DD') + "'" }
   if (form.voyage != "") { sql += " and voyage like " + "'%" + form.voyage + "%'" }
   if (form.cargo_name != "") { sql += " and cargo_name like " + "'%" + form.cargo_name + "%'" }
   if (form.container_no != "") {
