@@ -20,7 +20,7 @@ let generateVerify: number;
 
 /** 过期时间 单位：毫秒 默认 1小时过期，方便演示 */
 // let expiresIn = 60000000000;
-let expiresIn = "1h";
+let expiresIn = 3600000;
 
 /**
  * @typedef Error
@@ -99,7 +99,7 @@ const login = async (req: Request, res: Response) => {
                 accessToken: accessToken,
                 // 这里模拟刷新token，根据自己需求修改
                 refreshToken: "eyJhbGciOiJIUzUxMiJ9.adminRefresh",
-                expires: new Date(new Date()).getTime() + expiresIn,
+                expires: new Date(new Date().getTime() + expiresIn),
               },
             });
           }
