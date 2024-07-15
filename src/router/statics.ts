@@ -431,6 +431,48 @@ const vehicleFeeStatList = async (req: Request, res: Response) => {
   });
 };
 
+// 获取业务量统计列表
+const dispatchStatList = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let payload = null;
+  let total = 0;
+  let pageSize = 0;
+  let currentPage = 0;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = "SELECT b.city,count(a.id) as total, COUNT(IF(a.type = '拆箱',true,null)) as a, COUNT(IF(a.type = '装箱',true,null)) as b, COUNT(IF(a.type = '暂落',true,null)) as c FROM dispatch as a LEFT JOIN container as b on b.id = a.container_id WHERE a.id is not null ";
+  if (form.city != "") { sql += " and b.city like " + "'%" + form.city + "%'" }
+  if (form.time_range && form.time_range.length > 0) { sql += " and date_format(a.add_time, '%Y-%m-%d') between " + "'" + dayjs(form.time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.time_range[1]).format('YYYY-MM-DD') + "'" }
+  sql +=" GROUP BY b.city limit " + size + " offset " + size * (page - 1);
+  sql +=";select COUNT(*) FROM (SELECT b.city,count(a.id) as total, COUNT(IF(a.type = '拆箱',true,null)) as a, COUNT(IF(a.type = '装箱',true,null)) as b, COUNT(IF(a.type = '暂落',true,null)) as c FROM dispatch as a LEFT JOIN container as b on b.id = a.container_id WHERE a.id is not null ";
+  if (form.city != "") { sql += " and b.city like " + "'%" + form.city + "%'" }
+  if (form.time_range && form.time_range.length > 0) { sql += " and date_format(a.add_time, '%Y-%m-%d') between " + "'" + dayjs(form.time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.time_range[1]).format('YYYY-MM-DD') + "'" }
+  sql += " GROUP BY b.city) as t";
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      total = data[1][0]['COUNT(*)'];
+      await res.json({
+        success: true,
+        data: { 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
+        },
+      });
+    }
+  });
+};
+
 // 获取驳运价格列表
 const lighteringPriceList = async (req: Request, res: Response) => {
   const { pagination, form } = req.body;
@@ -847,6 +889,7 @@ export {
   dataCheckCollection,
   dataCheckPay,
   vehicleFeeStatList,
+  dispatchStatList,
   lighteringPriceList,
   addLighteringPrice,
   deleteLighteringPrice,

@@ -232,6 +232,7 @@ import {
   dataCheckCollection,
   dataCheckPay,
   vehicleFeeStatList,
+  dispatchStatList,
   lighteringPriceList,
   addLighteringPrice,
   deleteLighteringPrice,
@@ -667,6 +668,10 @@ app.post("/dataCheckPay", upload_tmp.any(), (req, res) => {
 // 统计管理 - 车辆费用统计接口
 app.post("/vehicleFeeStatList", (req, res) => {
   vehicleFeeStatList(req, res);
+})
+// 统计管理 - 业务量统计接口
+app.post("/dispatchStatList", (req, res) => {
+  dispatchStatList(req, res);
 })
 // 统计管理 - 驳运价格列表接口
 app.post("/lighteringPriceList", (req, res) => {
