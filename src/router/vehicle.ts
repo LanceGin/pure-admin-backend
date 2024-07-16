@@ -36,12 +36,14 @@ const vehicleInfoList = async (req: Request, res: Response) => {
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.driver != "") { sql += " and driver like " + "'%" + form.driver + "%'" }
   if (form.mobile != "") { sql += " and mobile like " + "'%" + form.mobile + "%'" }
+  if (form.status != "" && form.status != undefined) { sql += " and status like " + "'%" + form.status + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from vehicle_info where id is not null ";
   if (form.territory != "") { sql += " and territory like " + "'%" + form.territory + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.driver != "") { sql += " and driver like " + "'%" + form.driver + "%'" }
   if (form.mobile != "") { sql += " and mobile like " + "'%" + form.mobile + "%'" }
+  if (form.status != "" && form.status != undefined) { sql += " and status like " + "'%" + form.status + "%'" }
   sql +=`;insert into operation_log (name, operation, addtime) values ('${form.add_by}','查看车辆信息','${addtime}');`
   connection.query(sql, async function (err, data) {
     if (err) {
@@ -142,7 +144,8 @@ const editVehicleInfo = async (req: Request, res: Response) => {
     driver,
     mobile,
     attribute,
-    remark
+    remark,
+    status
   } = req.body;
   let payload = null;
   try {
@@ -152,8 +155,8 @@ const editVehicleInfo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE vehicle_info SET territory = ?,brand = ?,car_no = ?,emission = ?,life = ?,axles = ?,owner = ?,attachment = ?,oil_card_owner = ?,hang_board_no = ?,driver = ?,mobile = ?,attribute = ?,remark = ? WHERE id = ?";
-  let modifyParams: string[] = [territory,brand,car_no,emission,life,axles,owner,attachment,oil_card_owner,hang_board_no,driver,mobile,attribute,remark,id];
+  let modifySql: string = "UPDATE vehicle_info SET territory = ?,brand = ?,car_no = ?,emission = ?,life = ?,axles = ?,owner = ?,attachment = ?,oil_card_owner = ?,hang_board_no = ?,driver = ?,mobile = ?,attribute = ?,remark = ?,status = ? WHERE id = ?";
+  let modifyParams: string[] = [territory,brand,car_no,emission,life,axles,owner,attachment,oil_card_owner,hang_board_no,driver,mobile,attribute,remark,status,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
