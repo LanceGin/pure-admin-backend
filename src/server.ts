@@ -224,6 +224,7 @@ import {
 
 import {
   containerFeeList,
+  confirmContainerFee,
   submitContainerFee,
   setInvoiceNo,
   setAmount,
@@ -636,6 +637,10 @@ app.post("/editProjectFee", (req, res) => {
 // 统计管理 - 统计费用列表接口
 app.post("/containerFeeList", (req, res) => {
   containerFeeList(req, res);
+})
+// 统计管理 - 确认统计费用接口
+app.post("/confirmContainerFee", (req, res) => {
+  confirmContainerFee(req, res);
 })
 // 统计管理 - 提交统计费用接口
 app.post("/submitContainerFee", (req, res) => {

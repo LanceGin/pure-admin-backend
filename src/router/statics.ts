@@ -108,6 +108,31 @@ const containerFeeList = async (req: Request, res: Response) => {
   });
 };
 
+// 确认统计费用
+const confirmContainerFee = async (req: Request, res: Response) => {
+  const { select_id, data } = req.body;
+  const status = "已确认"
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE container_fee SET status = '${status}',remark = '${data.remark}',submit_by = '${data.submit_by}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
 // 提交统计费用
 const submitContainerFee = async (req: Request, res: Response) => {
   const { select_id, data } = req.body;
@@ -881,6 +906,7 @@ const editBulkPrice = async (req: Request, res: Response) => {
 
 export {
   containerFeeList,
+  confirmContainerFee,
   submitContainerFee,
   setInvoiceNo,
   setAmount,
