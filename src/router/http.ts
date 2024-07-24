@@ -20,7 +20,7 @@ let generateVerify: number;
 
 /** 过期时间 单位：毫秒 默认 1小时过期，方便演示 */
 // let expiresIn = 60000000000;
-let expiresIn = 3600000;
+let expiresIn = 36000000;
 
 /**
  * @typedef Error
