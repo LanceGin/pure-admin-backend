@@ -1458,8 +1458,8 @@ const editBulkCargo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE bulk_cargo SET type = ?,customer = ?,ship_company = ?,fleet = ?,load_area = ?,unload_area = ?,load_address = ?,unload_address = ?,bl_no = ?,container_no = ?,container_type = ?,seal_no = ?,start_point = ?,flow_direction = ?,voyage = ?,address = ?,car_type = ?,car_no = ?,driver_mobile = ?,booking_fee = ?,exchange_fee = ?,freight = ?,error_fee = ?,remarks = ?,add_time = ? WHERE id = ?";
-  let modifyParams: string[] = [type,customer,ship_company,fleet,load_area,unload_area,load_address,unload_address,bl_no,container_no,container_type,seal_no,start_point,flow_direction,voyage,address,car_type,car_no,driver_mobile,booking_fee,exchange_fee,freight,error_fee,remarks,add_time, id];
+  let modifySql: string = "UPDATE bulk_cargo as a left join container as b on b.seal_no = a.seal_no SET a.type = ?,a.customer = ?,a.ship_company = ?,a.fleet = ?,a.load_area = ?,a.unload_area = ?,a.load_address = ?,a.unload_address = ?,a.bl_no = ?,a.container_no = ?,a.container_type = ?,a.seal_no = ?,a.start_point = ?,a.flow_direction = ?,a.voyage = ?,a.address = ?,a.car_type = ?,a.car_no = ?,a.driver_mobile = ?,a.booking_fee = ?,a.exchange_fee = ?,a.freight = ?,a.error_fee = ?,a.remarks = ?,a.add_time = ?,b.make_time = ?,b.plan_time = ? WHERE a.id = ?";
+  let modifyParams: string[] = [type,customer,ship_company,fleet,load_area,unload_area,load_address,unload_address,bl_no,container_no,container_type,seal_no,start_point,flow_direction,voyage,address,car_type,car_no,driver_mobile,booking_fee,exchange_fee,freight,error_fee,remarks,add_time,add_time,add_time,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
