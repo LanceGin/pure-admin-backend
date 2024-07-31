@@ -31,7 +31,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `SELECT a.id as fee_id, a.status, a.account_period, a.dispatch_type, a.type, CONVERT(a.amount, DECIMAL(10, 2)) as amount, (a.amount-a.less_amount+a.more_amount) as actual_amount, a.invoice_no, a.fee_name, a.fee_type, a.custom_name, a.project_name, a.content, a.flow_direction,a.remark as fee_remark, b.*, c.owner as car_owner, d.car_no as temp_car_no, e.car_no as empty_car_no FROM container_fee as a left join container as b on a.container_id = b.id left join (select * from vehicle_info WHERE id in  (SELECT max(id) as id FROM vehicle_info GROUP BY car_no)) as c on c.car_no = b.car_no left join dispatch as d on d.container_id = a.container_id and d.type = '暂落' left join dispatch as e on e.container_id = a.container_id and e.type = '放空' where a.id is not null and a.amount not in  ('0','0.00') `;
+  let sql: string = `SELECT a.id as fee_id, a.status, a.account_period, a.dispatch_type, a.type, CONVERT(a.amount, DECIMAL(10, 2)) as amount, (a.amount-a.less_amount+a.more_amount) as actual_amount, a.invoice_no, a.fee_name, a.fee_type, a.custom_name, a.project_name, a.content, a.flow_direction,a.remark as fee_remark,a.confirm_remark, b.*, c.owner as car_owner, d.car_no as temp_car_no, e.car_no as empty_car_no FROM container_fee as a left join container as b on a.container_id = b.id left join (select * from vehicle_info WHERE id in  (SELECT max(id) as id FROM vehicle_info GROUP BY car_no)) as c on c.car_no = b.car_no left join dispatch as d on d.container_id = a.container_id and d.type = '暂落' left join dispatch as e on e.container_id = a.container_id and e.type = '放空' where a.id is not null and a.amount not in  ('0','0.00') `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.order_type != "" && form.order_type != "暂落") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
   if (form.order_type == "进口") { sql += " and a.dispatch_type != '暂落'" }
@@ -58,6 +58,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
   if (form.car_owner != "") { sql += " and c.owner like " + "'%" + form.car_owner + "%'" }
   if (form.remark != "") { sql += " and a.remark like " + "'%" + form.remark + "%'" }
+  if (form.confirm_remark != "") { sql += " and a.confirm_remark like " + "'%" + form.confirm_remark + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
   sql +=" order by a.id desc limit " + size + " offset " + size * (page - 1);
@@ -86,6 +87,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
   if (form.car_owner != "") { sql += " and c.owner like " + "'%" + form.car_owner + "%'" }
   if (form.remark != "") { sql += " and a.remark like " + "'%" + form.remark + "%'" }
+  if (form.confirm_remark != "") { sql += " and a.confirm_remark like " + "'%" + form.confirm_remark + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
   connection.query(sql, async function (err, data) {
@@ -120,7 +122,31 @@ const confirmContainerFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container_fee SET status = '${status}',remark = '${data.remark}',submit_by = '${data.submit_by}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container_fee SET status = '${status}',confirm_remark = '${data.confirm_remark}',submit_by = '${data.submit_by}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  connection.query(sql, async function (err, data) {
+    if (err) {
+      console.log(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[8] },
+      });
+    }
+  });
+};
+
+// 撤销确认统计费用
+const revokeContainerFee = async (req: Request, res: Response) => {
+  const { select_id } = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE container_fee SET status = '未提交',confirm_remark = NULL,submit_by = NULL WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -907,6 +933,7 @@ const editBulkPrice = async (req: Request, res: Response) => {
 export {
   containerFeeList,
   confirmContainerFee,
+  revokeContainerFee,
   submitContainerFee,
   setInvoiceNo,
   setAmount,

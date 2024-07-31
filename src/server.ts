@@ -225,6 +225,7 @@ import {
 import {
   containerFeeList,
   confirmContainerFee,
+  revokeContainerFee,
   submitContainerFee,
   setInvoiceNo,
   setAmount,
@@ -641,6 +642,10 @@ app.post("/containerFeeList", (req, res) => {
 // 统计管理 - 确认统计费用接口
 app.post("/confirmContainerFee", (req, res) => {
   confirmContainerFee(req, res);
+})
+// 统计管理 - 撤销确认统计费用接口
+app.post("/revokeContainerFee", (req, res) => {
+  revokeContainerFee(req, res);
 })
 // 统计管理 - 提交统计费用接口
 app.post("/submitContainerFee", (req, res) => {
