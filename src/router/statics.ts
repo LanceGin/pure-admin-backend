@@ -247,7 +247,7 @@ const setRemark = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container_fee as a left join container as b on b.id = a.container_id SET a.remark = '${remark.value}' WHERE a.id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container_fee as a left join container as b on b.id = a.container_id SET a.confirm_remark = '${remark.value}' WHERE a.id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, result) {
     if (err) {
       Logger.error(err);
