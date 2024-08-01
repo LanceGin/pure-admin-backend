@@ -641,12 +641,16 @@ const vehicleRefuelList = async (req: Request, res: Response) => {
   if (form.addtime != "") { sql += " and addtime = " + "'" + form.addtime + "'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.type != "") { sql += " and type like " + "'%" + form.type + "%'" }
+  if (form.city != "") { sql += " and city like " + "'%" + form.city + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from vehicle_refuel where id is not null ";
   if (form.addtime != "") { sql += " and addtime = " + "'" + form.addtime + "'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.type != "") { sql += " and type like " + "'%" + form.type + "%'" }
-  sql += ";select sum(volume) as total,type from vehicle_refuel group by type"
+  if (form.city != "") { sql += " and city like " + "'%" + form.city + "%'" }
+  sql += ";select sum(volume) as total,type from vehicle_refuel " 
+  if (form.city != "") { sql += " where city like " + "'%" + form.city + "%'" }
+  sql +=" group by type"
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -683,7 +687,8 @@ const addVehicleRefuel = async (req: Request, res: Response) => {
     volume,
     unit_price,
     type,
-    remark
+    remark,
+    city
   } = req.body;
   let payload = null;
   const amount = volume * unit_price;
@@ -696,7 +701,7 @@ const addVehicleRefuel = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into vehicle_refuel (car_no,driver,addtime,volume,unit_price,type,amount,remark) values ('${car}','${driver}','${addtime}','${volume}','${unit_price}','${type}','${amount}','${remark}')`;
+  let sql: string = `insert into vehicle_refuel (car_no,driver,addtime,volume,unit_price,type,amount,remark,city) values ('${car}','${driver}','${addtime}','${volume}','${unit_price}','${type}','${amount}','${remark}','${city}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -719,7 +724,8 @@ const editVehicleRefuel = async (req: Request, res: Response) => {
     unit_price,
     type,
     amount,
-    remark
+    remark,
+    city
   } = req.body;
   let payload = null;
   const car = car_no.split('-')[0];
@@ -731,8 +737,8 @@ const editVehicleRefuel = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE vehicle_refuel SET car_no = ?,driver = ?,addtime = ?,volume = ?,unit_price = ?,type = ?,amount = ?,remark = ? WHERE id = ?";
-  let modifyParams: string[] = [car,driver,addtime,volume,unit_price,type,amount,remark,id];
+  let modifySql: string = "UPDATE vehicle_refuel SET car_no = ?,driver = ?,addtime = ?,volume = ?,unit_price = ?,type = ?,amount = ?,remark = ?,city = ? WHERE id = ?";
+  let modifyParams: string[] = [car,driver,addtime,volume,unit_price,type,amount,remark,city,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
