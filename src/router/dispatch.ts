@@ -93,6 +93,31 @@ const dispatchCar = async (req: Request, res: Response) => {
   });
 };
 
+// 一键生成派车表
+const generateDispatch = async (req: Request, res: Response) => {
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `select a.add_time, b.containner_no, a.car_no from dispatch as a left join container as b on b.id = a.container_id where b.city = "上海" and a.status = "未派车";`
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { 
+          list: result 
+        },
+      });
+    }
+  });
+};
+
 // 批量导入派车
 const importDispatch = async (req: Request, res: Response) => {
   const file_path = req.files[0].path;
@@ -109,7 +134,6 @@ const importDispatch = async (req: Request, res: Response) => {
     select_sql += `'${v[1]}',`;
   })
   select_sql = select_sql.replace(/,$/, '') + ") and order_type = '进口' and container_status = '运输中';";
-  console.log(11111, sql);
   connection.query(sql, function (err, data) {
     if (err) {
       Logger.error(err);
@@ -606,6 +630,33 @@ const oneStepFinish = async (req: Request, res: Response) => {
   });
 };
 
+// 一键放空
+const oneStepEmpty = async (req: Request, res: Response) => {
+  const select_container_id = req.body;
+  let payload = null;
+  try {
+    const authorizationHeader = req.get("Authorization") as string;
+    const accessToken = authorizationHeader.substr("Bearer ".length);
+    payload = jwt.verify(accessToken, secret.jwtSecret);
+  } catch (error) {
+    return res.status(401).end();
+  }
+  let sql: string = `UPDATE container_fee SET dispatch_type = '放空' WHERE dispatch_type = '拆箱' and (fee_name = '计划费' or fee_name = '堆存费') and container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  sql += `UPDATE container_fee SET dispatch_type = '放空', fee_name = '放空费', amount = '200' WHERE dispatch_type = '拆箱' and fee_name = '拖车费' and container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  sql += `UPDATE dispatch SET type = '放空', trans_status = '已完成' WHERE type = '拆箱' and container_id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  sql += `UPDATE container SET container_status = '待挑箱' WHERE id in ('${select_container_id.toString().replaceAll(",", "','")}');`;
+  connection.query(sql, async function (err, result) {
+    if (err) {
+      Logger.error(err);
+    } else {
+      await res.json({
+        success: true,
+        data: { message: Message[7] },
+      });
+    }
+  });
+};
+
 // 一键撤回
 const oneStepRevoke = async (req: Request, res: Response) => {
   const {
@@ -685,6 +736,7 @@ export {
   editWhExport,
   tempDropFinish,
   oneStepFinish,
+  oneStepEmpty,
   oneStepRevoke,
   dispatchRevoke,
 };

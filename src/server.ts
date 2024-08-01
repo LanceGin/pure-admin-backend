@@ -127,6 +127,7 @@ import {
   whDispatchList,
   editWhExport,
   oneStepFinish,
+  oneStepEmpty,
   oneStepRevoke,
   dispatchRevoke,
 } from "./router/dispatch";
@@ -796,6 +797,10 @@ app.post("/tempDropFinish", (req, res) => {
 // 调度管理 - 一键完成
 app.post("/oneStepFinish", (req, res) => {
   oneStepFinish(req, res);
+})
+// 调度管理 - 一键放空
+app.post("/oneStepEmpty", (req, res) => {
+  oneStepEmpty(req, res);
 })
 // 调度管理 - 一键撤回
 app.post("/oneStepRevoke", (req, res) => {
