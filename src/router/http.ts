@@ -1341,7 +1341,7 @@ const generateBulkFee = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   select_item.forEach((item) => {
-    let container_sql:string = `insert ignore into container (order_status,order_type,container_status,make_time,seal_no,containner_no,container_type,customer,start_port,target_port,car_no,remark,add_by,city) values ('已提交','散货','已完成','${item.add_time}','${item.seal_no}','${item.container_no}','${item.car_type}','${item.customer}','${item.load_address}','${item.unload_address}','${item.fleet}','${item.remarks}','${add_by}','${city}');`;
+    let container_sql:string = `insert ignore into container (order_status,order_type,container_status,make_time,seal_no,containner_no,container_type,customer,start_port,target_port,car_no,remark,add_by,city) values ('已提交','散货','已完成','${item.add_time}','${item.seal_no}','${item.container_no}','${item.car_type}','${item.customer}','${item.load_address}','${item.unload_address}','${item.fleet}','${item.remarks}','${item.add_by}','${item.city}');`;
     connection.query(container_sql, function (err, data) {
       if (err) {
         console.log(err);
