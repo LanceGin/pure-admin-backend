@@ -52,6 +52,9 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.temp_port != "") { sql += " and b.temp_port like " + "'%" + form.temp_port + "%'" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
+  if (form.start_port != "") { sql += " and b.start_port like " + "'%" + form.start_port + "%'" }
+  if (form.target_port != "") { sql += " and b.target_port like " + "'%" + form.target_port + "%'" }
+  if (form.container_type != "") { sql += " and b.container_type like " + "'%" + form.container_type + "%'" }
   // if (form.car_no != "") { sql += " and b.car_no like " + "'%" + form.car_no + "%'" }
   if (form.car_no != "") { sql += " and if(a.dispatch_type = '暂落', d.car_no like " + "'%" + form.car_no + "%', if(a.dispatch_type = '放空', e.car_no like " + "'%" + form.car_no + "%', b.car_no like " + "'%" + form.car_no + "%'))" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
@@ -82,6 +85,9 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.load_port != "") { sql += " and b.load_port like " + "'%" + form.load_port + "%'" }
   if (form.temp_port != "") { sql += " and b.temp_port like " + "'%" + form.temp_port + "%'" }
   if (form.door != "") { sql += " and b.door like " + "'%" + form.door + "%'" }
+  if (form.start_port != "") { sql += " and b.start_port like " + "'%" + form.start_port + "%'" }
+  if (form.target_port != "") { sql += " and b.target_port like " + "'%" + form.target_port + "%'" }
+  if (form.container_type != "") { sql += " and b.container_type like " + "'%" + form.container_type + "%'" }
   if (form.car_no != "") { sql += " and if(a.dispatch_type = '暂落', d.car_no like " + "'%" + form.car_no + "%', if(a.dispatch_type = '放空', e.car_no like " + "'%" + form.car_no + "%', b.car_no like " + "'%" + form.car_no + "%'))" }
   if (form.customer != "") { sql += " and b.customer like " + "'%" + form.customer + "%'" }
   if (form.custom_name != "") { sql += " and b.custom_name like " + "'%" + form.custom_name + "%'" }
