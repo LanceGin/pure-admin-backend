@@ -4,11 +4,12 @@ import config from "./config";
 const jsSHA = require('jssha');
 import * as dayjs from "dayjs";
 import * as multer from "multer";
+import axios from "axios";
 import { user } from "./models/mysql";
 import Logger from "./loaders/logger";
 import { queryTable } from "./utils/mysql";
-const expressSwagger = require("express-swagger-generator")(app);
-expressSwagger(config.options);
+// const expressSwagger = require("express-swagger-generator")(app);
+// expressSwagger(config.options);
 
 // queryTable(user);
 
@@ -114,6 +115,7 @@ import {
 
 import {
   unpackingList,
+  generateDispatch,
   dispatchCar,
   importDispatch,
   generateDispatchWithContainer,
@@ -271,7 +273,9 @@ const wx_config ={
 }
 
 // 微信配置
-app.get('/wechat',function(req,res,next){ 
+app.get('/',function(req,res,next){ 
+
+    console.log(111111, req.query);
    
     const { token } = wx_config;
       //1.处理微信请求所带参数 signature（微信加密签名）、timestamp（时间戳）、 nonce（随机数）、echostr （随机字符串）；
@@ -280,23 +284,40 @@ app.get('/wechat',function(req,res,next){
       nonce = req.query.nonce,//随机数
       echostr = req.query.echostr;//随机字符串
       //2.将token、timestamp、nonce三个参数进行字典序排序
-      var array = [token,timestamp,nonce];
-      array.sort();
-      //3.将三个参数字符串拼接成一个字符串进行sha1加密
-      var tempStr = array.join('');
-      var shaObj = new jsSHA('SHA-1', 'TEXT');
-      shaObj.update(tempStr);
-      var scyptoString=shaObj.getHash('HEX');
-       //4.开发者获得加密后的字符串可与signature对比，标识该请求来源于微信
-      console.log(11111, signature, scyptoString);
-      if(signature === scyptoString){ 
-   
-          res.send(echostr);
-      }else{ 
-   
-          res.send('error');
-      }
+    var array = [token,timestamp,nonce];
+    array.sort();
+    //3.将三个参数字符串拼接成一个字符串进行sha1加密
+    var tempStr = array.join('');
+    var shaObj = new jsSHA('SHA-1', 'TEXT');
+    shaObj.update(tempStr);
+    var scyptoString=shaObj.getHash('HEX');
+     //4.开发者获得加密后的字符串可与signature对比，标识该请求来源于微信
+    if(signature === scyptoString){ 
+        res.send(echostr);
+    }else{ 
+        res.send('error');
+    }
 })
+// 微信回调
+app.get('/wx_redirect',function(req,res,next){ 
+  console.log(22222, req.query);
+  const params = {
+    appid: "wxa3bd242efa9ea799",
+    secret: "354323eef870f3a9a732dfdc0be9c914",
+    code: req.query.code,
+    grant_type: "authorization_code"
+  }
+   
+  axios.get('https://api.weixin.qq.com/sns/oauth2/access_token', { params })
+    .then(function (response) {
+      console.log(response.data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    }); 
+  res.send('wx_redirect');
+})
+
 // 三方接口
 // 上传水单
 app.post("/uploadReciept", upload_tmp.any(), (req, res) => {
@@ -737,6 +758,10 @@ app.post("/editBulkPrice", (req, res) => {
 // 调度管理 - 拆箱列表
 app.post("/unpackingList", (req, res) => {
   unpackingList(req, res);
+})
+// 一键生成派车单
+app.post("/generateDispatch", (req, res) => {
+  generateDispatch(req, res);
 })
 // 调度管理 - 派车
 app.post("/dispatchCar", (req, res) => {

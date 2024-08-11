@@ -95,6 +95,10 @@ const dispatchCar = async (req: Request, res: Response) => {
 
 // 一键生成派车表
 const generateDispatch = async (req: Request, res: Response) => {
+  const { pagination, form } = req.body;
+  const page = pagination.currentPage;
+  const size = pagination.pageSize;
+  let total = 0;
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -103,15 +107,21 @@ const generateDispatch = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `select a.add_time, b.containner_no, a.car_no from dispatch as a left join container as b on b.id = a.container_id where b.city = "上海" and a.status = "未派车";`
-  connection.query(sql, async function (err, result) {
+  let sql: string = " select * from (select a.id as dispatch_id, a.type, a.status, b.make_time, b.containner_no, c.car_no from dispatch as a left join container as b on b.id = a.container_id  join vehicle_info as c  where a.type in ('拆箱','暂落') and a.status = '未派车' and c.status = '正常' ";
+  if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}') and c.territory in ('${form.city.split(",").toString().replaceAll(",", "','")}') ` }
+  sql +=" ORDER BY RAND()) as t GROUP BY t.containner_no;select COUNT(*) from dispatch as a left join container as b on b.id = a.container_id where a.type in ('拆箱','暂落') and a.status = '未派车' ";
+  connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
     } else {
+      total = data[1][0]['COUNT(*)'];
       await res.json({
         success: true,
         data: { 
-          list: result 
+          list: data[0],
+          total: total,
+          pageSize: size,
+          currentPage: page,
         },
       });
     }
@@ -723,6 +733,7 @@ const dispatchRevoke = async (req: Request, res: Response) => {
 
 export {
   unpackingList,
+  generateDispatch,
   dispatchCar,
   importDispatch,
   generateDispatchWithContainer,
