@@ -431,7 +431,8 @@ const updateDispatchFee = async (req: Request, res: Response) => {
     let dispatch_type = "拆箱";
     let pay_fee_port = container.load_port;
     let collect_fee_port = container.load_port;
-    let op_door = container.door;
+    let collect_door = container.door;
+    let pay_door = container.door;
     if (container.order_type === "进口") {
       a = "i";
     } else if (container.order_type === "出口") {
@@ -443,17 +444,20 @@ const updateDispatchFee = async (req: Request, res: Response) => {
     if (container.transfer_port !== null && container.transfer_port !== "") {
       pay_fee_port = container.transfer_port;
     }
-    if (container.type == "暂落" ) {
-      op_door = container.temp_port;
+    if (container.pay_door !== null && container.pay_door !== "") {
+      pay_door = container.pay_door;
+    }
+    if (container.temp_status === "已暂落") {
+      collect_door = container.temp_port;
+      pay_door = container.temp_port;
       dispatch_type = "暂落";
-    } 
-    if (container.type == "拆箱" || container.temp_port !== null) {
+    } else if (container.temp_port !== null) {
       pay_fee_port = container.temp_port;
       collect_fee_port = container.temp_port;
     }
     const b = a + container.container_type.toLowerCase();
-    let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${op_door}' and port = '${pay_fee_port}';`
-    select_sql += `select ${b} from door_price where is_pay = '0' and customer = '${container.customer}' and door = '${op_door}' and port = '${collect_fee_port}';`
+    let select_sql:string = `select ${b} from door_price where is_pay = '1' and customer = '${container.customer}' and door = '${pay_door}' and port = '${pay_fee_port}';`
+    select_sql += `select ${b} from door_price where is_pay = '0' and customer = '${container.customer}' and door = '${collect_door}' and port = '${collect_fee_port}';`
     connection.query(select_sql, function (err, data) {
       if (err) {
         console.log(err);
