@@ -526,6 +526,8 @@ const appliedFeeList = async (req: Request, res: Response) => {
   if (form.pay_type != "") { sql += " and pay_type like " + "'%" + form.pay_type + "%'" }
   if (form.status != "") { sql += " and status like " + "'%" + form.status + "%'" }
   if (form.remark != "") { sql += " and a.remark like " + "'%" + form.remark + "%'" }
+  if (form.reciept_url == "已上传" || form.reciept_url == "") { sql += " and a.reciept_url like " + "'%" + form.reciept_url + "%'" }
+  if (form.reciept_url == "未上传") { sql += " and a.reciept_url = ''" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=`;select COUNT(*) from applied_fee as a left join acc_company as b on a.acc_company_id = b.id left join base_company_user as c on c.name = a.apply_by where a.id is not null`;
   if (form.apply_by != "" && !admin_list.includes(form.apply_by) && !city_list.includes(form.apply_by)) { sql += " and apply_by = " + "'" + form.apply_by + "'" }
@@ -541,6 +543,8 @@ const appliedFeeList = async (req: Request, res: Response) => {
   if (form.pay_type != "") { sql += " and pay_type like " + "'%" + form.pay_type + "%'" }
   if (form.status != "") { sql += " and status like " + "'%" + form.status + "%'" }
   if (form.remark != "") { sql += " and a.remark like " + "'%" + form.remark + "%'" }
+  if (form.reciept_url == "已上传" || form.reciept_url == "") { sql += " and a.reciept_url like " + "'%" + form.reciept_url + "%'" }
+  if (form.reciept_url == "未上传") { sql += " and a.reciept_url = ''" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
