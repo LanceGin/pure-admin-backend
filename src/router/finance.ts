@@ -181,7 +181,11 @@ const generatePlanningFee = async (req: Request, res: Response) => {
       } else {
         let amount = actual_amount.value / select_container.length;
         if ( actual_amount.value === null || container.temp_status == "已暂落") {
-          amount = calPlanningFee(data,container)
+          if (data[0] != undefined) {
+            amount = calPlanningFee(data,container);
+          } else {
+            amount = 9999;
+          }
         }
         let insert_sql: string = `insert into container_fee (container_id, type, dispatch_type, fee_name, amount) values ('${container.id}','${type_pay}','${type}','${fee_name}','${amount.toFixed(2)}');`;
         insert_sql += `insert into container_fee (container_id, type, dispatch_type, fee_name, amount) values ('${container.id}','${type_collect}','${type}','${fee_name}','${amount.toFixed(2)}');`
