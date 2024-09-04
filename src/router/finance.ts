@@ -1177,7 +1177,8 @@ const collectionContainerList = async (req: Request, res: Response) => {
     company_name,
     project_name,
     flow_direction,
-    content
+    content,
+    apply_department
   }  = req.body.form;
   let payload = null;
   try {
@@ -1193,6 +1194,7 @@ const collectionContainerList = async (req: Request, res: Response) => {
   sql += ` and b.project_name = '${project_name}'`;
   sql += ` and b.flow_direction = '${flow_direction}'`;
   sql += ` and b.content = '${content}'`;
+  sql += ` and b.apply_department = '${apply_department}'`;
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
