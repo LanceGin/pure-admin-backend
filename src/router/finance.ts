@@ -210,7 +210,6 @@ const updatePlanningFee = async (req: Request, res: Response) => {
   const select_container = req.body;
   const type_pay = "应付";
   const type_collect = "应收"
-  const fee_name = "堆存费";
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -220,7 +219,16 @@ const updatePlanningFee = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   select_container.forEach((container) => {
-    let select_sql: string = `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.temp_port}';`
+    let fee_name = "计划费";
+    let select_sql = '';
+    if (container.temp_port !== null) {
+      fee_name = "堆存费";
+      select_sql += `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.temp_port}';`
+    } else {
+      select_sql += `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.load_port}';`
+    }
+    // let select_sql: string = `select a.*, b.yard_name, b.base_price_20, b.base_price_40, b.price_rule from yard_price as a left join base_fleet_yard as b on a.yard_id = b.id where b.yard_name = '${container.temp_port}';`
+    // console.log(11111, select_sql);
     connection.query(select_sql, function (err, data) {
       if (err) {
         console.log(err);
