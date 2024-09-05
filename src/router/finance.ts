@@ -1186,7 +1186,8 @@ const collectionContainerList = async (req: Request, res: Response) => {
     project_name,
     flow_direction,
     content,
-    apply_department
+    apply_department,
+    type
   }  = req.body.form;
   let payload = null;
   try {
@@ -1198,11 +1199,13 @@ const collectionContainerList = async (req: Request, res: Response) => {
   }
   let sql: string = `select a.*, FORMAT(b.amount,2) as amount, FORMAT(b.less_amount,2) as less_amount, FORMAT(b.more_amount,2) as more_amount, FORMAT((b.amount-b.less_amount+b.more_amount),2) as actual_amount from container as a left join container_fee as b on a.id = b.container_id left join acc_company as c on c.id = b.acc_company where b.account_period = '${dayjs(account_period).format("YYYY-MM-DD")}'`;
   sql += ` and b.custom_name = '${custom_name}'`;
-  sql += ` and c.company_name = '${company_name}'`;
   sql += ` and b.project_name = '${project_name}'`;
   sql += ` and b.flow_direction = '${flow_direction}'`;
   sql += ` and b.content = '${content}'`;
-  sql += ` and b.apply_department = '${apply_department}'`;
+  if (type == "应付") {
+    sql += ` and c.company_name = '${company_name}'`;
+    sql += ` and b.apply_department = '${apply_department}'`;
+  }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
