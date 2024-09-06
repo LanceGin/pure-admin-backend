@@ -512,7 +512,7 @@ const appliedFeeList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `select a.*,b.company_name,b.bank,b.account_no from applied_fee as a left join acc_company as b on a.acc_company_id = b.id left join base_company_user as c on c.name = a.apply_by where a.id is not null`;
+  let sql: string = `select a.id,a.status,a.is_admin,a.fee_name,a.is_pay,a.pay_type,format(a.apply_amount,2) as apply_amount,format(a.reimburse_amount,2) as reimburse_amount,format(a.tax_amount,2) as tax_amount,a.acc_company_id,a.apply_by,a.apply_department,a.create_time,a.reimburse_by,a.audit_by,a.audit_time,a.approve_by,a.fee_no,a.invoice_no,a.remark,a.apply_time,a.keep_by,a.keep_time,a.from_tb,a.from_id,a.reciept_url,b.company_name,b.bank,b.account_no from applied_fee as a left join acc_company as b on a.acc_company_id = b.id left join base_company_user as c on c.name = a.apply_by where a.id is not null`;
   if (form.apply_by != "" && !admin_list.includes(form.apply_by) && !city_list.includes(form.apply_by)) { sql += " and apply_by = " + "'" + form.apply_by + "'" }
   if (form.apply_by != "" && city_list.includes(form.apply_by)) { sql += ` and left(c.city, 2) in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   if (form.apply_by_select != "") { sql += " and apply_by like " + "'%" + form.apply_by_select + "%'" }
