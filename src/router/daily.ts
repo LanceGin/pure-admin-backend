@@ -513,35 +513,35 @@ const appliedFeeList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `select a.id,a.status,a.is_admin,a.fee_name,a.is_pay,a.pay_type,format(a.apply_amount,2) as apply_amount,format(a.reimburse_amount,2) as reimburse_amount,format(a.tax_amount,2) as tax_amount,a.acc_company_id,a.apply_by,a.apply_department,a.create_time,a.reimburse_by,a.audit_by,a.audit_time,a.approve_by,a.fee_no,a.invoice_no,a.remark,a.apply_time,a.keep_by,a.keep_time,a.from_tb,a.from_id,a.reciept_url,b.company_name,b.bank,b.account_no from applied_fee as a left join acc_company as b on a.acc_company_id = b.id left join base_company_user as c on c.name = a.apply_by where a.id is not null`;
-  if (form.apply_by != "" && !admin_list.includes(form.apply_by) && !city_list.includes(form.apply_by)) { sql += " and apply_by = " + "'" + form.apply_by + "'" }
+  if (form.apply_by != "" && !admin_list.includes(form.apply_by) && !city_list.includes(form.apply_by)) { sql += " and a.apply_by = " + "'" + form.apply_by + "'" }
   if (form.apply_by != "" && city_list.includes(form.apply_by)) { sql += ` and left(c.city, 2) in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
-  if (form.apply_by_select != "") { sql += " and apply_by like " + "'%" + form.apply_by_select + "%'" }
-  if (form.apply_time_range && form.apply_time_range.length > 0) { sql += " and DATE_FORMAT(apply_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.apply_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.apply_time_range[1] + "','%Y%m%d')" }
-  if (form.keep_time_range && form.keep_time_range.length > 0) { sql += " and DATE_FORMAT(keep_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.keep_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.keep_time_range[1] + "','%Y%m%d')" }
-  if (form.fee_no != "") { sql += " and fee_no like " + "'%" + form.fee_no + "%'" }
-  if (form.fee_name != "") { sql += " and fee_name like " + "'%" + form.fee_name + "%'" }
-  if (form.apply_department != "") { sql += " and apply_department like " + "'%" + form.apply_department + "%'" }
-  if (form.company_name != "") { sql += " and company_name like " + "'%" + form.company_name + "%'" }
-  if (form.is_pay != "") { sql += " and is_pay like " + "'%" + form.is_pay + "%'" }
-  if (form.pay_type != "") { sql += " and pay_type like " + "'%" + form.pay_type + "%'" }
-  if (form.status != "") { sql += " and status like " + "'%" + form.status + "%'" }
+  if (form.apply_by_select != "") { sql += " and a.apply_by like " + "'%" + form.apply_by_select + "%'" }
+  if (form.apply_time_range && form.apply_time_range.length > 0) { sql += " and DATE_FORMAT(a.apply_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.apply_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.apply_time_range[1] + "','%Y%m%d')" }
+  if (form.keep_time_range && form.keep_time_range.length > 0) { sql += " and DATE_FORMAT(a.keep_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.keep_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.keep_time_range[1] + "','%Y%m%d')" }
+  if (form.fee_no != "") { sql += " and a.fee_no like " + "'%" + form.fee_no + "%'" }
+  if (form.fee_name != "") { sql += " and a.fee_name like " + "'%" + form.fee_name + "%'" }
+  if (form.apply_department != "") { sql += " and a.apply_department like " + "'%" + form.apply_department + "%'" }
+  if (form.company_name != "") { sql += " and b.company_name like " + "'%" + form.company_name + "%'" }
+  if (form.is_pay != "") { sql += " and a.is_pay like " + "'%" + form.is_pay + "%'" }
+  if (form.pay_type != "") { sql += " and a.pay_type like " + "'%" + form.pay_type + "%'" }
+  if (form.status != "") { sql += " and a.status like " + "'%" + form.status + "%'" }
   if (form.remark != "") { sql += " and a.remark like " + "'%" + form.remark + "%'" }
   if (form.reciept_url == "已上传" || form.reciept_url == "") { sql += " and a.reciept_url like " + "'%" + form.reciept_url + "%'" }
   if (form.reciept_url == "未上传") { sql += " and a.reciept_url = ''" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=`;select COUNT(*) from applied_fee as a left join acc_company as b on a.acc_company_id = b.id left join base_company_user as c on c.name = a.apply_by where a.id is not null`;
-  if (form.apply_by != "" && !admin_list.includes(form.apply_by) && !city_list.includes(form.apply_by)) { sql += " and apply_by = " + "'" + form.apply_by + "'" }
+  if (form.apply_by != "" && !admin_list.includes(form.apply_by) && !city_list.includes(form.apply_by)) { sql += " and a.apply_by = " + "'" + form.apply_by + "'" }
   if (form.apply_by != "" && city_list.includes(form.apply_by)) { sql += ` and left(c.city, 2) in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
-  if (form.apply_by_select != "") { sql += " and apply_by like " + "'%" + form.apply_by_select + "%'" }
-  if (form.apply_time_range && form.apply_time_range.length > 0) { sql += " and DATE_FORMAT(apply_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.apply_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.apply_time_range[1] + "','%Y%m%d')" }
-  if (form.keep_time_range && form.keep_time_range.length > 0) { sql += " and DATE_FORMAT(keep_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.keep_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.keep_time_range[1] + "','%Y%m%d')" }
-  if (form.fee_no != "") { sql += " and fee_no like " + "'%" + form.fee_no + "%'" }
-  if (form.fee_name != "") { sql += " and fee_name like " + "'%" + form.fee_name + "%'" }
-  if (form.apply_department != "") { sql += " and apply_department like " + "'%" + form.apply_department + "%'" }
-  if (form.company_name != "") { sql += " and company_name like " + "'%" + form.company_name + "%'" }
-  if (form.is_pay != "") { sql += " and is_pay like " + "'%" + form.is_pay + "%'" }
-  if (form.pay_type != "") { sql += " and pay_type like " + "'%" + form.pay_type + "%'" }
-  if (form.status != "") { sql += " and status like " + "'%" + form.status + "%'" }
+  if (form.apply_by_select != "") { sql += " and a.apply_by like " + "'%" + form.apply_by_select + "%'" }
+  if (form.apply_time_range && form.apply_time_range.length > 0) { sql += " and DATE_FORMAT(a.apply_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.apply_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.apply_time_range[1] + "','%Y%m%d')" }
+  if (form.keep_time_range && form.keep_time_range.length > 0) { sql += " and DATE_FORMAT(a.keep_time,'%Y%m%d') between " + "DATE_FORMAT('" + form.keep_time_range[0] + "','%Y%m%d') and DATE_FORMAT('" + form.keep_time_range[1] + "','%Y%m%d')" }
+  if (form.fee_no != "") { sql += " and a.fee_no like " + "'%" + form.fee_no + "%'" }
+  if (form.fee_name != "") { sql += " and a.fee_name like " + "'%" + form.fee_name + "%'" }
+  if (form.apply_department != "") { sql += " and a.apply_department like " + "'%" + form.apply_department + "%'" }
+  if (form.company_name != "") { sql += " and b.company_name like " + "'%" + form.company_name + "%'" }
+  if (form.is_pay != "") { sql += " and a.is_pay like " + "'%" + form.is_pay + "%'" }
+  if (form.pay_type != "") { sql += " and a.pay_type like " + "'%" + form.pay_type + "%'" }
+  if (form.status != "") { sql += " and a.status like " + "'%" + form.status + "%'" }
   if (form.remark != "") { sql += " and a.remark like " + "'%" + form.remark + "%'" }
   if (form.reciept_url == "已上传" || form.reciept_url == "") { sql += " and a.reciept_url like " + "'%" + form.reciept_url + "%'" }
   if (form.reciept_url == "未上传") { sql += " and a.reciept_url = ''" }
