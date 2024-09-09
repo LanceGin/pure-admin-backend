@@ -1295,7 +1295,7 @@ const rejectCollection = async (req: Request, res: Response) => {
 
 // 通过应付费用审核
 const approvePay = async (req: Request, res: Response) => {
-  const {
+  let {
     account_period,
     fee_name,
     custom_name,
@@ -1308,6 +1308,7 @@ const approvePay = async (req: Request, res: Response) => {
     remark,
     submit_by
   }  = req.body;
+  actual_amount = Number(actual_amount.replace(/,/g, ''))
   let payload = null;
   const status = '已审核';
   try {
