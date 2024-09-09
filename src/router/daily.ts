@@ -565,7 +565,7 @@ const appliedFeeList = async (req: Request, res: Response) => {
 
 // 新增费用申请
 const addAppliedFee = async (req: Request, res: Response) => {
-  const {
+  let {
     is_admin,
     fee_name,
     is_pay,
@@ -580,6 +580,9 @@ const addAppliedFee = async (req: Request, res: Response) => {
     remark,
     invoice_no
   } = req.body;
+  apply_amount = Number(apply_amount.replace(/,/g, ''))
+  reimburse_amount = Number(reimburse_amount.replace(/,/g, ''))
+  tax_amount = Number(tax_amount.replace(/,/g, ''))
   let payload = null;
   const create_time = dayjs(new Date()).format("YYYY-MM-DD");
   const fee_no = "FAO" + dayjs(new Date()).format("YYYYMMDD") + Math.floor(Math.random()*10000);
@@ -630,7 +633,7 @@ const editAppliedFee = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let modifySql: string = `UPDATE applied_fee SET is_admin=?,fee_name=?,is_pay=?,pay_type=?,apply_amount=?,reimburse_amount=?,reimburse_by=?,tax_amount=?,acc_company_id=?,apply_by=?,apply_department=?,remark=?,invoice_no=? WHERE id = ?;`;
-  let modifyParams: string[] = [is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,reimburse_by,tax_amount,acc_company_id,apply_by,apply_department,remark,invoice_no.join(','),id];
+  let modifyParams: string[] = [is_admin,fee_name,is_pay,pay_type,Number(apply_amount.replace(/,/g, '')),Number(reimburse_amount.replace(/,/g, '')),reimburse_by,Number(tax_amount.replace(/,/g, '')),acc_company_id,apply_by,apply_department,remark,invoice_no.join(','),id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
