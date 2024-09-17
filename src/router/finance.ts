@@ -32,7 +32,7 @@ const keepAppliedFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE applied_fee as a left join pay_invoice_info as b on a.invoice_no = if(b.no='', b.digital_ticket_no, b.no) SET a.status = '${status}',a.keep_time = '${time}',a.keep_by = '${username}',b.paid_time = '${time}' WHERE a.id in ('${select_id.toString().replaceAll(",", "','")}');`;
+  let sql: string = `UPDATE applied_fee as a left join pay_invoice_info as b on a.invoice_no = if(b.no='', b.digital_ticket_no, b.no) SET a.status = '${status}',a.keep_time = '${time}',a.keep_by = '${username}',b.is_invoice = '${time}', b.paid_time = '${time}' WHERE a.id in ('${select_id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
