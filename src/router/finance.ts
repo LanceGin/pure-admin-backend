@@ -651,6 +651,8 @@ const invoicetList = async (req: Request, res: Response) => {
   let sql: string = "select * from invoice_info where id is not null ";
   if (form.invoice_time && form.invoice_time.length > 0) { sql += " and invoice_time between " + "'" + form.invoice_time[0] + "' and '" + form.invoice_time[1] + "'" }
   if (form.receipt_time && form.receipt_time.length > 0) { sql += " and receipt_time between " + "'" + form.receipt_time[0] + "' and '" + form.receipt_time[1] + "'" }
+  if (form.is_receipt != "" && form.is_receipt == "未收款") { sql += " and receipt_time is null" }
+  if (form.is_receipt != "" && form.is_receipt == "已收款") { sql += " and receipt_time is not null" }
   if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
   if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
   if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
@@ -663,6 +665,8 @@ const invoicetList = async (req: Request, res: Response) => {
   sql +=";select COUNT(*) from invoice_info where id is not null ";
   if (form.invoice_time && form.invoice_time.length > 0) { sql += " and invoice_time between " + "'" + form.invoice_time[0] + "' and '" + form.invoice_time[1] + "'" }
   if (form.receipt_time && form.receipt_time.length > 0) { sql += " and receipt_time between " + "'" + form.receipt_time[0] + "' and '" + form.receipt_time[1] + "'" }
+  if (form.is_receipt != "" && form.is_receipt == "未收款") { sql += " and receipt_time is null" }
+  if (form.is_receipt != "" && form.is_receipt == "已收款") { sql += " and receipt_time is not null" }
   if (form.tax_rate != "") { sql += " and tax_rate like " + "'%" + form.tax_rate + "%'" }
   if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
   if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
