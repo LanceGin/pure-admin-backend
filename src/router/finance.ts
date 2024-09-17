@@ -878,6 +878,9 @@ const payInvoicetList = async (req: Request, res: Response) => {
   }
   let sql: string = "select id,code,no,digital_ticket_no,seller_identification_no,seller_name,buyer_identification_no,buyer_name,invoice_time,classification_code,specific_type,goods_or_taxable_service,specification,unit,quantity,unit_price,sum(amount) as amount,tax_rate,sum(tax) as tax, sum(total_amount) as total_amount,invoice_from,invoice_type,status,is_positive,risk_level,invoice_by,remark,is_invoice,paid_time,certification_period,tmp_excel_no from pay_invoice_info where id is not null ";
   if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
+  if (form.paid_time && form.paid_time.length > 0) { sql += " and paid_time between " + "'" + form.paid_time[0] + "' and '" + form.paid_time[1] + "'" }
+  if (form.is_paid != "" && form.is_paid == "未付款") { sql += " and paid_time is null" }
+  if (form.is_paid != "" && form.is_paid == "已付款") { sql += " and paid_time is not null" }
   if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
   if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
   if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
@@ -890,6 +893,9 @@ const payInvoicetList = async (req: Request, res: Response) => {
   sql +=" group by digital_ticket_no,no,code order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from ( select * from pay_invoice_info where id is not null ";
   if (form.invoice_time != "") { sql += " and invoice_time = " + "'" + form.invoice_time + "'" }
+  if (form.paid_time && form.paid_time.length > 0) { sql += " and paid_time between " + "'" + form.paid_time[0] + "' and '" + form.paid_time[1] + "'" }
+  if (form.is_paid != "" && form.is_paid == "未付款") { sql += " and paid_time is null" }
+  if (form.is_paid != "" && form.is_paid == "已付款") { sql += " and paid_time is not null" }
   if (form.code != "") { sql += " and code like " + "'%" + form.code + "%'" }
   if (form.no != "") { sql += " and no = " + "'" + form.no + "'" }
   if (form.digital_ticket_no != "") { sql += " and digital_ticket_no like " + "'%" + form.digital_ticket_no + "%'" }
