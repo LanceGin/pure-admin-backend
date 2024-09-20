@@ -538,9 +538,11 @@ const financeCheckList = async (req: Request, res: Response) => {
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.status != "") { sql += " and a.status = " + "'" + form.status + "'" }
   if (form.custom_name != "") { sql += " and a.custom_name like " + "'%" + form.custom_name + "%'" }
+  if (form.apply_department != "") { sql += " and a.apply_department like " + "'%" + form.apply_department + "%'" }
+  if (form.content != "") { sql += " and a.content like " + "'%" + form.content + "%'" }
   if (form.project_name != "") { sql += " and a.project_name like " + "'%" + form.project_name + "%'" }
   if (form.company_name != "") { sql += " and c.company_name like " + "'%" + form.company_name + "%'" }
-  if (form.account_period != "") { sql += " and a.account_period = " + "'" + account_period + "'" }
+  if (form.account_period != "" && form.account_period != null) { sql += " and a.account_period = " + "'" + account_period + "'" }
   if (form.flow_direction != "") { sql += " and a.flow_direction = " + "'" + form.flow_direction + "'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
@@ -549,9 +551,11 @@ const financeCheckList = async (req: Request, res: Response) => {
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.status != "") { sql += " and a.status = " + "'" + form.status + "'" }
   if (form.custom_name != "") { sql += " and a.custom_name like " + "'%" + form.custom_name + "%'" }
+  if (form.apply_department != "") { sql += " and a.apply_department like " + "'%" + form.apply_department + "%'" }
+  if (form.content != "") { sql += " and a.content like " + "'%" + form.content + "%'" }
   if (form.project_name != "") { sql += " and a.project_name like " + "'%" + form.project_name + "%'" }
   if (form.company_name != "") { sql += " and c.company_name like " + "'%" + form.company_name + "%'" }
-  if (form.account_period != "") { sql += " and a.account_period = " + "'" + account_period + "'" }
+  if (form.account_period != "" && form.account_period != null) { sql += " and a.account_period = " + "'" + account_period + "'" }
   if (form.flow_direction != "") { sql += " and a.flow_direction = " + "'" + form.flow_direction + "'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
