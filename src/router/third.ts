@@ -192,7 +192,7 @@ const getSino = async (req: Request, res: Response) => {
 // 同步eir
 const syncEir = async (req: Request, res: Response) => {
   const { track_no, containner_no, dispatch_car_no, driver, mobile, id_no } = req.body;
-  console.log(42315321532, req.body);
+  console.log("同步eir", req.body);
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -263,7 +263,7 @@ const syncEir = async (req: Request, res: Response) => {
             const receipt_no = item_container.receiptNo
             const container_no = item_container.cntrNo
             console.log(999999999, receipt_no);
-            let sql: string = `UPDATE dispatch as a left join container as b on b.id = a.container_id SET a.receipt_no = '${receipt_no}' where b.containner_no = '${container_no}' and b.track_no = '${track_no}' and b.city = '上海';`;
+            let sql: string = `UPDATE dispatch as a left join container as b on b.id = a.container_id SET a.receipt_no = '${receipt_no}', b.receipt_no = '${receipt_no}' where b.containner_no = '${container_no}' and b.track_no = '${track_no}' and b.city = '上海';`;
             connection.query(sql, async function (err, data) {
               if (err) {
                 Logger.error(err);
