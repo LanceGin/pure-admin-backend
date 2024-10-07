@@ -31,7 +31,7 @@ const vehicleInfoList = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = "select * from vehicle_info where id is not null ";
+  let sql: string = "select *, '否' as is_load from vehicle_info where id is not null ";
   if (form.territory != "") { sql += " and territory like " + "'%" + form.territory + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.driver != "") { sql += " and driver like " + "'%" + form.driver + "%'" }
