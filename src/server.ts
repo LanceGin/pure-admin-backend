@@ -17,6 +17,8 @@ import {
   uploadReciept,
   showReciept,
   deleteReciept,
+  uploadContract,
+  showContract,
   getSino,
   syncEir,
   submitEir,
@@ -311,11 +313,11 @@ app.get('/wx_redirect',function(req,res,next){
   axios.get('https://api.weixin.qq.com/sns/oauth2/access_token', { params })
     .then(function (response) {
       console.log(response.data);
+      res.send(response.data);
     })
     .catch(function (error) {
       console.log(error);
     }); 
-  res.send('wx_redirect');
 })
 
 // 三方接口
@@ -330,6 +332,14 @@ app.post("/showReciept", (req, res) => {
 // 删除水单
 app.post("/deleteReciept", (req, res) => {
   deleteReciept(req, res);
+});
+// 上传合同
+app.post("/uploadContract", upload_tmp.any(), (req, res) => {
+  uploadContract(req, res);
+});
+// 查看合同
+app.post("/showContract", (req, res) => {
+  showContract(req, res);
 });
 // 获取中交地址
 app.post("/getSino", (req, res) => {

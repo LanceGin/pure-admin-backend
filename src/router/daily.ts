@@ -356,6 +356,7 @@ const contractList = async (req: Request, res: Response) => {
   if (form.status != "") { sql += " and status like " + "'%" + form.status + "%'" }
   if (form.we_company != "") { sql += " and we_company like " + "'%" + form.we_company + "%'" }
   if (form.oppo_company != "") { sql += " and oppo_company like " + "'%" + form.oppo_company + "%'" }
+  if (form.add_by != "" && form.city != "管理员") { sql += " and we_agent = " + "'" + form.add_by + "'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from contract where id is not null ";
   if (form.sign_time != "") { sql += " and sign_time = " + "'" + form.sign_time + "'" }
@@ -366,6 +367,7 @@ const contractList = async (req: Request, res: Response) => {
   if (form.status != "") { sql += " and status like " + "'%" + form.status + "%'" }
   if (form.we_company != "") { sql += " and we_company like " + "'%" + form.we_company + "%'" }
   if (form.oppo_company != "") { sql += " and oppo_company like " + "'%" + form.oppo_company + "%'" }
+  if (form.add_by != "" && form.city != "管理员") { sql += " and we_agent = " + "'" + form.add_by + "'" }
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
