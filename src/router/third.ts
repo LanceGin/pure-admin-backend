@@ -157,7 +157,7 @@ const uploadContract = async (req: Request, res: Response) => {
   const { contract_name, select_id } = req.body;
   const file = req.files[0];
   let upload_name = renameFileWithoutExtension(file.originalname, contract_name);
-  upload_name = upload_name + `?${dayjs().unix()}`
+  // upload_name = upload_name + `?${dayjs().unix()}`
 
   // 初始化OSS客户端。请将以下参数替换为您自己的配置信息。
   const client = new OSS({
@@ -244,7 +244,7 @@ const showContract = async (req: Request, res: Response) => {
     } else {
       let a:any = data;
       const result = a.map(item => {
-        item.reciept_url = client.signatureUrl(item.reciept_url);
+        item.contract_url = client.signatureUrl(item.contract_url);
         return item;
       })
       await res.json({
