@@ -829,6 +829,7 @@ const vehicleFeeList = async (req: Request, res: Response) => {
 const addVehicleFee = async (req: Request, res: Response) => {
   const {
     is_submit,
+    is_applied,
     driver,
     company,
     car_no,
@@ -855,7 +856,7 @@ const addVehicleFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into vehicle_fee (is_submit,add_time,driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,allocation_start,actual_amount,tax_amount,settlement_confirm,remark,add_by) values ('${is_submit}','${add_time}','${driver}','${company}','${car_no}','${hang_board_no}','${type}','${car_fees}','${content}','${quantity}','${amount}','${allocation_month}','${allocation_start}','${actual_amount}','${tax_amount}','${settlement_confirm}','${remark}','${add_by}')`;
+  let sql: string = `insert into vehicle_fee (is_submit,is_applied,add_time,driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,allocation_start,actual_amount,tax_amount,settlement_confirm,remark,add_by) values ('未提交','${is_applied}','${add_time}','${driver}','${company}','${car_no}','${hang_board_no}','${type}','${car_fees}','${content}','${quantity}','${amount}','${allocation_month}','${allocation_start}','${actual_amount}','${tax_amount}','${settlement_confirm}','${remark}','${add_by}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -891,7 +892,7 @@ const submitVehicleFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `update vehicle_fee set is_submit = '已提交' where id in ('${id.toString().replaceAll(",", "','")}');`;
+  let sql: string = `update vehicle_fee set is_submit = '已提交', is_applied = '已申请' where id in ('${id.toString().replaceAll(",", "','")}');`;
   sql += ` insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,apply_department,create_time,fee_no) values ('业务','${fee_name}','付','${type}','${amount}','${actual_amount}','${tax_amount}','${company}','${add_by}','${apply_department}','${add_time}','${fee_no}');`;
   sql += `select * from vehicle_fee where id in ('${id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, data) {
