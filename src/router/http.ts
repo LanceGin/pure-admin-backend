@@ -1342,12 +1342,19 @@ const generateBulkFee = async (req: Request, res: Response) => {
   }
   select_item.forEach((item) => {
     let container_sql:string = `insert ignore into container (order_status,order_type,container_status,make_time,seal_no,containner_no,container_type,customer,start_port,target_port,car_no,remark,add_by,city) values ('已提交','散货','已完成','${item.add_time}','${item.seal_no}','${item.container_no}','${item.car_type}','${item.customer}','${item.load_address}','${item.unload_address}','${item.fleet}','${item.remarks}','${item.add_by}','${item.city}');`;
+    container_sql += `select pay_price, collect_price from bulk_price where customer = '${item.customer}' and fleet = '${item.fleet}' and car_type = '${item.car_type}' and load_address = '${item.load_address}' and unload_address = '${item.unload_address}';`
     connection.query(container_sql, function (err, data) {
       if (err) {
         console.log(err);
       } else {
-        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应收','散货运费','${item.freight}');`;
-        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应付','散货运费','${item.freight}');`;
+        let pay_freight = data[1].pay_price;
+        let collect_freight = data[1].collect_price;
+        if (item.freight != '' || item.freight != null) {
+          pay_freight = item.freight;
+          collect_freight = item.freight;
+        }
+        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应收','散货运费','${collect_freight}');`;
+        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应付','散货运费','${pay_freight}');`;
         connection.query(insert_sql, async function (err, data) {
           if (err) {
             console.log(err);
