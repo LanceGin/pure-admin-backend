@@ -880,9 +880,11 @@ const submitVehicleFee = async (req: Request, res: Response) => {
     apply_department,
     fee_name,
     company,
-    type
+    type,
+    is_applied
   } = req.body;
   let payload = null;
+  let sql_i = 1;
   const add_time = dayjs(new Date()).format("YYYY-MM-DD");
   const fee_no = "FAO" + dayjs(new Date()).format("YYYYMMDD") + Math.floor(Math.random()*10000);
   try {
@@ -893,7 +895,10 @@ const submitVehicleFee = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = `update vehicle_fee set is_submit = '已提交', is_applied = '已申请' where id in ('${id.toString().replaceAll(",", "','")}');`;
-  sql += ` insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,apply_department,create_time,fee_no) values ('业务','${fee_name}','付','${type}','${amount}','${actual_amount}','${tax_amount}','${company}','${add_by}','${apply_department}','${add_time}','${fee_no}');`;
+  if (is_applied == "未申请") {
+    sql += ` insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,apply_department,create_time,fee_no) values ('业务','${fee_name}','付','${type}','${amount}','${actual_amount}','${tax_amount}','${company}','${add_by}','${apply_department}','${add_time}','${fee_no}');`;
+    sql_i = 2;
+  }
   sql += `select * from vehicle_fee where id in ('${id.toString().replaceAll(",", "','")}');`;
   connection.query(sql, async function (err, data) {
     if (err) {
@@ -901,7 +906,7 @@ const submitVehicleFee = async (req: Request, res: Response) => {
     } else {
       let fees = [];
       let insert_sql: string = '';
-      fees = JSON.parse(JSON.stringify(data[2]));
+      fees = JSON.parse(JSON.stringify(data[sql_i]));
       fees.forEach(fee => {
         if (fee.allocation_month === '') {
           insert_sql += `insert into vehicle_fee_stat (vehicle_fee_id, allocation_amount, account_period) values ('${fee.id}', '${fee.amount}', DATE_FORMAT(CONVERT_TZ('${fee.add_time}','+00:00','+08:00'), '%Y-%m'));`;
