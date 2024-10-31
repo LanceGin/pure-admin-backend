@@ -173,6 +173,7 @@ const submitContainerFee = async (req: Request, res: Response) => {
   const more_amount = data.more_amount / ids;
   const status = "未审核"
   const account_period = dayjs(data.account_period).format("YYYY-MM-DD");
+  const submit_no = "FEE" + dayjs(new Date()).format("YYYYMMDD") + Math.floor(Math.random()*10000);
   let payload = null;
   try {
     const authorizationHeader = req.get("Authorization") as string;
@@ -181,7 +182,7 @@ const submitContainerFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `UPDATE container_fee SET status = '${status}',account_period = '${account_period}',custom_name = '${data.custom_name}',apply_department = '${data.apply_department}',project_name = '${data.project_name}',content = '${data.content}',flow_direction = '${data.flow_direction}',acc_company = '${data.acc_company}',less_amount = '${less_amount}',more_amount = '${more_amount}',remark = '${data.remark}',submit_by = '${data.submit_by}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
+  let sql: string = `UPDATE container_fee SET status = '${status}', is_pay = '${data.is_pay}', account_period = '${account_period}',custom_name = '${data.custom_name}',apply_department = '${data.apply_department}',project_name = '${data.project_name}',content = '${data.content}',flow_direction = '${data.flow_direction}',acc_company = '${data.acc_company}',less_amount = '${less_amount}',more_amount = '${more_amount}',remark = '${data.remark}',submit_no = '${submit_no}', submit_by = '${data.submit_by}' WHERE id in ('${select_id.toString().replaceAll(",", "','")}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
