@@ -924,7 +924,7 @@ const editBulkPrice = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let modifySql: string = "UPDATE bulk_price SET customer = ?,fleet = ?,car_type = ?,load_address = ?,unload_address = ?,pay_price = ?,collect_price = ? WHERE id = ?";
-  let modifyParams: string[] = [customer,fleet,load_address,unload_address,pay_price,collect_price,id];
+  let modifyParams: string[] = [customer,fleet,car_type,load_address,unload_address,pay_price,collect_price,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
