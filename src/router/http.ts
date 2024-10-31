@@ -1347,14 +1347,14 @@ const generateBulkFee = async (req: Request, res: Response) => {
       if (err) {
         console.log(err);
       } else {
-        let pay_freight = data[1].pay_price;
-        let collect_freight = data[1].collect_price;
-        if (item.freight != '' || item.freight != null) {
+        let pay_freight = data[1][0].pay_price;
+        let collect_freight = data[1][0].collect_price;
+        if (item.freight != '' && item.freight != null) {
           pay_freight = item.freight;
           collect_freight = item.freight;
         }
-        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应收','散货运费','${collect_freight}');`;
-        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data)).insertId}','应付','散货运费','${pay_freight}');`;
+        let insert_sql: string = `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data[0])).insertId}','应收','散货运费','${collect_freight}');`;
+        insert_sql += `insert into container_fee (container_id, type, fee_name, amount) values ('${JSON.parse(JSON.stringify(data[0])).insertId}','应付','散货运费','${pay_freight}');`;
         connection.query(insert_sql, async function (err, data) {
           if (err) {
             console.log(err);
