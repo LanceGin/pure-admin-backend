@@ -34,7 +34,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   let sql: string = `SELECT a.id as fee_id, a.status, a.account_period, a.dispatch_type, a.type, CONVERT(a.amount, DECIMAL(10, 2)) as amount, (a.amount-a.less_amount+a.more_amount) as actual_amount, a.invoice_no, a.fee_name, a.fee_type, a.custom_name, a.project_name, a.content, a.flow_direction,a.remark as fee_remark,a.confirm_remark, b.*, c.owner as car_owner, d.car_no as temp_car_no, e.car_no as empty_car_no FROM container_fee as a left join container as b on a.container_id = b.id left join (select * from vehicle_info WHERE id in  (SELECT max(id) as id FROM vehicle_info GROUP BY car_no)) as c on c.car_no = b.car_no left join dispatch as d on d.container_id = a.container_id and d.type = '暂落' left join dispatch as e on e.container_id = a.container_id and e.type = '放空' where a.id is not null and a.amount not in  ('0','0.00') `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.order_type != "" && form.order_type != "暂落") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
-  if (form.order_type == "进口") { sql += " and a.dispatch_type != '暂落'" }
+  if (form.order_type == "进口") { sql += " and (a.dispatch_type != '暂落' or a.dispatch_type is NULL) " }
   if (form.order_type == "暂落") { sql += " and a.dispatch_type like " + "'%" + form.order_type + "%'" }
   if (form.fee_name != "") { sql += " and a.fee_name like " + "'%" + form.fee_name + "%'" }
   if (form.status != "") { sql += " and a.status like " + "'%" + form.status + "%'" }
@@ -68,7 +68,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   sql +=`;select COUNT(*), sum(a.amount) as total_amount FROM container_fee as a left join container as b on a.container_id = b.id left join (select * from vehicle_info WHERE id in  (SELECT max(id) as id FROM vehicle_info GROUP BY car_no)) as c on c.car_no = b.car_no left join dispatch as d on d.container_id = a.container_id and d.type = '暂落' left join dispatch as e on e.container_id = a.container_id and e.type = '放空' where a.id is not null and a.amount not in  ('0','0.00') `;
   if (form.type != "") { sql += " and a.type = " + "'" + form.type + "'" }
   if (form.order_type != "" && form.order_type != "暂落") { sql += " and b.order_type like " + "'%" + form.order_type + "%'" }
-  if (form.order_type == "进口") { sql += " and a.dispatch_type != '暂落'" }
+  if (form.order_type == "进口") { sql += " and (a.dispatch_type != '暂落' or a.dispatch_type is NULL) " }
   if (form.order_type == "暂落") { sql += " and a.dispatch_type like " + "'%" + form.order_type + "%'" }
   if (form.fee_name != "") { sql += " and a.fee_name like " + "'%" + form.fee_name + "%'" }
   if (form.status != "") { sql += " and a.status like " + "'%" + form.status + "%'" }
