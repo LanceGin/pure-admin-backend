@@ -96,6 +96,7 @@ const containerFeeList = async (req: Request, res: Response) => {
   if (form.confirm_remark != "") { sql += " and a.confirm_remark like " + "'%" + form.confirm_remark + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and b.city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
   if (form.city_type != "") { sql += " and b.city like " + "'%" + form.city_type + "%'" }
+  console.log(11111, sql);
   connection.query(sql, async function (err, data) {
     if (err) {
       Logger.error(err);
@@ -398,12 +399,13 @@ const dataCheckCollection = async (req: Request, res: Response) => {
     if (err) {
       Logger.error(err);
     } else {
-      await res.json({
-        success: true,
-        data: { 
-          list: data,
-        },
-      });
+      // await res.json({
+      //   success: true,
+      //   data: { 
+      //     list: data,
+      //   },
+      // });
+      throw new Error('手动宕机');
     }
   });
 };
@@ -429,13 +431,14 @@ const dataCheckPay = async (req: Request, res: Response) => {
     if (err) {
       Logger.error(err);
     } else {
-      console.log(111111, data);
-      await res.json({
-        success: true,
-        data: { 
-          list: data,
-        },
-      });
+      // console.log(111111, data);
+      // await res.json({
+      //   success: true,
+      //   data: { 
+      //     list: data,
+      //   },
+      // });
+      throw new Error('手动宕机');
     }
   });
 };
