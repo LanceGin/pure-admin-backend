@@ -400,6 +400,7 @@ const addVehicleExtraInfo = async (req: Request, res: Response) => {
     compulsory_insurance,
     commercial_insurance,
     trans_insurance,
+    overclaims_insurance,
     remark
   } = req.body;
   let payload = null;
@@ -410,7 +411,7 @@ const addVehicleExtraInfo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let sql: string = `insert into vehicle_extra_info (car_no,company,inspect,rate,compulsory_insurance,commercial_insurance,trans_insurance,remark) values ('${car_no}','${company}','${inspect}','${rate}','${compulsory_insurance}','${commercial_insurance}','${trans_insurance}','${remark}')`;
+  let sql: string = `insert into vehicle_extra_info (car_no,company,inspect,rate,compulsory_insurance,commercial_insurance,trans_insurance,overclaims_insurance,remark) values ('${car_no}','${company}','${inspect}','${rate}','${compulsory_insurance}','${commercial_insurance}','${trans_insurance}','${overclaims_insurance}','${remark}')`;
   connection.query(sql, async function (err, data) {
     if (err) {
       console.log(err);
@@ -434,6 +435,7 @@ const editVehicleExtraInfo = async (req: Request, res: Response) => {
     compulsory_insurance,
     commercial_insurance,
     trans_insurance,
+    overclaims_insurance,
     remark
   } = req.body;
   let payload = null;
@@ -444,8 +446,8 @@ const editVehicleExtraInfo = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE vehicle_extra_info SET car_no = ?,company = ?,inspect = ?,rate = ?,compulsory_insurance = ?,commercial_insurance = ?,trans_insurance = ?,remark = ? WHERE id = ?";
-  let modifyParams: string[] = [car_no,company,inspect,rate,compulsory_insurance,commercial_insurance,trans_insurance,remark,id];
+  let modifySql: string = "UPDATE vehicle_extra_info SET car_no = ?,company = ?,inspect = ?,rate = ?,compulsory_insurance = ?,commercial_insurance = ?,trans_insurance = ?,overclaims_insurance = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [car_no,company,inspect,rate,compulsory_insurance,commercial_insurance,trans_insurance,overclaims_insurance,remark,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
@@ -638,13 +640,15 @@ const vehicleRefuelList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select * from vehicle_refuel where id is not null ";
-  if (form.addtime != "") { sql += " and addtime = " + "'" + form.addtime + "'" }
+  // if (form.addtime != "") { sql += " and addtime = " + "'" + form.addtime + "'" }
+  if (form.add_time_range && form.add_time_range.length > 0) { sql += " and date_format(addtime, '%Y-%m-%d') between " + "'" + dayjs(form.add_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.add_time_range[1]).format('YYYY-MM-DD') + "'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.type != "") { sql += " and type like " + "'%" + form.type + "%'" }
   if (form.city != "") { sql += " and city like " + "'%" + form.city + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from vehicle_refuel where id is not null ";
-  if (form.addtime != "") { sql += " and addtime = " + "'" + form.addtime + "'" }
+  // if (form.addtime != "") { sql += " and addtime = " + "'" + form.addtime + "'" }
+  if (form.add_time_range && form.add_time_range.length > 0) { sql += " and date_format(a.addtime, '%Y-%m-%d') between " + "'" + dayjs(form.add_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.add_time_range[1]).format('YYYY-MM-DD') + "'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.type != "") { sql += " and type like " + "'%" + form.type + "%'" }
   if (form.city != "") { sql += " and city like " + "'%" + form.city + "%'" }
@@ -670,7 +674,7 @@ const vehicleRefuelList = async (req: Request, res: Response) => {
         data: { 
           list: data[0],
           total: total,
-          remain_oil: remain_oil,
+          remain_oil: remain_oil.toFixed(2),
           pageSize: size,
           currentPage: page,
         },
@@ -723,11 +727,11 @@ const editVehicleRefuel = async (req: Request, res: Response) => {
     volume,
     unit_price,
     type,
-    amount,
     remark,
     city
   } = req.body;
   let payload = null;
+  const amount = volume * unit_price;
   const car = car_no.split('-')[0];
   const driver = car_no.split('-')[1];
   try {
@@ -793,7 +797,8 @@ const vehicleFeeList = async (req: Request, res: Response) => {
     return res.status(401).end();
   }
   let sql: string = "select * from vehicle_fee where id is not null ";
-  if (form.add_time != "") { sql += " and add_time = " + "'" + form.add_time + "'" }
+  // if (form.add_time != "") { sql += " and add_time = " + "'" + form.add_time + "'" }
+  if (form.add_time_range && form.add_time_range.length > 0) { sql += " and date_format(add_time, '%Y-%m-%d') between " + "'" + dayjs(form.add_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.add_time_range[1]).format('YYYY-MM-DD') + "'" }
   if (form.car_fees != "") { sql += " and car_fees = " + "'" + form.car_fees + "'" }
   if (form.company != "") { sql += " and company like " + "'%" + form.company + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
@@ -801,7 +806,8 @@ const vehicleFeeList = async (req: Request, res: Response) => {
   if (form.content != "") { sql += " and content like " + "'%" + form.content + "%'" }
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from vehicle_fee where id is not null ";
-  if (form.add_time != "") { sql += " and add_time = " + "'" + form.add_time + "'" }
+  // if (form.add_time != "") { sql += " and add_time = " + "'" + form.add_time + "'" }
+  if (form.add_time_range && form.add_time_range.length > 0) { sql += " and date_format(add_time, '%Y-%m-%d') between " + "'" + dayjs(form.add_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.add_time_range[1]).format('YYYY-MM-DD') + "'" }
   if (form.car_fees != "") { sql += " and car_fees = " + "'" + form.car_fees + "'" }
   if (form.company != "") { sql += " and company like " + "'%" + form.company + "%'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }

@@ -467,6 +467,7 @@ const importDocumentCheck = async (req: Request, res: Response) => {
     v.push(city);
     v.push(v[12]);
   })
+  console.log(1111, values);
   let sql: string = "insert ignore into container (tmp_excel_no,ship_company,customer,subproject,arrive_time,start_port,target_port,containner_no,seal_no,container_type,ship_name,track_no,load_port,unload_port,door,add_by,city,old_load_port) values ?"
   connection.query(sql, [values], async function (err, data) {
     if (err) {
@@ -825,7 +826,11 @@ const pickBoxList = async (req: Request, res: Response) => {
   if (form.temp_status != "") { sql += " and temp_status like " + "'%" + form.temp_status + "%'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
-    sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+    if (select_container_no.length > 1) {
+      sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`
+    } else {
+      sql += " and containner_no like " + "'%" + form.containner_no + "%'"
+    }
   }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
@@ -838,7 +843,11 @@ const pickBoxList = async (req: Request, res: Response) => {
   if (form.temp_status != "") { sql += " and temp_status like " + "'%" + form.temp_status + "%'" }
   if (form.containner_no != "") {
     const select_container_no = form.containner_no.split(/\r\n|\r|\n/);
-    sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`;
+    if (select_container_no.length > 1) {
+      sql += ` and containner_no in ('${select_container_no.toString().replaceAll(",", "','")}')`
+    } else {
+      sql += " and containner_no like " + "'%" + form.containner_no + "%'"
+    }
   }
   if (form.door != "") { sql += " and door like " + "'%" + form.door + "%'" }
   if (form.city != "" && form.city != "管理员") { sql += ` and city in ('${form.city.split(",").toString().replaceAll(",", "','")}')` }
