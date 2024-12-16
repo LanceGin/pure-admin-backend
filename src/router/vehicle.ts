@@ -834,6 +834,7 @@ const vehicleFeeList = async (req: Request, res: Response) => {
 // 新增车辆费用
 const addVehicleFee = async (req: Request, res: Response) => {
   const {
+    add_time,
     is_submit,
     is_applied,
     driver,
@@ -854,7 +855,7 @@ const addVehicleFee = async (req: Request, res: Response) => {
     add_by
   } = req.body;
   let payload = null;
-  const add_time = dayjs(new Date()).format("YYYY-MM-DD");
+  // const add_time = dayjs(new Date()).format("YYYY-MM-DD");
   try {
     const authorizationHeader = req.get("Authorization") as string;
     const accessToken = authorizationHeader.substr("Bearer ".length);
@@ -942,6 +943,7 @@ const editVehicleFee = async (req: Request, res: Response) => {
   const {
     id,
     is_submit,
+    add_time,
     driver,
     company,
     car_no,
@@ -966,8 +968,8 @@ const editVehicleFee = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(401).end();
   }
-  let modifySql: string = "UPDATE vehicle_fee SET is_submit = ?,driver = ?,company = ?,car_no = ?,hang_board_no = ?,type = ?,car_fees = ?,content = ?,quantity = ?,amount = ?,allocation_month = ?,allocation_start = ?,actual_amount = ?,tax_amount = ?,settlement_confirm = ?,remark = ? WHERE id = ?";
-  let modifyParams: string[] = [is_submit,driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,allocation_start,actual_amount,tax_amount,settlement_confirm,remark,id];
+  let modifySql: string = "UPDATE vehicle_fee SET is_submit = ?,add_time = ?,driver = ?,company = ?,car_no = ?,hang_board_no = ?,type = ?,car_fees = ?,content = ?,quantity = ?,amount = ?,allocation_month = ?,allocation_start = ?,actual_amount = ?,tax_amount = ?,settlement_confirm = ?,remark = ? WHERE id = ?";
+  let modifyParams: string[] = [is_submit,add_time,driver,company,car_no,hang_board_no,type,car_fees,content,quantity,amount,allocation_month,allocation_start,actual_amount,tax_amount,settlement_confirm,remark,id];
   connection.query(modifySql, modifyParams, async function (err, result) {
     if (err) {
       Logger.error(err);
