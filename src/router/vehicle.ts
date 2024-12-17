@@ -888,6 +888,7 @@ const submitVehicleFee = async (req: Request, res: Response) => {
     fee_name,
     company,
     type,
+    remark,
     is_applied
   } = req.body;
   let payload = null;
@@ -903,7 +904,7 @@ const submitVehicleFee = async (req: Request, res: Response) => {
   }
   let sql: string = `update vehicle_fee set is_submit = '已提交', is_applied = '已申请' where id in ('${id.toString().replaceAll(",", "','")}');`;
   if (is_applied == "未申请") {
-    sql += ` insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,apply_department,create_time,fee_no) values ('业务','${fee_name}','付','${type}','${amount}','${actual_amount}','${tax_amount}','${company}','${add_by}','${apply_department}','${add_time}','${fee_no}');`;
+    sql += ` insert into applied_fee (is_admin,fee_name,is_pay,pay_type,apply_amount,reimburse_amount,tax_amount,acc_company_id,apply_by,apply_department,create_time,fee_no,remark) values ('业务','${fee_name}','付','${type}','${amount}','${actual_amount}','${tax_amount}','${company}','${add_by}','${apply_department}','${add_time}','${fee_no}','${remark}');`;
     sql_i = 2;
   }
   sql += `select * from vehicle_fee where id in ('${id.toString().replaceAll(",", "','")}');`;
