@@ -648,7 +648,7 @@ const vehicleRefuelList = async (req: Request, res: Response) => {
   sql +=" order by id desc limit " + size + " offset " + size * (page - 1);
   sql +=";select COUNT(*) from vehicle_refuel where id is not null ";
   // if (form.addtime != "") { sql += " and addtime = " + "'" + form.addtime + "'" }
-  if (form.add_time_range && form.add_time_range.length > 0) { sql += " and date_format(a.addtime, '%Y-%m-%d') between " + "'" + dayjs(form.add_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.add_time_range[1]).format('YYYY-MM-DD') + "'" }
+  if (form.add_time_range && form.add_time_range.length > 0) { sql += " and date_format(addtime, '%Y-%m-%d') between " + "'" + dayjs(form.add_time_range[0]).format('YYYY-MM-DD') + "' and '" + dayjs(form.add_time_range[1]).format('YYYY-MM-DD') + "'" }
   if (form.car_no != "") { sql += " and car_no like " + "'%" + form.car_no + "%'" }
   if (form.type != "") { sql += " and type like " + "'%" + form.type + "%'" }
   if (form.city != "") { sql += " and city like " + "'%" + form.city + "%'" }
